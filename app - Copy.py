@@ -107,10 +107,10 @@ if not st.session_state.logged_in:
 # LOAD DATA (OPTIONAL)
 # ==================================
 
-data_path = "final.sheet.xlsx"
+data_path = "final.sheet.csv"
 
 if os.path.exists(data_path):
-    df = pd.read_excel(data_path)
+    df = pd.read_csv(data_path)
 else:
     df = pd.DataFrame()
 
@@ -401,3 +401,4 @@ Built using Power BI • Python • Streamlit
 
 </center>
 """, unsafe_allow_html=True)
+
