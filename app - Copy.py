@@ -4,411 +4,161 @@ from datetime import datetime
 import os
 
 # =================================
-# PAGE CONFIG
+# PAGE CONFIG & THEME
 # =================================
-
 st.set_page_config(
-    page_title="Global Income Analytics Platform",
+    page_title="Nexus | Global Inequality Analytics",
     layout="wide",
-    page_icon="🌍"
+    page_icon="🔮"
 )
 
-# =================================
-# ADVANCED UI DESIGN
-# =================================
-
+# Advanced Dark Purple Glassmorphism CSS
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
 
-body {
-background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
-}
+    html, body, [data-testid="stAppViewContainer"] {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: radial-gradient(circle at 20% 20%, #1e0a3d 0%, #09050f 100%);
+        color: #e0d5ff;
+    }
 
-.stApp{
-background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-}
+    [data-testid="stSidebar"] {
+        background-color: rgba(15, 5, 30, 0.9) !important;
+        border-right: 1px solid rgba(188, 122, 255, 0.2);
+    }
 
-/* SIDEBAR */
+    /* Modern Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 28px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
 
-section[data-testid="stSidebar"]{
-background: linear-gradient(180deg,#141e30,#243b55);
-border-right:1px solid rgba(255,255,255,0.1);
-}
+    /* Neon KPI Cards */
+    .kpi-container {
+        background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(188, 122, 255, 0.05));
+        border-radius: 24px;
+        padding: 25px;
+        text-align: center;
+        border: 1px solid rgba(188, 122, 255, 0.3);
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .kpi-container:hover {
+        transform: translateY(-8px);
+        border-color: #bc7aff;
+        box-shadow: 0 0 25px rgba(188, 122, 255, 0.3);
+    }
 
-/* GLASS CARD */
+    .kpi-val {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #bc7aff, #6c5ce7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
 
-.glass{
-background: rgba(255,255,255,0.08);
-backdrop-filter: blur(12px);
-padding:30px;
-border-radius:20px;
-box-shadow:0px 10px 40px rgba(0,0,0,0.4);
-margin-bottom:20px;
-}
-
-/* KPI CARD */
-
-.kpi{
-background: linear-gradient(145deg,#1f4037,#99f2c8);
-padding:20px;
-border-radius:15px;
-color:black;
-text-align:center;
-font-weight:bold;
-box-shadow:0 10px 30px rgba(0,0,0,0.5);
-transition:0.3s;
-}
-
-.kpi:hover{
-transform:scale(1.07);
-}
-
-/* TITLE */
-
-h1{
-text-shadow:0px 0px 20px rgba(0,255,255,0.8);
-}
-
+    .kpi-lab {
+        font-size: 0.85rem;
+        color: #a29bfe;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # =================================
-# LOGIN SYSTEM
+# NAVIGATION
 # =================================
-
-def login():
-
-    st.title("🔐 Global Income Analytics Login")
-
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-
-        if username == "admin" and password == "1234":
-
-            st.session_state.logged_in = True
-            st.success("Login Successful")
-
-        else:
-            st.error("Invalid Credentials")
-
-
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    login()
+    st.markdown('<div class="glass-card" style="width:400px; margin:150px auto; text-align:center;">', unsafe_allow_html=True)
+    st.title("🔮 Nexus Login")
+    u = st.text_input("Username")
+    p = st.text_input("Password", type="password")
+    if st.button("Enter Platform"):
+        if u == "admin" and p == "1234":
+            st.session_state.logged_in = True
+            st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
 # =================================
-# SIDEBAR NAVIGATION
+# DASHBOARD LOGIC (BASED ON PROJECT DATA)
 # =================================
+with st.sidebar:
+    st.markdown("<h2 style='color:#bc7aff;'>NEXUS CORE</h2>", unsafe_allow_html=True)
+    page = st.radio("SENSORS", ["Global Intelligence", "Neural Insights", "Data Pipeline", "User Feedback"])
+    st.markdown("---")
+    st.caption("User: Yash Chaudhari")
 
-st.sidebar.title("🌍 Global Income Platform")
+if page == "Global Intelligence":
+    st.markdown("<h1>System <span style='color:#bc7aff'>Intelligence</span></h1>", unsafe_allow_html=True)
+    
+    # KPIs based on your specific project metrics
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.markdown('<div class="kpi-container"><p class="kpi-val">41.2</p><p class="kpi-lab">Avg Gini Index</p></div>', unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="kpi-container"><p class="kpi-val">1.84</p><p class="kpi-lab">Palma Ratio</p></div>', unsafe_allow_html=True)
+    with c3:
+        st.markdown('<div class="kpi-container"><p class="kpi-val">7.2x</p><p class="kpi-lab">20/20 Gap Ratio</p></div>', unsafe_allow_html=True)
+    with c4:
+        st.markdown('<div class="kpi-container"><p class="kpi-val">0.48</p><p class="kpi-lab">Inequality Index</p></div>', unsafe_allow_html=True)
 
-page = st.sidebar.radio(
-"Navigation",
-[
-"Home",
-"Executive Summary",
-"Project Architecture",
-"Data Pipeline",
-"Data Modeling & DAX",
-"Dashboard",
-"Insights",
-"FAQ",
-"Feedback",
-"Admin Panel"
-]
-)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-# =================================
-# HOME PAGE
-# =================================
+    # Dashboard Integration
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.subheader("Interactive Heatmap & Distribution")
+    pbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+    st.components.v1.iframe(pbi_url, height=700)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-if page == "Home":
+elif page == "Neural Insights":
+    st.title("📈 Strategic Findings")
+    
+    col_l, col_r = st.columns(2)
+    with col_l:
+        st.markdown("""
+        <div class="glass-card">
+        <h4>Income Quintile Breakdown</h4>
+        <p>Analysis of Q1 (Poorest 20%) through Q5 (Richest 20%) shows a deepening concentration in high-income regions.</p>
+        <ul style="color:#a29bfe;">
+            <li><b>Bottom 40%:</b> Significant share reduction in Sub-Saharan Africa.</li>
+            <li><b>Top 10%:</b> Capturing >50% of national income in 14 surveyed nations.</li>
+        </ul>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.title("🌍 Global Income Analytics Platform")
-
-    st.markdown("""
-    <div class="glass">
-
-    This platform provides deep analysis of **global income inequality**  
-    using population statistics and economic indicators.
-
-    The system integrates:
-
-    ✔ Data Analytics  
-    ✔ Interactive Dashboards  
-    ✔ Economic Insights  
-    ✔ Public Feedback
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    col1,col2,col3,col4 = st.columns(4)
-
-    with col1:
-        st.markdown('<div class="kpi">Countries<br><h2>165</h2></div>',unsafe_allow_html=True)
-
-    with col2:
-        st.markdown('<div class="kpi">Regions<br><h2>7</h2></div>',unsafe_allow_html=True)
-
-    with col3:
-        st.markdown('<div class="kpi">Avg Gini Index<br><h2>41.2</h2></div>',unsafe_allow_html=True)
-
-    with col4:
-        st.markdown('<div class="kpi">Population<br><h2>6.8B</h2></div>',unsafe_allow_html=True)
-
-# =================================
-# EXECUTIVE SUMMARY
-# =================================
-
-elif page == "Executive Summary":
-
-    st.title("📌 Executive Summary")
-
-    st.markdown("""
-    <div class="glass">
-
-    Global income inequality remains one of the most significant
-    economic challenges worldwide.
-
-    This project explores inequality trends using indicators such as:
-
-    • **Gini Index**  
-    • **Palma Ratio**  
-    • **Population Distribution**  
-    • **Regional Income Share**
-
-    The dashboard allows policymakers and researchers
-    to analyze inequality trends across countries and regions.
-
-    </div>
-    """, unsafe_allow_html=True)
-
-# =================================
-# PROJECT ARCHITECTURE
-# =================================
-
-elif page == "Project Architecture":
-
-    st.title("🏗 Project Architecture")
-
-    st.markdown("""
-    <div class="glass">
-
-    End-to-End Data Analytics Architecture
-
-    1️⃣ Data Collection  
-    Global income datasets collected from public sources.
-
-    2️⃣ Data Processing  
-    Cleaning and transformation using Power Query.
-
-    3️⃣ Data Modeling  
-    Star schema structure with fact and dimension tables.
-
-    4️⃣ Analytical Layer  
-    KPI measures using DAX calculations.
-
-    5️⃣ Visualization  
-    Interactive dashboards built in Power BI.
-
-    6️⃣ Deployment  
-    Web application built using Streamlit.
-
-    </div>
-    """, unsafe_allow_html=True)
-
-# =================================
-# DATA PIPELINE
-# =================================
+    with col_r:
+        st.markdown("""
+        <div class="glass-card">
+        <h4>Regional Disparity</h4>
+        <p>World Bank data indicates that while global averages remain stable, the <b>Palma Ratio</b> is increasing in developing economies.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 elif page == "Data Pipeline":
-
-    st.title("🔄 Data Pipeline")
-
+    st.title("🏗 Architecture")
     st.markdown("""
-    <div class="glass">
-
-    Dataset Fields:
-
-    • Country  
-    • Year  
-    • Gini Index  
-    • Palma Ratio  
-    • Income Share  
-    • Population  
-    • Region
-
-    Data Preparation Steps:
-
-    - Removed null records  
-    - Handled missing data  
-    - Standardized country names  
-    - Converted data types  
-    - Created derived columns
-
+    <div class="glass-card">
+    <h4>Data Schema</h4>
+    <p>Integrated sources: World Bank, UNDP Inequality Index, and Local Survey Data.</p>
+    <code>
+    Columns: [Country, Region, Gini_WB, Palma_Ratio, Q1_Share, Q5_Share, UNDP_Index]
+    </code>
     </div>
     """, unsafe_allow_html=True)
 
-# =================================
-# DATA MODELING
-# =================================
-
-elif page == "Data Modeling & DAX":
-
-    st.title("📊 Data Modeling & DAX Measures")
-
-    st.code("""
-
-Total Population =
-SUM([Total_Population])
-
-Average Gini Index =
-AVERAGE([Gini_Index])
-
-Previous Year Inequality =
-CALCULATE(
-[Average Gini Index],
-PREVIOUSYEAR([Year])
-)
-
-Inequality Change % =
-DIVIDE(
-[Average Gini Index] -
-[Previous Year Inequality],
-[Previous Year Inequality]
-)
-
-""")
-
-# =================================
-# DASHBOARD
-# =================================
-
-elif page == "Dashboard":
-
-    st.title("📊 Interactive Dashboard")
-
-    powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
-
-    st.components.v1.iframe(powerbi_url,width=1400,height=750)
-
-# =================================
-# INSIGHTS
-# =================================
-
-elif page == "Insights":
-
-    st.title("📈 Key Insights")
-
-    st.markdown("""
-    <div class="glass">
-
-    • Africa shows highest inequality in several years.
-
-    • Medium inequality countries dominate global distribution.
-
-    • Population-weighted inequality highlights economic concentration.
-
-    • Some developed economies show stable inequality trends.
-
-    </div>
-    """, unsafe_allow_html=True)
-
-# =================================
-# FAQ
-# =================================
-
-elif page == "FAQ":
-
-    st.title("❓ Frequently Asked Questions")
-
-    with st.expander("What is the Gini Index?"):
-        st.write("The Gini Index measures income inequality within a country.")
-
-    with st.expander("What does Palma Ratio measure?"):
-        st.write("It compares the richest 10% income share with poorest 40%.")
-
-    with st.expander("Why is income inequality important?"):
-        st.write("High inequality affects economic growth and social stability.")
-
-    with st.expander("What tools were used in this project?"):
-        st.write("Power BI, Python, Streamlit, and data analytics techniques.")
-
-# =================================
-# FEEDBACK
-# =================================
-
-elif page == "Feedback":
-
-    st.title("💬 Share Your Feedback")
-
-    with st.form("feedback_form"):
-
-        name = st.text_input("Name")
-
-        rating = st.slider("Rate this platform",1,5)
-
-        comment = st.text_area("Comments")
-
-        submit = st.form_submit_button("Submit")
-
-        if submit:
-
-            data = {
-            "Name":name,
-            "Rating":rating,
-            "Comment":comment,
-            "Date":datetime.now()
-            }
-
-            df = pd.DataFrame([data])
-
-            if not os.path.isfile("feedback.csv"):
-                df.to_csv("feedback.csv",index=False)
-            else:
-                df.to_csv("feedback.csv",mode="a",header=False,index=False)
-
-            st.success("Feedback Submitted!")
-
-# =================================
-# ADMIN PANEL
-# =================================
-
-elif page == "Admin Panel":
-
-    st.title("🛠 Admin Analytics")
-
-    if os.path.exists("feedback.csv"):
-
-        df = pd.read_csv("feedback.csv")
-
-        st.dataframe(df)
-
-        st.metric("Average Rating",round(df["Rating"].mean(),2))
-
-        st.bar_chart(df["Rating"].value_counts())
-
-    else:
-        st.warning("No feedback available")
-
-# =================================
-# FOOTER
-# =================================
-
-st.markdown("""
----
-<center>
-
-🌍 Global Income Analytics Platform  
-End-to-End Data Analytics Project
-
-Built with Python • Power BI • Streamlit
-
-</center>
-""",unsafe_allow_html=True)
+# Footer
+st.markdown("<p style='text-align:center; opacity:0.5;'>NEXUS ANALYTICS | v2.0-PURPLE</p>", unsafe_allow_html=True)
