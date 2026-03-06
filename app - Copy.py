@@ -107,12 +107,20 @@ if not st.session_state.logged_in:
 # LOAD DATA (OPTIONAL)
 # ==================================
 
-data_path = "final.sheet.csv"
+data_path = "final_dataset.csv"
 
-if os.path.exists(data_path):
-    df = pd.read_csv(data_path)
-else:
-    df = pd.DataFrame()
+df = pd.read_csv(data_path)
+
+# clean column names
+df.columns = df.columns.str.strip().str.replace(" ", "_")
+
+# debug (optional)
+st.write("Dataset Columns:", df.columns)
+
+total_population = df["Total_Population"].sum()
+avg_gini = df["Gini_Index"].mean()
+countries = df["Country"].nunique()
+years = df["Year"].nunique()
 
 # ==================================
 # SIDEBAR NAVIGATION
@@ -401,4 +409,5 @@ Built using Power BI • Python • Streamlit
 
 </center>
 """, unsafe_allow_html=True)
+
 
