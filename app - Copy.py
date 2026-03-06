@@ -1,67 +1,66 @@
 import streamlit as st
-import pandas as pd
 from datetime import datetime
 import os
 
-# =================================
+# ==============================
 # PAGE CONFIG
-# =================================
+# ==============================
 
 st.set_page_config(
     page_title="Global Income Distribution Analytics",
-    page_icon="🌍",
-    layout="wide"
+    layout="wide",
+    page_icon="🌍"
 )
 
-# =================================
-# DARK PURPLE UI STYLE
-# =================================
+# ==============================
+# DARK PURPLE UI
+# ==============================
 
 st.markdown("""
 <style>
 
 body{
-background:linear-gradient(135deg,#14001f,#2c0054,#4b0082);
+background:linear-gradient(135deg,#12001f,#2a004f,#4b0082);
 color:white;
 }
 
 .stApp{
-background:linear-gradient(135deg,#14001f,#2c0054,#4b0082);
+background:linear-gradient(135deg,#12001f,#2a004f,#4b0082);
 }
 
 section[data-testid="stSidebar"]{
-background:linear-gradient(180deg,#1a0033,#3a0066);
+background:linear-gradient(180deg,#1b0033,#3a0066);
 }
 
-.kpi{
-background:linear-gradient(145deg,#8e2de2,#4a00e0);
+.card{
+background:linear-gradient(145deg,#6a11cb,#2575fc);
 padding:25px;
 border-radius:15px;
 text-align:center;
 font-weight:bold;
-box-shadow:0px 10px 30px rgba(0,0,0,0.5);
-margin-bottom:20px;
+box-shadow:0px 8px 30px rgba(0,0,0,0.6);
+margin-bottom:15px;
 }
 
-.glass{
+.section{
 background:rgba(255,255,255,0.05);
 backdrop-filter:blur(12px);
 padding:30px;
 border-radius:15px;
-box-shadow:0px 10px 40px rgba(0,0,0,0.6);
+box-shadow:0px 10px 40px rgba(0,0,0,0.7);
 margin-bottom:25px;
 }
 
 h1{
-text-shadow:0px 0px 20px rgba(200,0,255,0.8);
+text-shadow:0px 0px 15px #d000ff;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# =================================
+# ==============================
 # LOGIN SYSTEM
-# =================================
+# ==============================
 
 def login():
 
@@ -76,324 +75,242 @@ def login():
 
         if username == "admin" and password == "1234":
 
-            st.session_state.logged_in = True
+            st.session_state.logged = True
             st.success("Login Successful")
 
         else:
 
-            st.error("Invalid Credentials")
+            st.error("Invalid credentials")
 
 
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+if "logged" not in st.session_state:
+    st.session_state.logged = False
 
-if not st.session_state.logged_in:
+if not st.session_state.logged:
     login()
     st.stop()
 
-# =================================
-# LOAD DATASET
-# =================================
-
-data_path = "final_dataset.csv"
-
-if os.path.exists(data_path):
-
-    df = pd.read_csv(data_path)
-
-    # clean column names
-    df.columns = df.columns.str.strip().str.replace(" ", "_")
-
-else:
-
-    df = pd.DataFrame()
-
-# =================================
+# ==============================
 # SIDEBAR NAVIGATION
-# =================================
+# ==============================
 
 st.sidebar.title("🌍 Analytics Platform")
 
 page = st.sidebar.radio(
 "Navigation",
 [
-"Home",
-"Project Overview",
-"Data Pipeline",
-"Data Modeling",
+"Executive Overview",
 "Dashboard",
-"Insights",
+"Chart Explorer",
+"Dashboard Guide",
 "FAQ",
-"Feedback",
-"Admin Panel"
+"Feedback"
 ]
 )
 
-# =================================
-# HOME PAGE
-# =================================
+# ==============================
+# EXECUTIVE OVERVIEW
+# ==============================
 
-if page == "Home":
+if page == "Executive Overview":
 
     st.title("Global Income Distribution Analytics")
 
-    st.markdown("""
-    <div class="glass">
+    st.markdown('<div class="section">This platform analyzes global income inequality trends using interactive data visualizations.</div>', unsafe_allow_html=True)
 
-    This platform analyzes **global income inequality trends** using population
-    and income distribution indicators.
-
-    Key metrics analyzed:
-
-    • Gini Index  
-    • Palma Ratio  
-    • Income distribution  
-    • Population statistics  
-
-    Built using **Power BI + Streamlit**
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    if not df.empty:
-
-        total_population = int(df["Total_Population"].sum())
-        avg_gini = round(df["Gini_Index"].mean(),2)
-        countries = df["Country"].nunique()
-        years = df["Year"].nunique()
-
-    else:
-
-        total_population = "-"
-        avg_gini = "-"
-        countries = "-"
-        years = "-"
-
-    col1,col2,col3,col4 = st.columns(4)
+    col1,col2,col3,col4,col5 = st.columns(5)
 
     with col1:
-        st.markdown(f'<div class="kpi">Total Population<br><h2>{total_population}</h2></div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>62.49</h3>Inequality Range</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown(f'<div class="kpi">Average Gini Index<br><h2>{avg_gini}</h2></div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>37.52</h3>Avg Gini Index</div>', unsafe_allow_html=True)
 
     with col3:
-        st.markdown(f'<div class="kpi">Countries Analyzed<br><h2>{countries}</h2></div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>22.55</h3>Avg Inequality Index</div>', unsafe_allow_html=True)
 
     with col4:
-        st.markdown(f'<div class="kpi">Years Covered<br><h2>{years}</h2></div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>200</h3>Total Countries</div>', unsafe_allow_html=True)
 
-# =================================
-# PROJECT OVERVIEW
-# =================================
+    with col5:
+        st.markdown('<div class="card"><h3>7.85B</h3>Total Updated Population</div>', unsafe_allow_html=True)
 
-elif page == "Project Overview":
-
-    st.title("📊 Project Overview")
-
-    st.markdown("""
-    <div class="glass">
-
-    Income inequality remains one of the most critical economic challenges globally.
-
-    This project analyzes inequality patterns using data analytics
-    and visualization techniques.
-
-    **Objectives**
-
-    • Understand income disparities across regions  
-    • Identify countries with highest inequality  
-    • Analyze trends across years  
-    • Visualize population-weighted inequality  
-
-    **Technology Stack**
-
-    • Power BI – Data visualization  
-    • Python – Backend analytics  
-    • Streamlit – Web application  
-
-    </div>
-    """, unsafe_allow_html=True)
-
-# =================================
-# DATA PIPELINE
-# =================================
-
-elif page == "Data Pipeline":
-
-    st.title("🔄 Data Pipeline")
-
-    st.markdown("""
-    <div class="glass">
-
-    Dataset fields include:
-
-    • Country  
-    • Year  
-    • Gini Index  
-    • Palma Ratio  
-    • Total Population  
-    • World Bank Region  
-
-    **Cleaning Steps**
-
-    • Removed missing values  
-    • Converted data types  
-    • Standardized country names  
-    • Removed duplicates  
-    • Created calculated columns  
-
-    </div>
-    """, unsafe_allow_html=True)
-
-# =================================
-# DATA MODELING
-# =================================
-
-elif page == "Data Modeling":
-
-    st.title("📈 Power BI Data Modeling")
-
-    st.code("""
-
-Total Updated Population =
-SUM(Total_Population)
-
-Average Gini Index =
-AVERAGE(Gini_Index)
-
-Previous Year Inequality =
-CALCULATE(
-[Average Gini Index],
-PREVIOUSYEAR(Year)
-)
-
-Inequality Change % =
-DIVIDE(
-[Average Gini Index] - [Previous Year Inequality],
-[Previous Year Inequality]
-)
-
-""")
-
-# =================================
+# ==============================
 # DASHBOARD
-# =================================
+# ==============================
 
 elif page == "Dashboard":
 
-    st.title("📊 Interactive Power BI Dashboard")
+    st.title("📊 Interactive Dashboard")
 
     powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
 
     st.components.v1.iframe(powerbi_url,width=1400,height=750)
 
-# =================================
-# INSIGHTS
-# =================================
+# ==============================
+# CHART EXPLORER
+# ==============================
 
-elif page == "Insights":
+elif page == "Chart Explorer":
 
-    st.title("📊 Key Insights")
+    st.title("📊 Chart Explorer")
+
+    chart = st.selectbox(
+    "Select Chart",
+    [
+    "Country Distribution by Income Group",
+    "Richest 20% Income Share by Region",
+    "Palma Ratio by World Bank Group",
+    "Top 5 Countries by Inequality",
+    "Global Gini Index Trend",
+    "Categories by Inequality Level"
+    ])
+
+    if chart == "Country Distribution by Income Group":
+
+        st.markdown("""
+        **Purpose**
+
+        Shows how countries are distributed across income categories.
+
+        **Insights**
+
+        - High income countries represent developed economies.
+        - Lower income groups show emerging or developing economies.
+        """)
+
+    elif chart == "Richest 20% Income Share by Region":
+
+        st.markdown("""
+        **Purpose**
+
+        Shows how much income the richest 20% control in each region.
+
+        **Insight**
+
+        Regions with higher values indicate stronger wealth concentration.
+        """)
+
+    elif chart == "Palma Ratio by World Bank Group":
+
+        st.markdown("""
+        **Purpose**
+
+        Palma Ratio compares the richest 10% income to the poorest 40%.
+
+        **Insight**
+
+        Higher ratio = greater inequality.
+        """)
+
+    elif chart == "Top 5 Countries by Inequality":
+
+        st.markdown("""
+        **Purpose**
+
+        Identifies countries with the highest income inequality.
+
+        **Insight**
+
+        These countries require economic policy interventions.
+        """)
+
+    elif chart == "Global Gini Index Trend":
+
+        st.markdown("""
+        **Purpose**
+
+        Shows inequality trend across decades.
+
+        **Insight**
+
+        Helps analyze how global inequality evolved historically.
+        """)
+
+    elif chart == "Categories by Inequality Level":
+
+        st.markdown("""
+        **Purpose**
+
+        Groups countries into inequality levels.
+
+        **Insight**
+
+        Medium inequality category contains most countries.
+        """)
+
+# ==============================
+# DASHBOARD GUIDE
+# ==============================
+
+elif page == "Dashboard Guide":
+
+    st.title("📘 Dashboard Guide")
 
     st.markdown("""
-    <div class="glass">
+    **How to Use the Dashboard**
 
-    Major insights from the analysis:
+    1. Use filters at the top to select region or year.
+    2. Hover over charts to see detailed values.
+    3. Click charts to filter other visuals.
+    4. Compare regions using bar charts.
+    5. Track historical inequality using the trend chart.
 
-    • Several countries in Africa show higher inequality levels  
-    • Majority of countries fall into medium inequality category  
-    • Population-weighted inequality highlights economic concentration  
-    • Developed regions show relatively stable inequality trends  
+    **Main Metrics**
 
-    </div>
-    """, unsafe_allow_html=True)
+    • Gini Index – inequality indicator  
+    • Palma Ratio – wealth distribution measure  
+    • Income Share – income concentration  
+    """)
 
-# =================================
+# ==============================
 # FAQ
-# =================================
+# ==============================
 
 elif page == "FAQ":
 
-    st.title("❓ Frequently Asked Questions")
+    st.title("FAQ")
 
-    with st.expander("What is the Gini Index?"):
-        st.write("The Gini Index measures income inequality within a country.")
+    with st.expander("What is Gini Index?"):
+        st.write("The Gini Index measures income inequality.")
 
-    with st.expander("What does Palma Ratio measure?"):
-        st.write("It compares income share of richest 10% with poorest 40%.")
+    with st.expander("What is Palma Ratio?"):
+        st.write("Palma ratio compares richest 10% to poorest 40% income share.")
 
-    with st.expander("Why is income inequality important?"):
-        st.write("High inequality can affect economic growth and social stability.")
+    with st.expander("Why analyze income inequality?"):
+        st.write("It helps policymakers understand economic disparities.")
 
-# =================================
+# ==============================
 # FEEDBACK
-# =================================
+# ==============================
 
 elif page == "Feedback":
 
-    st.title("💬 Share Your Feedback")
+    st.title("Feedback")
 
-    with st.form("feedback_form"):
+    with st.form("feedback"):
 
-        name = st.text_input("Your Name")
-        rating = st.slider("Rate this project",1,5)
+        name = st.text_input("Name")
+        rating = st.slider("Rating",1,5)
         comment = st.text_area("Comments")
 
         submit = st.form_submit_button("Submit")
 
         if submit:
 
-            data = {
-            "Name":name,
-            "Rating":rating,
-            "Comment":comment,
-            "Date":datetime.now()
-            }
+            data = f"{name},{rating},{comment},{datetime.now()}\n"
 
-            df_new = pd.DataFrame([data])
-
-            if not os.path.isfile("feedback.csv"):
-                df_new.to_csv("feedback.csv",index=False)
-            else:
-                df_new.to_csv("feedback.csv",mode="a",header=False,index=False)
+            with open("feedback.txt","a") as f:
+                f.write(data)
 
             st.success("Thank you for your feedback!")
 
-# =================================
-# ADMIN PANEL
-# =================================
-
-elif page == "Admin Panel":
-
-    st.title("🛠 Admin Panel")
-
-    if os.path.exists("feedback.csv"):
-
-        df_feedback = pd.read_csv("feedback.csv")
-
-        st.dataframe(df_feedback)
-
-        st.metric("Average Rating",round(df_feedback["Rating"].mean(),2))
-
-        st.bar_chart(df_feedback["Rating"].value_counts())
-
-    else:
-
-        st.warning("No feedback data yet")
-
-# =================================
+# ==============================
 # FOOTER
-# =================================
+# ==============================
 
 st.markdown("""
 ---
-<center>
-
 Global Income Distribution Analytics Platform  
-End-to-End Data Analytics Project  
-
-Built with Power BI • Python • Streamlit
-
-</center>
-""", unsafe_allow_html=True)
+Built using Power BI + Streamlit
+""")
