@@ -1,9 +1,11 @@
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 from datetime import datetime
 
-# ---------------------------------------------------
+# -------------------------------------------------------
 # PAGE CONFIG
-# ---------------------------------------------------
+# -------------------------------------------------------
 
 st.set_page_config(
     page_title="Global Income Distribution Analytics",
@@ -11,9 +13,9 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------------------------------------------
-# ADVANCED DARK PURPLE UI
-# ---------------------------------------------------
+# -------------------------------------------------------
+# ADVANCED UI STYLE
+# -------------------------------------------------------
 
 st.markdown("""
 <style>
@@ -61,9 +63,9 @@ margin-bottom:25px;
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------
+# -------------------------------------------------------
 # LOGIN SYSTEM
-# ---------------------------------------------------
+# -------------------------------------------------------
 
 def login():
 
@@ -75,10 +77,8 @@ def login():
     if st.button("Login"):
 
         if username == "admin" and password == "1234":
-
             st.session_state.logged = True
             st.success("Login successful")
-
         else:
             st.error("Invalid login")
 
@@ -90,9 +90,9 @@ if not st.session_state.logged:
     login()
     st.stop()
 
-# ---------------------------------------------------
+# -------------------------------------------------------
 # SIDEBAR NAVIGATION
-# ---------------------------------------------------
+# -------------------------------------------------------
 
 st.sidebar.title("🌍 Analytics Platform")
 
@@ -101,29 +101,29 @@ page = st.sidebar.radio(
 [
 "Executive Overview",
 "Interactive Dashboard",
-"Charts Explanation",
+"Global Inequality Map",
+"Country Comparison",
 "Leaderboard",
 "Country Explorer",
+"Data Analytics",
+"Charts Explanation",
 "Dashboard Guide",
 "FAQ",
 "Feedback"
 ]
 )
 
-# ---------------------------------------------------
+# -------------------------------------------------------
 # EXECUTIVE OVERVIEW
-# ---------------------------------------------------
+# -------------------------------------------------------
 
 if page == "Executive Overview":
 
     st.title("Global Income Distribution Analytics")
 
     st.markdown("""
-This platform analyzes **global income inequality and population distribution**  
-using indicators such as **Gini Index, Palma Ratio, and Income Share**.
-
-The project combines **data analytics, visualization, and economic insights**
-to understand inequality trends worldwide.
+This platform analyzes **global income inequality** using economic indicators
+like **Gini Index, Palma Ratio, and Income Distribution Metrics**.
 """)
 
     col1,col2,col3,col4,col5 = st.columns(5)
@@ -135,259 +135,218 @@ to understand inequality trends worldwide.
         st.markdown('<div class="card"><h3>37.52</h3>Average Gini Index</div>',unsafe_allow_html=True)
 
     with col3:
-        st.markdown('<div class="card"><h3>22.55</h3>Average Inequality Index</div>',unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>22.55</h3>Inequality Index</div>',unsafe_allow_html=True)
 
     with col4:
         st.markdown('<div class="card"><h3>200</h3>Total Countries</div>',unsafe_allow_html=True)
 
     with col5:
-        st.markdown('<div class="card"><h3>7.85B</h3>Total Population</div>',unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>7.85B</h3>World Population</div>',unsafe_allow_html=True)
 
-    st.markdown("### Key Objectives")
+    st.subheader("Global Inequality Trend")
 
-    st.write("""
-• Analyze global inequality trends  
-• Identify countries with high inequality  
-• Compare regions and income groups  
-• Generate economic insights
-""")
+    years=[2016,2017,2018,2019,2020,2021,2022,2023]
+    gini=[38,37.5,37.6,37.3,37.2,37.4,37.5,37.6]
+
+    fig=px.line(x=years,y=gini,labels={"x":"Year","y":"Gini Index"})
+    st.plotly_chart(fig,use_container_width=True)
 
     if st.button("Generate Insights"):
 
         st.markdown("""
 ### Automated Insights
 
-• Global inequality remains **high in developing regions**
-
-• Latin America and Africa show **higher Gini values**
-
-• Developed economies tend to show **lower inequality**
-
-• Economic growth alone does not guarantee equality
+• Global inequality remains high in developing regions  
+• Latin America and Africa show higher Gini values  
+• Developed countries tend to have lower inequality  
 """)
 
-# ---------------------------------------------------
-# INTERACTIVE DASHBOARD
-# ---------------------------------------------------
+# -------------------------------------------------------
+# POWER BI DASHBOARD
+# -------------------------------------------------------
 
 elif page == "Interactive Dashboard":
 
     st.title("📊 Global Income Dashboard")
 
-    st.markdown("""
-The dashboard below provides an **interactive view of global income inequality**.
-
-You can filter by:
-
-• Income group  
-• Region  
-• Year  
-• Country
-""")
-
-    powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
 
     st.components.v1.iframe(powerbi_url,width=1400,height=800)
 
-# ---------------------------------------------------
-# CHART EXPLANATIONS
-# ---------------------------------------------------
+# -------------------------------------------------------
+# GLOBAL MAP
+# -------------------------------------------------------
 
-elif page == "Charts Explanation":
+elif page == "Global Inequality Map":
 
-    st.title("📊 Chart Explanations")
+    st.title("🌍 Global Inequality Map")
 
-    chart = st.selectbox(
-    "Select Chart",
-    [
-    "Income Group Distribution",
-    "Richest 20% Income Share",
-    "Palma Ratio",
-    "Top Inequality Countries",
-    "Global Gini Trend"
-    ])
+    data={
+    "Country":["United States","India","Brazil","South Africa","Germany","Japan"],
+    "ISO":["USA","IND","BRA","ZAF","DEU","JPN"],
+    "Gini":[41,35,53,63,31,32]
+    }
 
-    if chart == "Income Group Distribution":
+    df=pd.DataFrame(data)
 
-        st.write("""
-Shows how countries are distributed across income groups:
+    fig=px.choropleth(
+        df,
+        locations="ISO",
+        color="Gini",
+        hover_name="Country",
+        color_continuous_scale="reds"
+    )
 
-• High income  
-• Upper middle income  
-• Lower middle income  
-• Low income
-""")
+    st.plotly_chart(fig,use_container_width=True)
 
-    elif chart == "Richest 20% Income Share":
+# -------------------------------------------------------
+# COUNTRY COMPARISON
+# -------------------------------------------------------
 
-        st.write("""
-Shows the percentage of national income held by the **richest 20%**.
-Higher percentages indicate stronger wealth concentration.
-""")
+elif page == "Country Comparison":
 
-    elif chart == "Palma Ratio":
+    st.title("📊 Country Comparison")
 
-        st.write("""
-Palma Ratio compares the income share of the richest 10% with
-the poorest 40% of the population.
-""")
+    countries=["USA","India","Brazil","Germany","Japan"]
 
-    elif chart == "Top Inequality Countries":
+    c1=st.selectbox("Country 1",countries)
+    c2=st.selectbox("Country 2",countries,index=1)
 
-        st.write("""
-This chart identifies countries with the **highest inequality levels globally**.
-""")
+    data={
+    "Country":[c1,c2],
+    "Gini":[41,35]
+    }
 
-    elif chart == "Global Gini Trend":
+    df=pd.DataFrame(data)
 
-        st.write("""
-Shows how global inequality levels have changed over time.
-""")
+    fig=px.bar(df,x="Country",y="Gini",color="Country")
+    st.plotly_chart(fig)
 
-# ---------------------------------------------------
+# -------------------------------------------------------
 # LEADERBOARD
-# ---------------------------------------------------
+# -------------------------------------------------------
 
-elif page == "Leaderboard":
+elif page=="Leaderboard":
 
     st.title("🏆 Global Inequality Leaderboard")
 
-    countries = [
-    ("South Africa",63),
-    ("Brazil",53),
-    ("Colombia",52),
-    ("Panama",51),
-    ("Chile",50)
-    ]
+    data={
+    "Country":["South Africa","Brazil","Colombia","Panama","Chile"],
+    "Gini":[63,53,52,51,50]
+    }
 
-    for rank,(country,value) in enumerate(countries,start=1):
+    df=pd.DataFrame(data)
 
-        st.markdown(f"""
-        <div class="section">
-        <h3>#{rank} {country}</h3>
-        <p>Gini Index: {value}</p>
-        </div>
-        """,unsafe_allow_html=True)
+    st.table(df)
 
-# ---------------------------------------------------
+    fig=px.bar(df,x="Country",y="Gini",color="Country")
+    st.plotly_chart(fig)
+
+# -------------------------------------------------------
 # COUNTRY EXPLORER
-# ---------------------------------------------------
+# -------------------------------------------------------
 
-elif page == "Country Explorer":
+elif page=="Country Explorer":
 
-    st.title("🌍 Country Inequality Explorer")
+    st.title("🌍 Country Explorer")
 
-    country = st.selectbox(
+    country=st.selectbox(
     "Select Country",
-    [
-    "United States",
-    "India",
-    "Brazil",
-    "South Africa",
-    "Germany",
-    "Japan"
-    ])
+    ["USA","India","Brazil","Germany","Japan"]
+    )
 
-    if country == "United States":
+    if country=="USA":
+        st.write("Gini Index: 41")
 
-        st.write("""
-Gini Index: 41  
-Income Group: High Income
-""")
+    elif country=="India":
+        st.write("Gini Index: 35")
 
-    elif country == "India":
+    elif country=="Brazil":
+        st.write("Gini Index: 53")
 
-        st.write("""
-Gini Index: 35  
-Income Group: Lower Middle Income
-""")
+# -------------------------------------------------------
+# DATA ANALYTICS
+# -------------------------------------------------------
 
-    elif country == "Brazil":
+elif page=="Data Analytics":
 
-        st.write("""
-Gini Index: 53  
-Income Group: Upper Middle Income
-""")
+    st.title("📊 Dataset Analytics")
 
-    elif country == "South Africa":
+    data={
+    "Country":["USA","India","Brazil","Germany","Japan"],
+    "Gini":[41,35,53,31,32],
+    "GDP":[70000,2400,9000,52000,41000]
+    }
 
-        st.write("""
-Gini Index: 63  
-Income Group: Upper Middle Income
-""")
+    df=pd.DataFrame(data)
 
-    elif country == "Germany":
+    st.dataframe(df)
 
-        st.write("""
-Gini Index: 31  
-Income Group: High Income
-""")
+    st.write(df.describe())
 
-    elif country == "Japan":
+    fig=px.scatter(df,x="GDP",y="Gini",text="Country")
+    st.plotly_chart(fig)
 
-        st.write("""
-Gini Index: 32  
-Income Group: High Income
-""")
+# -------------------------------------------------------
+# CHART EXPLANATION
+# -------------------------------------------------------
 
-# ---------------------------------------------------
-# DASHBOARD GUIDE
-# ---------------------------------------------------
+elif page=="Charts Explanation":
 
-elif page == "Dashboard Guide":
-
-    st.title("📘 Dashboard Guide")
+    st.title("Chart Explanation")
 
     st.write("""
-### Filters
-Use filters to analyze specific regions and income groups.
-
-### KPI Cards
-Provide summary metrics for global inequality.
-
-### Charts
-Visualize trends, comparisons, and distributions.
-
-### Insights
-Combine charts and filters to generate economic insights.
+Charts explain global inequality trends, income distribution,
+and country comparisons using economic indicators.
 """)
 
-# ---------------------------------------------------
+# -------------------------------------------------------
+# DASHBOARD GUIDE
+# -------------------------------------------------------
+
+elif page=="Dashboard Guide":
+
+    st.title("Dashboard Guide")
+
+    st.write("""
+1. Use filters to select regions or income groups  
+2. Explore charts for insights  
+3. Compare countries for analysis  
+""")
+
+# -------------------------------------------------------
 # FAQ
-# ---------------------------------------------------
+# -------------------------------------------------------
 
-elif page == "FAQ":
+elif page=="FAQ":
 
-    st.title("Frequently Asked Questions")
+    st.title("FAQ")
 
-    with st.expander("What is the Gini Index?"):
-        st.write("The Gini Index measures inequality in income distribution.")
+    with st.expander("What is Gini Index?"):
+        st.write("A measure of income inequality.")
 
     with st.expander("What is Palma Ratio?"):
-        st.write("Palma Ratio compares richest 10% income vs poorest 40%.")
+        st.write("Richest 10% vs poorest 40% income share.")
 
-    with st.expander("Why is inequality important?"):
-        st.write("High inequality can impact economic growth and social stability.")
-
-# ---------------------------------------------------
+# -------------------------------------------------------
 # FEEDBACK
-# ---------------------------------------------------
+# -------------------------------------------------------
 
-elif page == "Feedback":
+elif page=="Feedback":
 
     st.title("User Feedback")
 
     with st.form("feedback"):
 
-        name = st.text_input("Name")
-        rating = st.slider("Rating",1,5)
-        comment = st.text_area("Comment")
+        name=st.text_input("Name")
+        rating=st.slider("Rating",1,5)
+        comment=st.text_area("Comment")
 
-        submit = st.form_submit_button("Submit")
+        submit=st.form_submit_button("Submit")
 
         if submit:
 
             with open("feedback.txt","a") as f:
                 f.write(f"{name},{rating},{comment},{datetime.now()}\n")
 
-            st.success("Thank you for your feedback!")
+            st.success("Feedback submitted")
