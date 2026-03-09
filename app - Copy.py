@@ -1,106 +1,59 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from reportlab.pdfgen import canvas
+import numpy as np
 import io
 
 st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
-# ---------------- ADVANCED 3D UI STYLE ---------------- #
+# ---------------------------------------------------
+# GLOBAL STYLE
+# ---------------------------------------------------
 
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
-
-html, body, [class*="css"] {
-    font-family: 'Poppins', sans-serif;
-}
-
-/* Background */
-
 .stApp{
 background: linear-gradient(135deg,#09001f,#14003d,#24005f);
 color:white;
+font-family: 'Segoe UI';
 }
 
-/* Title */
-
-.main-title{
-font-size:48px;
+.title{
+font-size:45px;
 font-weight:700;
 text-align:center;
 background: linear-gradient(90deg,#a855f7,#6366f1);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
-margin-bottom:20px;
 }
 
-/* Glass Cards */
-
-.card{
-background: rgba(255,255,255,0.05);
-backdrop-filter: blur(15px);
-border-radius:18px;
-padding:25px;
-box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-transition:0.4s;
-}
-
-.card:hover{
-transform: translateY(-8px) scale(1.02);
-box-shadow:0 20px 60px rgba(120,0,255,0.6);
-}
-
-/* Metrics */
-
-.metric-card{
-background:linear-gradient(145deg,#2b0a68,#1a0440);
-border-radius:16px;
-padding:25px;
+.metric{
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:15px;
 text-align:center;
 box-shadow:0 10px 40px rgba(0,0,0,0.7);
 }
 
-/* Buttons */
-
 .stButton>button{
 background:linear-gradient(90deg,#7c3aed,#6366f1);
 border:none;
-border-radius:12px;
-padding:10px 30px;
+border-radius:10px;
+padding:8px 25px;
 color:white;
-font-weight:bold;
-transition:0.3s;
-}
-
-.stButton>button:hover{
-transform:scale(1.05);
-box-shadow:0 0 20px #7c3aed;
-}
-
-/* Sidebar */
-
-section[data-testid="stSidebar"]{
-background:linear-gradient(180deg,#0d0028,#14003d);
-border-right:1px solid rgba(255,255,255,0.1);
-}
-
-/* Filter container */
-
-.filter-box{
-background:rgba(255,255,255,0.06);
-padding:15px;
-border-radius:15px;
-box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- LOAD DATA ---------------- #
+# ---------------------------------------------------
+# LOAD DATA
+# ---------------------------------------------------
 
 @st.cache_data
 def load_data():
@@ -111,150 +64,226 @@ df = load_data()
 numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
 categorical_cols = df.select_dtypes(include=["object"]).columns
 
-
-# ---------------- LOGIN ---------------- #
+# ---------------------------------------------------
+# LOGIN SYSTEM
+# ---------------------------------------------------
 
 if "login" not in st.session_state:
     st.session_state.login=False
 
 if not st.session_state.login:
 
-    st.markdown("<div class='main-title'>🌍 Global Income Intelligence</div>", unsafe_allow_html=True)
+    st.markdown("<div class='title'>🌍 Global Income Intelligence</div>",unsafe_allow_html=True)
 
-    col1,col2,col3 = st.columns([1,2,1])
+    user = st.text_input("Username")
+    pw = st.text_input("Password", type="password")
 
-    with col2:
+    if st.button("Login"):
 
-        st.markdown("<div class='card'>",unsafe_allow_html=True)
-
-        user = st.text_input("👤 Username")
-        pw = st.text_input("🔑 Password", type="password")
-
-        if st.button("🚀 Login"):
-            if user=="admin" and pw=="1234":
-                st.session_state.login=True
-                st.rerun()
-            else:
-                st.error("Invalid credentials")
-
-        st.markdown("</div>",unsafe_allow_html=True)
+        if user=="admin" and pw=="1234":
+            st.session_state.login=True
+            st.rerun()
+        else:
+            st.error("Invalid Login")
 
     st.stop()
 
-# ---------------- SIDEBAR ---------------- #
+# ---------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------
 
-st.sidebar.title("🚀 Navigation")
+menu = st.sidebar.selectbox("Navigation",[
 
-menu = st.sidebar.radio(
-"",
-[
-"📊 Executive Dashboard",
-"📈 Power BI Dashboard",
-"🔎 Dataset Explorer",
-"📉 Interactive Charts",
-"🌎 Country Analysis",
-"🤖 ML Prediction",
-"🧠 ML Forecast",
-"📄 Generate Report",
-"ℹ️ About"
-]
-)
+"Executive Dashboard",
+"Power BI Dashboard",
+"Dataset Explorer",
+"Advanced Charts",
+"Country Analysis",
+"Machine Learning Prediction",
+"AI Forecasting",
+"Generate PDF Report",
+"About"
 
-# ---------------- EXECUTIVE DASHBOARD ---------------- #
+])
 
-if menu=="📊 Executive Dashboard":
+# ---------------------------------------------------
+# EXECUTIVE DASHBOARD
+# ---------------------------------------------------
 
-    st.markdown("<div class='main-title'>Executive Analytics Dashboard</div>",unsafe_allow_html=True)
+if menu=="Executive Dashboard":
+
+    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
 
     col1,col2,col3 = st.columns(3)
 
     with col1:
-        st.markdown(f"""
-        <div class="metric-card">
-        <h3>Rows</h3>
-        <h1>{df.shape[0]}</h1>
-        </div>
-        """,unsafe_allow_html=True)
+        st.metric("Rows", df.shape[0])
 
     with col2:
-        st.markdown(f"""
-        <div class="metric-card">
-        <h3>Columns</h3>
-        <h1>{df.shape[1]}</h1>
-        </div>
-        """,unsafe_allow_html=True)
+        st.metric("Columns", df.shape[1])
 
     with col3:
-        st.markdown(f"""
-        <div class="metric-card">
-        <h3>Numeric Variables</h3>
-        <h1>{len(numeric_cols)}</h1>
-        </div>
-        """,unsafe_allow_html=True)
+        st.metric("Numeric Variables", len(numeric_cols))
 
     if len(numeric_cols)>0:
 
         fig = px.histogram(
             df,
             x=numeric_cols[0],
-            color_discrete_sequence=["#8b5cf6"]
+            nbins=40,
+            color_discrete_sequence=["#8b5cf6"],
+            template="plotly_dark"
         )
 
         st.plotly_chart(fig,use_container_width=True)
 
-# ---------------- POWER BI ---------------- #
+# ---------------------------------------------------
+# POWER BI
+# ---------------------------------------------------
 
-elif menu=="📈 Power BI Dashboard":
+elif menu=="Power BI Dashboard":
 
-    st.markdown("<div class='main-title'>Power BI Embedded Dashboard</div>",unsafe_allow_html=True)
+    st.title("Power BI Dashboard")
 
-    powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
 
     st.components.v1.iframe(powerbi_url,height=700)
 
-# ---------------- DATA EXPLORER ---------------- #
+# ---------------------------------------------------
+# DATASET EXPLORER
+# ---------------------------------------------------
 
-elif menu=="🔎 Dataset Explorer":
+elif menu=="Dataset Explorer":
 
-    st.markdown("<div class='main-title'>Dataset Explorer</div>",unsafe_allow_html=True)
+    st.title("Dataset Explorer")
 
-    st.dataframe(df,use_container_width=True)
-
-    st.markdown("<div class='filter-box'>",unsafe_allow_html=True)
+    st.dataframe(df)
 
     column = st.selectbox("Select Column", df.columns)
 
     st.write(df[column].describe())
 
-    st.markdown("</div>",unsafe_allow_html=True)
+# ---------------------------------------------------
+# ADVANCED CHARTS
+# ---------------------------------------------------
 
-# ---------------- INTERACTIVE CHARTS ---------------- #
+elif menu=="Advanced Charts":
 
-elif menu=="📉 Interactive Charts":
+    st.title("Advanced Plotly Visualizations")
 
-    st.markdown("<div class='main-title'>Interactive Visualizations</div>",unsafe_allow_html=True)
+    chart = st.selectbox("Choose Chart",[
+        "3D Scatter",
+        "Animated Scatter",
+        "Bubble Chart",
+        "Radar Chart",
+        "Correlation Heatmap",
+        "3D Surface"
+    ])
 
-    st.markdown("<div class='filter-box'>",unsafe_allow_html=True)
+    if chart=="3D Scatter":
 
-    x = st.selectbox("X Axis", numeric_cols)
-    y = st.selectbox("Y Axis", numeric_cols)
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+        z = st.selectbox("Z Axis", numeric_cols)
 
-    st.markdown("</div>",unsafe_allow_html=True)
+        fig = go.Figure(data=[go.Scatter3d(
+            x=df[x],
+            y=df[y],
+            z=df[z],
+            mode='markers',
+            marker=dict(
+                size=6,
+                color=df[z],
+                colorscale='Plasma',
+                opacity=0.8
+            )
+        )])
 
-    fig = px.scatter(
-        df,
-        x=x,
-        y=y,
-        color_discrete_sequence=["#a855f7"]
-    )
+        fig.update_layout(template="plotly_dark")
 
-    st.plotly_chart(fig,use_container_width=True)
+        st.plotly_chart(fig,use_container_width=True)
 
-# ---------------- COUNTRY ANALYSIS ---------------- #
+    elif chart=="Animated Scatter":
 
-elif menu=="🌎 Country Analysis":
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
 
-    st.markdown("<div class='main-title'>Country Level Analysis</div>",unsafe_allow_html=True)
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            size=numeric_cols[0],
+            color=numeric_cols[0],
+            animation_frame=df.index,
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Bubble Chart":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            size=numeric_cols[0],
+            color=numeric_cols[0],
+            hover_data=df.columns,
+            color_continuous_scale="Rainbow",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Radar Chart":
+
+        sample = df[numeric_cols].mean()
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatterpolar(
+            r=sample.values,
+            theta=sample.index,
+            fill='toself'
+        ))
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Correlation Heatmap":
+
+        corr = df[numeric_cols].corr()
+
+        fig = px.imshow(
+            corr,
+            text_auto=True,
+            color_continuous_scale="Inferno",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="3D Surface":
+
+        z = np.outer(df[numeric_cols[0]][:50], df[numeric_cols[1]][:50])
+
+        fig = go.Figure(data=[go.Surface(z=z, colorscale='Viridis')])
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+# ---------------------------------------------------
+# COUNTRY ANALYSIS
+# ---------------------------------------------------
+
+elif menu=="Country Analysis":
+
+    st.title("Country Analysis")
 
     country_cols=[c for c in df.columns if "country" in c.lower()]
 
@@ -268,15 +297,22 @@ elif menu=="🌎 Country Analysis":
 
         st.dataframe(filtered)
 
-        fig = px.bar(filtered,y=numeric_cols[0],color_discrete_sequence=["#6366f1"])
+        fig = px.bar(
+            filtered,
+            y=numeric_cols[0],
+            color_discrete_sequence=["#6366f1"],
+            template="plotly_dark"
+        )
 
         st.plotly_chart(fig,use_container_width=True)
 
-# ---------------- ML PREDICTION ---------------- #
+# ---------------------------------------------------
+# ML PREDICTION
+# ---------------------------------------------------
 
-elif menu=="🤖 ML Prediction":
+elif menu=="Machine Learning Prediction":
 
-    st.markdown("<div class='main-title'>Machine Learning Prediction</div>",unsafe_allow_html=True)
+    st.title("Machine Learning Prediction")
 
     target = st.selectbox("Target Variable", numeric_cols)
 
@@ -286,14 +322,15 @@ elif menu=="🤖 ML Prediction":
     y=df[target].fillna(0)
 
     model=LinearRegression()
+
     model.fit(X,y)
 
     inputs=[]
 
-    st.subheader("Enter Feature Values")
-
     for col in features:
-        val = st.number_input(col,value=float(X[col].mean()))
+
+        val=st.number_input(col,value=float(X[col].mean()))
+
         inputs.append(val)
 
     if st.button("Predict"):
@@ -302,11 +339,13 @@ elif menu=="🤖 ML Prediction":
 
         st.success(f"Predicted {target}: {prediction}")
 
-# ---------------- ML FORECAST ---------------- #
+# ---------------------------------------------------
+# AI FORECAST
+# ---------------------------------------------------
 
-elif menu=="🧠 ML Forecast":
+elif menu=="AI Forecasting":
 
-    st.markdown("<div class='main-title'>AI Forecasting Engine</div>",unsafe_allow_html=True)
+    st.title("AI Forecasting")
 
     target = st.selectbox("Target Variable", numeric_cols)
 
@@ -316,12 +355,15 @@ elif menu=="🧠 ML Forecast":
     y=df[target].fillna(0)
 
     model=RandomForestRegressor()
+
     model.fit(X,y)
 
     inputs=[]
 
     for col in features:
-        val = st.number_input(col,value=float(X[col].mean()))
+
+        val=st.number_input(col,value=float(X[col].mean()))
+
         inputs.append(val)
 
     if st.button("Forecast"):
@@ -330,13 +372,15 @@ elif menu=="🧠 ML Forecast":
 
         st.success(f"Forecasted {target}: {prediction}")
 
-# ---------------- REPORT ---------------- #
+# ---------------------------------------------------
+# PDF REPORT
+# ---------------------------------------------------
 
-elif menu=="📄 Generate Report":
+elif menu=="Generate PDF Report":
 
-    st.markdown("<div class='main-title'>Generate Analytics Report</div>",unsafe_allow_html=True)
+    st.title("Generate Report")
 
-    if st.button("Generate PDF"):
+    if st.button("Create PDF"):
 
         buffer = io.BytesIO()
 
@@ -348,21 +392,27 @@ elif menu=="📄 Generate Report":
 
         pdf.save()
 
-        st.download_button("Download PDF",buffer.getvalue(),"report.pdf")
+        st.download_button(
+            "Download PDF",
+            buffer.getvalue(),
+            "report.pdf",
+            "application/pdf"
+        )
 
-# ---------------- ABOUT ---------------- #
+# ---------------------------------------------------
+# ABOUT
+# ---------------------------------------------------
 
-elif menu=="ℹ️ About":
-
-    st.markdown("<div class='main-title'>About Platform</div>",unsafe_allow_html=True)
+elif menu=="About":
 
     st.write("""
-    This platform provides **advanced analytics for global income distribution.**
+Advanced analytics platform for **income distribution dataset**.
 
-    Features include:
-    - Interactive dashboards
-    - Embedded Power BI reports
-    - Machine learning prediction
-    - AI forecasting
-    - PDF analytics reports
-    """)
+Features:
+• 3D data visualizations  
+• Animated charts  
+• Machine learning prediction  
+• AI forecasting  
+• Embedded Power BI  
+• PDF analytics report
+""")
