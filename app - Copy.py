@@ -1,27 +1,28 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
+from sklearn.ensemble import IsolationForest, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from reportlab.pdfgen import canvas
+import time
 import io
 
-st.set_page_config(page_title="Global Intelligence Platform", layout="wide")
+st.set_page_config(page_title="Enterprise Data Intelligence Platform", layout="wide")
 
 # --------------------------------------------------
-# ULTRA GLASSMORPHISM UI
+# GLASSMORPHISM UI
 # --------------------------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background:linear-gradient(135deg,#070020,#120038,#1b0052);
+background:linear-gradient(135deg,#050018,#0d0030,#1b0048);
 color:white;
 font-family:Segoe UI;
 }
@@ -39,15 +40,15 @@ background:linear-gradient(90deg,#a855f7,#6366f1);
 background:rgba(255,255,255,0.05);
 backdrop-filter:blur(15px);
 padding:20px;
-border-radius:18px;
+border-radius:20px;
 box-shadow:0 10px 40px rgba(0,0,0,0.7);
 }
 
 .stButton>button{
 background:linear-gradient(90deg,#7c3aed,#6366f1);
 border:none;
-border-radius:12px;
-padding:10px 25px;
+border-radius:10px;
+padding:8px 25px;
 color:white;
 }
 
@@ -80,7 +81,7 @@ if "login" not in st.session_state:
 
 if not st.session_state.login:
 
-    st.markdown("<div class='title'>🌍 Global Intelligence Platform</div>",unsafe_allow_html=True)
+    st.markdown("<div class='title'>🌍 Enterprise Data Intelligence</div>",unsafe_allow_html=True)
 
     user = st.text_input("Username")
     pw = st.text_input("Password", type="password")
@@ -96,10 +97,10 @@ if not st.session_state.login:
     st.stop()
 
 # --------------------------------------------------
-# PROFESSIONAL FILTER PANEL
+# FILTER PANEL
 # --------------------------------------------------
 
-st.sidebar.title("🎛️ Global Filters")
+st.sidebar.title("🎛️ Data Filters")
 
 filtered_df = df.copy()
 
@@ -111,17 +112,17 @@ for col in categorical_cols[:3]:
         filtered_df = filtered_df[filtered_df[col].isin(values)]
 
 # --------------------------------------------------
-# SIDEBAR NAVIGATION
+# NAVIGATION
 # --------------------------------------------------
 
 menu = st.sidebar.selectbox("Navigation",[
 
-"Executive Dashboard",
-"3D World Map",
-"Animated Time Series",
-"Advanced Charts",
-"AI Insights",
+"Live KPI Dashboard",
+"3D Globe Map",
+"Animated Analytics",
+"Auto Anomaly Detection",
 "Auto ML Prediction",
+"AI Data Analyst",
 "Power BI Dashboard",
 "Generate PDF Report",
 "About"
@@ -129,46 +130,40 @@ menu = st.sidebar.selectbox("Navigation",[
 ])
 
 # --------------------------------------------------
-# EXECUTIVE DASHBOARD
+# LIVE KPI STREAMING
 # --------------------------------------------------
 
-if menu=="Executive Dashboard":
+if menu=="Live KPI Dashboard":
 
-    st.markdown("<div class='title'>Executive Analytics</div>",unsafe_allow_html=True)
+    st.markdown("<div class='title'>⚡ Live KPI Dashboard</div>",unsafe_allow_html=True)
 
-    col1,col2,col3 = st.columns(3)
+    kpi1,kpi2,kpi3 = st.columns(3)
 
-    with col1:
-        st.metric("Rows", filtered_df.shape[0])
+    placeholder1 = kpi1.empty()
+    placeholder2 = kpi2.empty()
+    placeholder3 = kpi3.empty()
 
-    with col2:
-        st.metric("Columns", filtered_df.shape[1])
+    for i in range(10):
 
-    with col3:
-        st.metric("Numeric Variables", len(numeric_cols))
+        placeholder1.metric("Total Records", filtered_df.shape[0] + np.random.randint(-5,5))
+        placeholder2.metric("Avg Value", round(filtered_df[numeric_cols[0]].mean()+np.random.random(),2))
+        placeholder3.metric("Max Value", filtered_df[numeric_cols[0]].max()+np.random.randint(-2,2))
 
-    if len(numeric_cols)>0:
-
-        fig = px.histogram(
-            filtered_df,
-            x=numeric_cols[0],
-            color_discrete_sequence=["#a855f7"],
-            template="plotly_dark"
-        )
-
-        st.plotly_chart(fig,use_container_width=True)
+        time.sleep(1)
 
 # --------------------------------------------------
-# 3D WORLD MAP
+# 3D GLOBE MAP
 # --------------------------------------------------
 
-elif menu=="3D World Map":
+elif menu=="3D Globe Map":
 
-    st.title("🌍 Global Income Map")
+    st.title("🌍 Global 3D Map")
 
-    if "country" in [c.lower() for c in filtered_df.columns]:
+    country_cols=[c for c in filtered_df.columns if "country" in c.lower()]
 
-        country_col=[c for c in filtered_df.columns if "country" in c.lower()][0]
+    if country_cols:
+
+        country_col=country_cols[0]
 
         fig = px.choropleth(
             filtered_df,
@@ -182,15 +177,15 @@ elif menu=="3D World Map":
         st.plotly_chart(fig,use_container_width=True)
 
     else:
-        st.warning("No country column found.")
+        st.warning("Country column not detected")
 
 # --------------------------------------------------
-# ANIMATED TIME SERIES
+# ANIMATED ANALYTICS
 # --------------------------------------------------
 
-elif menu=="Animated Time Series":
+elif menu=="Animated Analytics":
 
-    st.title("📊 Animated Data Growth")
+    st.title("📊 Animated Data Visualization")
 
     x = st.selectbox("X Axis", numeric_cols)
     y = st.selectbox("Y Axis", numeric_cols)
@@ -209,115 +204,33 @@ elif menu=="Animated Time Series":
     st.plotly_chart(fig,use_container_width=True)
 
 # --------------------------------------------------
-# ADVANCED CHARTS
+# ANOMALY DETECTION
 # --------------------------------------------------
 
-elif menu=="Advanced Charts":
+elif menu=="Auto Anomaly Detection":
 
-    st.title("📈 Advanced Data Visualizations")
+    st.title("📈 AI Anomaly Detection")
 
-    chart = st.selectbox("Chart Type",[
-        "3D Scatter",
-        "Bubble Chart",
-        "Radar Chart",
-        "Correlation Heatmap",
-        "3D Surface"
-    ])
+    model = IsolationForest()
 
-    if chart=="3D Scatter":
+    X = filtered_df[numeric_cols].fillna(0)
 
-        x = st.selectbox("X", numeric_cols)
-        y = st.selectbox("Y", numeric_cols)
-        z = st.selectbox("Z", numeric_cols)
+    preds = model.fit_predict(X)
 
-        fig = go.Figure(data=[go.Scatter3d(
-            x=filtered_df[x],
-            y=filtered_df[y],
-            z=filtered_df[z],
-            mode='markers',
-            marker=dict(size=6,color=filtered_df[z],colorscale='plasma')
-        )])
+    filtered_df["Anomaly"] = preds
 
-        fig.update_layout(template="plotly_dark")
+    fig = px.scatter(
+        filtered_df,
+        x=numeric_cols[0],
+        y=numeric_cols[1],
+        color="Anomaly",
+        template="plotly_dark"
+    )
 
-        st.plotly_chart(fig,use_container_width=True)
-
-    elif chart=="Bubble Chart":
-
-        x = st.selectbox("X Axis", numeric_cols)
-        y = st.selectbox("Y Axis", numeric_cols)
-
-        fig = px.scatter(
-            filtered_df,
-            x=x,
-            y=y,
-            size=numeric_cols[0],
-            color=numeric_cols[0],
-            template="plotly_dark",
-            color_continuous_scale="rainbow"
-        )
-
-        st.plotly_chart(fig,use_container_width=True)
-
-    elif chart=="Radar Chart":
-
-        sample = filtered_df[numeric_cols].mean()
-
-        fig = go.Figure()
-
-        fig.add_trace(go.Scatterpolar(
-            r=sample.values,
-            theta=sample.index,
-            fill='toself'
-        ))
-
-        fig.update_layout(template="plotly_dark")
-
-        st.plotly_chart(fig,use_container_width=True)
-
-    elif chart=="Correlation Heatmap":
-
-        corr = filtered_df[numeric_cols].corr()
-
-        fig = px.imshow(
-            corr,
-            text_auto=True,
-            color_continuous_scale="inferno",
-            template="plotly_dark"
-        )
-
-        st.plotly_chart(fig,use_container_width=True)
-
-    elif chart=="3D Surface":
-
-        z = np.outer(filtered_df[numeric_cols[0]][:50], filtered_df[numeric_cols[1]][:50])
-
-        fig = go.Figure(data=[go.Surface(z=z, colorscale='viridis')])
-
-        fig.update_layout(template="plotly_dark")
-
-        st.plotly_chart(fig,use_container_width=True)
+    st.plotly_chart(fig,use_container_width=True)
 
 # --------------------------------------------------
-# AI INSIGHTS GENERATOR
-# --------------------------------------------------
-
-elif menu=="AI Insights":
-
-    st.title("🤖 AI Data Insights")
-
-    st.write("Automatic insights generated from dataset")
-
-    for col in numeric_cols:
-
-        st.write(f"**{col}**")
-
-        st.write("Mean:", round(filtered_df[col].mean(),2))
-        st.write("Max:", filtered_df[col].max())
-        st.write("Min:", filtered_df[col].min())
-
-# --------------------------------------------------
-# AUTO ML MODEL SELECTION
+# AUTO ML
 # --------------------------------------------------
 
 elif menu=="Auto ML Prediction":
@@ -354,6 +267,24 @@ elif menu=="Auto ML Prediction":
     st.success(f"Best Model: {best}")
 
 # --------------------------------------------------
+# AI DATA ANALYST
+# --------------------------------------------------
+
+elif menu=="AI Data Analyst":
+
+    st.title("🤖 AI Data Analyst")
+
+    question = st.text_input("Ask about the dataset")
+
+    if question:
+
+        st.write("Dataset shape:", filtered_df.shape)
+
+        for col in numeric_cols[:3]:
+
+            st.write(f"{col} mean:", round(filtered_df[col].mean(),2))
+
+# --------------------------------------------------
 # POWER BI
 # --------------------------------------------------
 
@@ -371,7 +302,7 @@ elif menu=="Power BI Dashboard":
 
 elif menu=="Generate PDF Report":
 
-    st.title("Generate Report")
+    st.title("Generate Analytics Report")
 
     if st.button("Create PDF"):
 
@@ -379,7 +310,7 @@ elif menu=="Generate PDF Report":
 
         pdf = canvas.Canvas(buffer)
 
-        pdf.drawString(100,750,"Global Intelligence Report")
+        pdf.drawString(100,750,"Enterprise Analytics Report")
         pdf.drawString(100,720,f"Rows: {filtered_df.shape[0]}")
         pdf.drawString(100,700,f"Columns: {filtered_df.shape[1]}")
 
@@ -399,15 +330,16 @@ elif menu=="Generate PDF Report":
 elif menu=="About":
 
     st.write("""
-Enterprise-grade **data intelligence dashboard**.
+Enterprise Data Intelligence Platform.
 
 Features:
 
-• 3D global visualization  
-• animated analytics  
-• AI insights  
-• auto ML prediction  
-• professional filters  
+• 3D global map analytics  
+• animated dashboards  
+• AI anomaly detection  
+• auto machine learning  
+• live KPI streaming  
+• AI data assistant  
 • Power BI integration  
-• PDF analytics reports
+• automated PDF reports
 """)
