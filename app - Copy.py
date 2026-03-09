@@ -1,168 +1,310 @@
 import streamlit as st
-from datetime import datetime
+import pandas as pd
+import plotly.express as px
 
-# --------------------------------
-# PAGE CONFIG
-# --------------------------------
 st.set_page_config(
-    page_title="Global Income Analytics Pro",
+    page_title="Global Income Distribution Dashboard",
     page_icon="🌍",
     layout="wide"
 )
 
-# --------------------------------
-# ADVANCED 3D LIVE UI CSS
-# --------------------------------
+# -------------------------------------------------------
+# ADVANCED UI STYLE
+# -------------------------------------------------------
+
 st.markdown("""
 <style>
-    /* Animated Gradient Background */
-    .stApp {
-        background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f001f);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
-        color: white;
-    }
 
-    @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
+.stApp{
+background: linear-gradient(-45deg,#0f0c29,#302b63,#24243e,#0f001f);
+background-size:400% 400%;
+animation:gradientBG 15s ease infinite;
+color:white;
+}
 
-    /* Glassmorphic Sidebar */
-    [data-testid="stSidebar"] {
-        background: rgba(20, 0, 40, 0.7) !important;
-        backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
+@keyframes gradientBG{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
 
-    /* 3D Glass Card Effect */
-    .metric-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 25px;
-        border-radius: 20px;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+[data-testid="stSidebar"]{
+background:rgba(15,0,40,0.9);
+backdrop-filter:blur(10px);
+}
 
-    .metric-card:hover {
-        transform: translateY(-10px) scale(1.05);
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(0, 255, 255, 0.5);
-        box-shadow: 0 15px 40px rgba(0, 255, 255, 0.2);
-    }
+.metric-card{
+background:rgba(255,255,255,0.05);
+border-radius:18px;
+padding:25px;
+text-align:center;
+border:1px solid rgba(255,255,255,0.1);
+transition:0.3s;
+}
 
-    .metric-value {
-        font-size: 2.2rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #00f2fe, #4facfe);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 5px;
-    }
+.metric-card:hover{
+transform:scale(1.05);
+box-shadow:0 10px 30px rgba(0,255,255,0.3);
+}
 
-    .metric-label {
-        font-size: 0.9rem;
-        color: #cbd5e0;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+.metric-value{
+font-size:32px;
+font-weight:bold;
+background:linear-gradient(90deg,#00f2fe,#4facfe);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
 
-    /* Modernizing Buttons */
-    .stButton>button {
-        border-radius: 12px;
-        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        transition: all 0.3s;
-    }
-    
-    .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
-    }
+.metric-label{
+font-size:14px;
+color:#ccc;
+}
+
+.section-card{
+background:rgba(255,255,255,0.05);
+padding:25px;
+border-radius:15px;
+border:1px solid rgba(255,255,255,0.1);
+margin-bottom:25px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------------------
-# LOGIN LOGIC (Keep your existing logic here)
-# --------------------------------
-if "logged" not in st.session_state:
-    st.session_state.logged = False
+# -------------------------------------------------------
+# LOGIN SYSTEM
+# -------------------------------------------------------
 
-def login():
-    st.markdown("<h1 style='text-align: center;'>Portal Login</h1>", unsafe_allow_html=True)
-    with st.container():
-        col1, col2, col3 = st.columns([1,2,1])
-        with col2:
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            if st.button("Unlock Dashboard"):
-                if username == "admin" and password == "1234":
-                    st.session_state.logged = True
-                    st.rerun()
-                else:
-                    st.error("Access Denied")
+if "login" not in st.session_state:
+    st.session_state.login = False
 
-if not st.session_state.logged:
-    login()
+if not st.session_state.login:
+
+    st.title("🌍 Global Income Distribution Dashboard")
+
+    st.write("### Login to Explore Global Inequality Insights")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        if username == "admin" and password == "admin123":
+            st.session_state.login = True
+            st.rerun()
+        else:
+            st.error("Invalid credentials")
+
     st.stop()
 
-# --------------------------------
-# SIDEBAR & NAVIGATION
-# --------------------------------
-st.sidebar.title("🌍 Global Insights")
-page = st.sidebar.radio("Navigation", ["Executive Overview", "Interactive Dashboard", "Charts Explanation", "FAQ"])
+# -------------------------------------------------------
+# LOAD DATA
+# -------------------------------------------------------
 
-# --------------------------------
-# UPDATED EXECUTIVE OVERVIEW
-# --------------------------------
-if page == "Executive Overview":
-    st.title("🚀 Intelligence Overview")
-    
-    # 3D Metric Cards Row
-    m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
-    
-    metrics = [
-        ("62.49", "Inequality Range"),
-        ("37.52", "Avg Gini Index"),
-        ("22.55", "Inequality Index"),
-        ("200", "Total Countries"),
-        ("7.85B", "Global Population")
+df = pd.read_csv("income_data.csv")
+
+# -------------------------------------------------------
+# SIDEBAR
+# -------------------------------------------------------
+
+st.sidebar.title("Navigation")
+
+page = st.sidebar.radio(
+    "Go to",
+    [
+        "Dashboard",
+        "Charts",
+        "Dataset",
+        "Dashboard Guide",
+        "FAQ",
+        "Feedback"
     ]
-    
-    cols = [m_col1, m_col2, m_col3, m_col4, m_col5]
-    
-    for i, col in enumerate(cols):
-        with col:
-            st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">{metrics[i][0]}</div>
-                    <div class="metric-label">{metrics[i][1]}</div>
-                </div>
-            """, unsafe_allow_html=True)
+)
 
-    st.markdown("---")
-    
-    # Using a 2-column layout for the intro
-    c1, c2 = st.columns([2, 1])
-    with c1:
-        st.subheader("The Mission")
-        st.info("This platform leverages real-time economic indicators to visualize the widening gap in global wealth distribution.")
-        st.write("We track the **Gini Index** and **Palma Ratio** to provide actionable intelligence for policy makers.")
-    
-    with c2:
+# -------------------------------------------------------
+# DASHBOARD PAGE
+# -------------------------------------------------------
+
+if page == "Dashboard":
+
+    st.title("🌍 Global Income Inequality Overview")
+
+    col1,col2,col3,col4,col5 = st.columns(5)
+
+    with col1:
         st.markdown("""
-        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px;">
-            <h4>Quick Links</h4>
-            <li>View Regional Data</li>
-            <li>Download Reports</li>
-            <li>API Documentation</li>
+        <div class="metric-card">
+        <div class="metric-value">200</div>
+        <div class="metric-label">Total Countries</div>
         </div>
         """, unsafe_allow_html=True)
 
-# (Keep your other 'elif' pages as they were, they will inherit the new background!)
+    with col2:
+        st.markdown("""
+        <div class="metric-card">
+        <div class="metric-value">37.52</div>
+        <div class="metric-label">Avg Gini Index</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div class="metric-card">
+        <div class="metric-value">22.55</div>
+        <div class="metric-label">Avg Inequality Index</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown("""
+        <div class="metric-card">
+        <div class="metric-value">62.49</div>
+        <div class="metric-label">Inequality Range</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown("""
+        <div class="metric-card">
+        <div class="metric-value">7.8B</div>
+        <div class="metric-label">World Population</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    st.subheader("Income Group Distribution")
+
+    fig = px.histogram(
+        df,
+        x="Income_Group",
+        color="Income_Group"
+    )
+
+    st.plotly_chart(fig,use_container_width=True)
+
+# -------------------------------------------------------
+# CHARTS PAGE
+# -------------------------------------------------------
+
+elif page == "Charts":
+
+    st.title("📊 Inequality Charts")
+
+    chart = st.selectbox(
+        "Select Chart",
+        [
+            "Richest 20% Income Share",
+            "Gini Index by Country",
+            "Top 10 Inequality Countries"
+        ]
+    )
+
+    if chart == "Richest 20% Income Share":
+
+        fig = px.bar(
+            df.head(20),
+            x="Country",
+            y="Richest_20_Share",
+            color="Income_Group"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart == "Gini Index by Country":
+
+        fig = px.scatter(
+            df,
+            x="GDP_per_capita",
+            y="Gini_Index",
+            color="Income_Group",
+            hover_name="Country"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart == "Top 10 Inequality Countries":
+
+        top = df.sort_values("Gini_Index",ascending=False).head(10)
+
+        fig = px.bar(
+            top,
+            x="Country",
+            y="Gini_Index",
+            color="Country"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+# -------------------------------------------------------
+# DATASET PAGE
+# -------------------------------------------------------
+
+elif page == "Dataset":
+
+    st.title("📂 Dataset Preview")
+
+    st.write("Explore the dataset used in this project.")
+
+    st.dataframe(df)
+
+# -------------------------------------------------------
+# DASHBOARD GUIDE
+# -------------------------------------------------------
+
+elif page == "Dashboard Guide":
+
+    st.title("📘 Dashboard Guide")
+
+    with st.expander("What is Gini Index?"):
+        st.write("""
+The Gini Index measures income inequality within a population.
+
+0 = perfect equality  
+100 = maximum inequality
+""")
+
+    with st.expander("What is Palma Ratio?"):
+        st.write("""
+The Palma Ratio compares income of the richest 10%
+to the poorest 40%.
+""")
+
+    with st.expander("How to use the dashboard?"):
+        st.write("""
+1. Use sidebar navigation  
+2. Explore charts  
+3. Compare countries  
+4. Analyze inequality trends
+""")
+
+# -------------------------------------------------------
+# FAQ
+# -------------------------------------------------------
+
+elif page == "FAQ":
+
+    st.title("❓ Frequently Asked Questions")
+
+    with st.expander("What data source is used?"):
+        st.write("World Bank Global Income dataset.")
+
+    with st.expander("What does inequality mean?"):
+        st.write("Unequal distribution of income among population.")
+
+    with st.expander("How often is data updated?"):
+        st.write("Depends on World Bank updates.")
+
+# -------------------------------------------------------
+# FEEDBACK
+# -------------------------------------------------------
+
+elif page == "Feedback":
+
+    st.title("💬 Feedback")
+
+    name = st.text_input("Your Name")
+    email = st.text_input("Email")
+    feedback = st.text_area("Your Feedback")
+
+    if st.button("Submit Feedback"):
+        st.success("Thank you for your feedback!")
