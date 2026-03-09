@@ -1,228 +1,424 @@
 import streamlit as st
-import pandas as pd
 from datetime import datetime
-import base64
+import os
 
-# ==============================
-# ADVANCED PAGE CONFIG
-# ==============================
+# --------------------------------
+# PAGE CONFIG
+# --------------------------------
+
 st.set_page_config(
-    page_title="Global Income Intelligence | Pro",
-    layout="wide",
-    page_icon="💎",
-    initial_sidebar_state="expanded"
+    page_title="Global Income Distribution Analytics",
+    page_icon="🌍",
+    layout="wide"
 )
 
-# ==============================
-# ENHANCED NEON GLASSMORPHISM UI
-# ==============================
+# --------------------------------
+# DARK PURPLE UI
+# --------------------------------
+
 st.markdown("""
 <style>
-    /* Main Background */
-    .stApp {
-        background: radial-gradient(circle at top left, #1a0033, #050505);
-        color: #e0e0e0;
-    }
-    
-    /* Sidebar Styling */
-    section[data-testid="stSidebar"] {
-        background: rgba(20, 0, 40, 0.8) !important;
-        backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
 
-    /* Professional Card Styling */
-    .metric-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 20px;
-        border-radius: 15px;
-        transition: transform 0.3s ease;
-        text-align: center;
-    }
-    .metric-card:hover {
-        transform: translateY(-5px);
-        border-color: #d000ff;
-        box-shadow: 0 10px 20px rgba(208, 0, 255, 0.2);
-    }
+body{
+background:linear-gradient(135deg,#0f001f,#2a0055,#3f007a);
+color:white;
+}
 
-    /* Custom Headers */
-    h1, h2, h3 {
-        font-family: 'Inter', sans-serif;
-        letter-spacing: -0.5px;
-        color: #ffffff;
-    }
+.stApp{
+background:linear-gradient(135deg,#0f001f,#2a0055,#3f007a);
+}
 
-    /* Glow Text */
-    .glow-text {
-        text-shadow: 0 0 10px rgba(208, 0, 255, 0.8);
-        color: #d000ff;
-        font-weight: bold;
-    }
+section[data-testid="stSidebar"]{
+background:linear-gradient(180deg,#150033,#3a0066);
+}
+
+.card{
+background:linear-gradient(145deg,#6a11cb,#2575fc);
+padding:25px;
+border-radius:15px;
+text-align:center;
+font-weight:bold;
+box-shadow:0px 8px 25px rgba(0,0,0,0.7);
+margin-bottom:15px;
+}
+
+.section{
+background:rgba(255,255,255,0.05);
+padding:30px;
+border-radius:15px;
+margin-bottom:25px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# ==============================
-# AUTHENTICATION LOGIC
-# ==============================
-if 'logged' not in st.session_state:
-    st.session_state.logged = False
+# --------------------------------
+# LOGIN
+# --------------------------------
 
-def logout():
+def login():
+
+    st.title("🌍 Global Income Distribution Analytics Platform")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+
+        if username == "admin" and password == "1234":
+
+            st.session_state.logged = True
+            st.success("Login successful")
+
+        else:
+            st.error("Invalid login")
+
+
+if "logged" not in st.session_state:
     st.session_state.logged = False
-    st.rerun()
 
 if not st.session_state.logged:
-    cols = st.columns([1, 2, 1])
-    with cols[1]:
-        st.image("https://cdn-icons-png.flaticon.com/512/2091/2091665.png", width=80)
-        st.title("Secure Analytics Access")
-        with st.container(border=True):
-            user = st.text_input("Access ID")
-            pw = st.text_input("Security Key", type="password")
-            if st.button("Authenticate", use_container_width=True):
-                if user == "admin" and pw == "1234":
-                    st.session_state.logged = True
-                    st.rerun()
-                else:
-                    st.error("Access Denied: Invalid Credentials")
+    login()
     st.stop()
 
-# ==============================
-# SIDEBAR & TOOLS
-# ==============================
-with st.sidebar:
-    st.markdown("<h2 class='glow-text'>INTELLIGENCE HUB</h2>", unsafe_allow_html=True)
-    page = st.radio("Intelligence Layers", 
-        ["Executive Summary", "Real-time Dashboard", "Mathematical Deep-Dive", "Resource Center", "User Feedback"])
-    
-    st.divider()
-    if st.button("Logout System"):
-        logout()
+# --------------------------------
+# SIDEBAR
+# --------------------------------
 
-# ==============================
-# 1. EXECUTIVE SUMMARY
-# ==============================
-if page == "Executive Summary":
-    st.title("🌍 Global Socio-Economic Intelligence")
-    st.markdown("#### Holistic view of global wealth distribution and inequality variances.")
-    
-    # KPI Row
-    c1, c2, c3, c4 = st.columns(4)
-    metrics = [
-        ("Global Gini Avg", "37.52", "↑ 0.4%"),
-        ("Palma Median", "1.58", "Stable"),
-        ("Countries Monitored", "200+", "Active"),
-        ("Data Refresh", "Q1 2026", "Live")
-    ]
-    
-    for i, (label, val, delta) in enumerate(metrics):
-        with [c1, c2, c3, c4][i]:
-            st.markdown(f"""
-            <div class="metric-card">
-                <p style="color: gray; margin-bottom: 5px;">{label}</p>
-                <h2 style="margin: 0;">{val}</h2>
-                <p style="color: #00ffcc; font-size: 0.8rem;">{delta}</p>
-            </div>
-            """, unsafe_allow_html=True)
+st.sidebar.title("🌍 Analytics Platform")
 
-    st.markdown("### 📈 Key Strategic Insights")
-    st.info("Current data suggests a widening gap in Sub-Saharan Africa while OECD nations show stabilization in the Palma Ratio.")
+page = st.sidebar.radio(
+"Navigation",
+[
+"Executive Overview",
+"Interactive Dashboard",
+"Charts Explanation",
+"Dashboard Guide",
+"FAQ",
+"Feedback"
+]
+)
 
-# ==============================
-# 2. REAL-TIME DASHBOARD
-# ==============================
-elif page == "Real-time Dashboard":
-    st.title("📊 Multi-Dimensional Analytics")
-    st.caption("Live Feed from Power BI Global Database")
-    
-    # Advanced Iframe Embed
-    powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
-    st.components.v1.iframe(powerbi_url, height=800, scrolling=True)
+# --------------------------------
+# EXECUTIVE OVERVIEW
+# --------------------------------
 
-# ==============================
-# 3. MATHEMATICAL DEEP-DIVE
-# ==============================
-elif page == "Mathematical Deep-Dive":
-    st.title("🧬 The Science of Inequality")
-    
-    tab1, tab2 = st.tabs(["The Gini Coefficient", "The Palma Ratio"])
-    
-    with tab1:
-        st.markdown("### Gini Coefficient Analysis")
-        
+if page == "Executive Overview":
 
-[Image of the Gini Coefficient Lorenz Curve]
+    st.title("Global Income Distribution Analytics")
 
-        st.write("""
-        The Gini coefficient is the most widely used measure of inequality. 
-        It ranges from 0 (perfect equality) to 1 (perfect inequality).
-        """)
-        st.latex(r"G = \frac{\sum_{i=1}^{n} \sum_{j=1}^{n} |x_i - x_j|}{2n^2 \bar{x}}")
-        st.markdown("> **Note:** A Gini index above 40 is typically considered a 'Warning Zone' for social stability.")
-
-    with tab2:
-        st.markdown("### The Palma Ratio")
-        st.write("""
-        The Palma Ratio addresses the Gini's insensitivity to changes at the extremes. 
-        It focuses on the ratio of the top 10% to the bottom 40%.
-        """)
-        st.latex(r"Palma = \frac{Share_{Top 10\%}}{Share_{Bottom 40\%}}")
-
-# ==============================
-# 4. RESOURCE CENTER (DOWNLOADS)
-# ==============================
-elif page == "Resource Center":
-    st.title("📚 Knowledge Base & Downloads")
-    
     st.markdown("""
-    ### Downloadable Guides
-    Use these resources for offline policy research.
-    """)
-    
-    guide_content = """
-    GLOBAL INCOME DISTRIBUTION GUIDE 2026
-    ------------------------------------
-    1. Gini Index: Measure of statistical dispersion.
-    2. Palma Ratio: Focused on the gap between extreme wealth and poverty.
-    3. Recommendations: Focus on progressive taxation and education access.
-    """
-    
-    st.download_button(
-        label="📥 Download Policy Handbook (TXT)",
-        data=guide_content,
-        file_name="Global_Inequality_Guide.txt",
-        mime="text/plain"
-    )
+This platform analyzes **global income inequality and population distribution**  
+using economic indicators such as **Gini Index, Palma Ratio, and Income Share**.
 
-    with st.expander("External High-Authority Links"):
+The project integrates **data visualization, economic analysis, and interactive dashboards**
+to help users understand inequality trends across countries and regions.
+""")
+
+    col1,col2,col3,col4,col5 = st.columns(5)
+
+    with col1:
+        st.markdown('<div class="card"><h3>62.49</h3>Inequality Range</div>',unsafe_allow_html=True)
+
+    with col2:
+        st.markdown('<div class="card"><h3>37.52</h3>Average Gini Index</div>',unsafe_allow_html=True)
+
+    with col3:
+        st.markdown('<div class="card"><h3>22.55</h3>Average Inequality Index</div>',unsafe_allow_html=True)
+
+    with col4:
+        st.markdown('<div class="card"><h3>200</h3>Total Countries</div>',unsafe_allow_html=True)
+
+    with col5:
+        st.markdown('<div class="card"><h3>7.85B</h3>Total Population</div>',unsafe_allow_html=True)
+
+    st.markdown("""
+### Key Objectives
+
+• Analyze income inequality across global regions  
+• Identify countries with highest inequality  
+• Compare regional income distribution  
+• Track inequality trends over time  
+
+This dashboard helps **policy makers, economists, and researchers**
+explore inequality data interactively.
+""")
+
+# --------------------------------
+# DASHBOARD
+# --------------------------------
+
+elif page == "Interactive Dashboard":
+
+    st.title("📊 Global Income Dashboard")
+
+    st.markdown("""
+The dashboard below provides an **interactive view of global income inequality**.
+
+You can:
+
+• Filter by income group  
+• Filter by region  
+• Filter by year  
+• Explore country-level insights  
+• Compare inequality metrics
+""")
+
+    powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+
+    st.components.v1.iframe(powerbi_url,width=1400,height=800)
+
+# --------------------------------
+# CHART EXPLANATIONS
+# --------------------------------
+
+elif page == "Charts Explanation":
+
+    st.title("📊 Detailed Chart Explanations")
+
+    chart = st.selectbox(
+    "Select a chart to explore",
+    [
+    "Country Distribution by Income Group",
+    "Richest 20% Income Share by Region",
+    "Palma Ratio by World Bank Group",
+    "Top 5 Countries by Inequality",
+    "Global Gini Index Trend",
+    "Categories by Inequality Level"
+    ])
+
+    if chart == "Country Distribution by Income Group":
+
+        st.header("Country Distribution by Income Group")
+
         st.markdown("""
-        * [World Bank Open Data](https://data.worldbank.org)
-        * [World Inequality Database](https://wid.world)
-        * [OECD Income Distribution Database](https://www.oecd.org/social/income-distribution-database.htm)
-        """)
+### What This Chart Shows
 
-# ==============================
-# 5. FEEDBACK
-# ==============================
-elif page == "User Feedback":
-    st.title("🛰️ Intelligence Feedback")
-    with st.form("feedback_plus"):
-        name = st.text_input("Observer Name")
-        category = st.selectbox("Topic", ["Data Accuracy", "UI/UX", "New Feature Request"])
-        rating = st.select_slider("System Utility Score", options=[1, 2, 3, 4, 5])
-        comment = st.text_area("Detailed Observations")
-        
-        if st.form_submit_button("Transmit Data"):
-            st.balloons()
-            st.success("Feedback logged into the secure repository.")
+This chart shows how countries are distributed across **different income groups**.
 
-# ==============================
-# FOOTER
-# ==============================
-st.markdown(f"""
-<div style="text-align: center; margin-top: 50px; font-size: 0.8rem; color: gray;">
-    <hr style="border-color: rgba(255,255,255,0.1);">
-    © {datetime.now().year} Global Income Intelligence Platform | Secure Node 01
-</div>
-""", unsafe_allow_html=True)
+The categories include:
+
+• High Income  
+• Upper Middle Income  
+• Lower Middle Income  
+• Low Income
+
+### Why It Matters
+
+Understanding how countries are distributed economically helps identify:
+
+• Global development patterns  
+• Economic inequality between nations  
+• Regional economic disparities
+
+### Insights from the Dashboard
+
+Most countries fall into **middle income categories**, showing that
+many economies are still developing rather than fully developed.
+""")
+
+    elif chart == "Richest 20% Income Share by Region":
+
+        st.header("Richest 20% Income Share by Region")
+
+        st.markdown("""
+### Chart Overview
+
+This visualization shows how much income is controlled by the **richest 20% of the population**
+in different global regions.
+
+### Interpretation
+
+Higher values indicate **stronger wealth concentration**.
+
+### Key Insight
+
+Regions with high concentration indicate **economic imbalance
+where wealth is distributed unevenly among citizens**.
+""")
+
+    elif chart == "Palma Ratio by World Bank Group":
+
+        st.header("Palma Ratio by World Bank Group")
+
+        st.markdown("""
+### What is Palma Ratio?
+
+Palma Ratio compares:
+
+Richest 10% income share vs Poorest 40% income share.
+
+### Why It Is Important
+
+It highlights **income distribution imbalance**.
+
+Higher ratio means:
+
+• Greater inequality  
+• Wealth concentration in top earners
+""")
+
+    elif chart == "Top 5 Countries by Inequality":
+
+        st.header("Top 5 Countries by Inequality")
+
+        st.markdown("""
+### Chart Description
+
+This chart identifies the **five countries with the highest inequality levels**.
+
+### Why It Matters
+
+These countries may require:
+
+• Economic reforms  
+• Social welfare programs  
+• Policy interventions
+""")
+
+    elif chart == "Global Gini Index Trend":
+
+        st.header("Global Gini Index Trend")
+
+        st.markdown("""
+### Chart Overview
+
+The Gini Index trend shows how **global inequality has evolved over time**.
+
+### Interpretation
+
+Increasing values indicate rising inequality,
+while decreasing values indicate more balanced income distribution.
+""")
+
+    elif chart == "Categories by Inequality Level":
+
+        st.header("Categories by Inequality Level")
+
+        st.markdown("""
+### Chart Overview
+
+Countries are grouped into:
+
+• Low Inequality  
+• Medium Inequality  
+• High Inequality  
+• Very High Inequality
+
+### Insight
+
+Most countries fall into **medium inequality levels**, indicating
+moderate economic imbalance globally.
+""")
+
+# --------------------------------
+# DASHBOARD GUIDE
+# --------------------------------
+
+elif page == "Dashboard Guide":
+
+    st.title("📘 Complete Dashboard Guide")
+
+    st.markdown("""
+### 1. Filters
+
+At the top of the dashboard you will see filters:
+
+• Income Classification  
+• Inequality Category  
+• Census Year  
+• World Bank Region  
+
+These filters allow you to **focus on specific countries or regions**.
+
+---
+
+### 2. KPI Cards
+
+KPI cards summarize the most important indicators:
+
+• Inequality Range  
+• Average Gini Index  
+• Average Inequality Index  
+• Total Countries  
+• Total Population
+
+These provide a **quick overview of global inequality metrics**.
+
+---
+
+### 3. Distribution Charts
+
+These charts show how countries are distributed across
+income groups and inequality categories.
+
+---
+
+### 4. Regional Comparison Charts
+
+These charts compare inequality across regions,
+helping identify economic differences.
+
+---
+
+### 5. Trend Charts
+
+Trend charts help analyze **how inequality changes over time**.
+
+---
+
+### 6. Interactive Features
+
+You can interact with the dashboard by:
+
+• Clicking charts to filter other visuals  
+• Hovering to see detailed values  
+• Using slicers to change the analysis scope
+
+---
+
+### 7. Insights Generation
+
+By combining filters and charts,
+users can generate **custom insights about global inequality patterns**.
+""")
+
+# --------------------------------
+# FAQ
+# --------------------------------
+
+elif page == "FAQ":
+
+    st.title("FAQ")
+
+    with st.expander("What is the Gini Index?"):
+        st.write("The Gini Index measures income inequality within a country.")
+
+    with st.expander("What is Palma Ratio?"):
+        st.write("Palma Ratio compares income share of richest 10% vs poorest 40%.")
+
+    with st.expander("Why analyze inequality?"):
+        st.write("It helps governments understand economic imbalance.")
+
+# --------------------------------
+# FEEDBACK
+# --------------------------------
+
+elif page == "Feedback":
+
+    st.title("User Feedback")
+
+    with st.form("feedback"):
+
+        name = st.text_input("Name")
+        rating = st.slider("Rating",1,5)
+        comment = st.text_area("Comment")
+
+        submit = st.form_submit_button("Submit")
+
+        if submit:
+
+            with open("feedback.txt","a") as f:
+                f.write(f"{name},{rating},{comment},{datetime.now()}\n")
+
+            st.success("Thank you for your feedback!")
