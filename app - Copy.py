@@ -133,9 +133,7 @@ elif menu=="Power BI Dashboard":
 
     st.write("Embedded Power BI dashboard below.")
 
-    powerbi_url=st.text_input("https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9")
-
-    if powerbi_url:
+    powerbi_url=("https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9")
         st.components.v1.iframe(powerbi_url,height=700)
 
     st.info("Get embed link from Power BI → File → Embed → Website")
@@ -332,4 +330,5 @@ Tools Used:
 Purpose:
 To analyze global income inequality through interactive analytics.
 """)
+
 
