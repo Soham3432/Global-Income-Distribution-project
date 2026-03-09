@@ -11,7 +11,7 @@ import random
 
 st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
-# ------------------ UI STYLE ------------------ #
+# ---------------- UI STYLE ---------------- #
 
 st.markdown("""
 <style>
@@ -22,7 +22,7 @@ color:white;
 }
 
 .title{
-font-size:45px;
+font-size:42px;
 text-align:center;
 font-weight:bold;
 color:#d0bfff;
@@ -38,7 +38,7 @@ text-align:center;
 }
 
 .metric{
-font-size:30px;
+font-size:28px;
 font-weight:bold;
 color:#9c8cff;
 }
@@ -46,7 +46,7 @@ color:#9c8cff;
 </style>
 """, unsafe_allow_html=True)
 
-# ------------------ LOGIN ------------------ #
+# ---------------- LOGIN ---------------- #
 
 if "login" not in st.session_state:
     st.session_state.login=False
@@ -55,12 +55,12 @@ if not st.session_state.login:
 
     st.markdown("<div class='title'>Global Income Intelligence Platform</div>",unsafe_allow_html=True)
 
-    user=st.text_input("Username")
-    pw=st.text_input("Password",type="password")
+    username=st.text_input("Username")
+    password=st.text_input("Password",type="password")
 
     if st.button("Login"):
 
-        if user=="admin" and pw=="1234":
+        if username=="admin" and password=="1234":
             st.session_state.login=True
             st.rerun()
         else:
@@ -68,14 +68,14 @@ if not st.session_state.login:
 
     st.stop()
 
-# ------------------ SIDEBAR ------------------ #
+# ---------------- SIDEBAR ---------------- #
 
 menu=st.sidebar.selectbox("Navigation",[
 "Executive Dashboard",
 "Power BI Dashboard",
 "World Bank Dataset",
 "Global Inequality Map",
-"3D Rotating Globe",
+"3D Globe",
 "Inequality Trends",
 "Country Comparison",
 "ML Prediction",
@@ -87,7 +87,7 @@ menu=st.sidebar.selectbox("Navigation",[
 "About"
 ])
 
-# ------------------ LOAD DATA ------------------ #
+# ---------------- LOAD DATA ---------------- #
 
 @st.cache_data
 def load_data():
@@ -97,7 +97,7 @@ def load_data():
 
 df=load_data()
 
-# ------------------ EXECUTIVE DASHBOARD ------------------ #
+# ---------------- EXECUTIVE DASHBOARD ---------------- #
 
 if menu=="Executive Dashboard":
 
@@ -105,14 +105,15 @@ if menu=="Executive Dashboard":
 
     latest=df[df["Year"]==df["Year"].max()]
 
-    avg=round(latest["Value"].mean(),2)
-    max_country=latest.sort_values("Value",ascending=False).iloc[0]["Country"]
-    min_country=latest.sort_values("Value").iloc[0]["Country"]
+    avg_gini=round(latest["Value"].mean(),2)
+
+    max_country=latest.sort_values("Value",ascending=False).iloc[0]["Country Name"]
+    min_country=latest.sort_values("Value").iloc[0]["Country Name"]
 
     c1,c2,c3,c4=st.columns(4)
 
     with c1:
-        st.markdown(f"<div class='card'>Average Gini<div class='metric'>{avg}</div></div>",unsafe_allow_html=True)
+        st.markdown(f"<div class='card'>Average Gini<div class='metric'>{avg_gini}</div></div>",unsafe_allow_html=True)
 
     with c2:
         st.markdown(f"<div class='card'>Highest Inequality<div class='metric'>{max_country}</div></div>",unsafe_allow_html=True)
@@ -123,23 +124,26 @@ if menu=="Executive Dashboard":
     with c4:
         st.markdown(f"<div class='card'>Countries<div class='metric'>{latest.shape[0]}</div></div>",unsafe_allow_html=True)
 
-    fig=px.bar(latest.sort_values("Value",ascending=False).head(20),
-               x="Country",y="Value",
-               title="Top 20 Countries by Inequality")
+    fig=px.bar(
+        latest.sort_values("Value",ascending=False).head(20),
+        x="Country Name",
+        y="Value",
+        title="Top 20 Countries by Inequality"
+    )
 
     st.plotly_chart(fig,use_container_width=True)
 
-# ------------------ POWER BI EMBED ------------------ #
+# ---------------- POWER BI ---------------- #
 
 elif menu=="Power BI Dashboard":
 
-    st.title("Power BI Dashboard")
+    st.title("Power BI Embedded Dashboard")
 
     powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
 
     st.components.v1.iframe(powerbi_url,height=700)
 
-# ------------------ DATASET ------------------ #
+# ---------------- DATASET ---------------- #
 
 elif menu=="World Bank Dataset":
 
@@ -147,7 +151,7 @@ elif menu=="World Bank Dataset":
 
     st.dataframe(df)
 
-# ------------------ GLOBAL MAP ------------------ #
+# ---------------- GLOBAL MAP ---------------- #
 
 elif menu=="Global Inequality Map":
 
@@ -159,15 +163,15 @@ elif menu=="Global Inequality Map":
         latest,
         locations="Country Code",
         color="Value",
-        hover_name="Country",
+        hover_name="Country Name",
         color_continuous_scale="Plasma"
     )
 
     st.plotly_chart(fig,use_container_width=True)
 
-# ------------------ 3D GLOBE ------------------ #
+# ---------------- 3D GLOBE ---------------- #
 
-elif menu=="3D Rotating Globe":
+elif menu=="3D Globe":
 
     st.title("3D Global Inequality Globe")
 
@@ -177,7 +181,7 @@ elif menu=="3D Rotating Globe":
 
     fig.add_trace(go.Scattergeo(
         locations=latest["Country Code"],
-        text=latest["Country"],
+        text=latest["Country Name"],
         mode='markers',
         marker=dict(
             size=8,
@@ -191,33 +195,33 @@ elif menu=="3D Rotating Globe":
 
     st.plotly_chart(fig,use_container_width=True)
 
-# ------------------ TRENDS ------------------ #
+# ---------------- TRENDS ---------------- #
 
 elif menu=="Inequality Trends":
 
-    st.title("Inequality Trends")
+    st.title("Inequality Trends Over Time")
 
-    country=st.selectbox("Select Country",df["Country"].unique())
+    country=st.selectbox("Select Country",df["Country Name"].unique())
 
-    cdf=df[df["Country"]==country]
+    cdf=df[df["Country Name"]==country]
 
-    fig=px.line(cdf,x="Year",y="Value",title=f"{country} Trend")
+    fig=px.line(cdf,x="Year",y="Value",title=f"{country} Inequality Trend")
 
     st.plotly_chart(fig,use_container_width=True)
 
-# ------------------ COUNTRY COMPARISON ------------------ #
+# ---------------- COUNTRY COMPARISON ---------------- #
 
 elif menu=="Country Comparison":
 
     st.title("Country Comparison")
 
-    c1=st.selectbox("Country 1",df["Country"].unique())
-    c2=st.selectbox("Country 2",df["Country"].unique())
+    c1=st.selectbox("Country 1",df["Country Name"].unique())
+    c2=st.selectbox("Country 2",df["Country Name"].unique())
 
     year=df["Year"].max()
 
-    g1=df[(df["Country"]==c1)&(df["Year"]==year)]["Value"].values
-    g2=df[(df["Country"]==c2)&(df["Year"]==year)]["Value"].values
+    g1=df[(df["Country Name"]==c1)&(df["Year"]==year)]["Value"].values
+    g2=df[(df["Country Name"]==c2)&(df["Year"]==year)]["Value"].values
 
     if len(g1)>0 and len(g2)>0:
 
@@ -228,7 +232,7 @@ elif menu=="Country Comparison":
 
         st.plotly_chart(fig,use_container_width=True)
 
-# ------------------ ML PREDICTION ------------------ #
+# ---------------- ML PREDICTION ---------------- #
 
 elif menu=="ML Prediction":
 
@@ -246,9 +250,9 @@ elif menu=="ML Prediction":
 
     pred=model.predict([[year]])[0]
 
-    st.metric("Predicted Gini Index",round(pred,2))
+    st.metric("Predicted Global Gini Index",round(pred,2))
 
-# ------------------ ML FORECASTING ------------------ #
+# ---------------- ML FORECASTING ---------------- #
 
 elif menu=="ML Forecasting":
 
@@ -260,6 +264,7 @@ elif menu=="ML Forecasting":
     y=model_df["Value"]
 
     model=RandomForestRegressor()
+
     model.fit(X,y)
 
     year=st.slider("Forecast Year",2025,2050,2035)
@@ -268,53 +273,53 @@ elif menu=="ML Forecasting":
 
     st.metric("Forecasted Inequality",round(pred,2))
 
-# ------------------ POLICY SIMULATOR ------------------ #
+# ---------------- POLICY SIMULATOR ---------------- #
 
 elif menu=="Policy Simulator":
 
-    st.title("Policy Simulator")
+    st.title("Policy Impact Simulator")
 
     tax=st.slider("Tax Rate",0,60,20)
     welfare=st.slider("Welfare Spending",0,50,15)
 
     base=45
-    new=base-(tax*0.2)-(welfare*0.1)
 
-    st.metric("Estimated Gini Index",round(new,2))
+    new_gini=base-(tax*0.2)-(welfare*0.1)
 
-# ------------------ AI ASSISTANT ------------------ #
+    st.metric("Estimated Gini Index",round(new_gini,2))
+
+# ---------------- AI ASSISTANT ---------------- #
 
 elif menu=="AI Economic Assistant":
 
     st.title("AI Economic Assistant")
 
-    q=st.text_input("Ask about inequality")
+    question=st.text_input("Ask about income inequality")
 
     responses=[
-    "Higher education levels often reduce inequality.",
-    "Strong welfare systems lower income gaps.",
-    "Economic growth sometimes increases inequality initially.",
-    "Progressive taxation redistributes wealth."
+        "Higher education levels often reduce inequality.",
+        "Strong welfare systems lower income gaps.",
+        "Economic growth sometimes increases inequality initially.",
+        "Progressive taxation redistributes wealth."
     ]
 
-    if st.button("Ask"):
+    if st.button("Ask AI"):
         st.success(random.choice(responses))
 
-# ------------------ PDF REPORT ------------------ #
+# ---------------- PDF REPORT ---------------- #
 
 elif menu=="Generate PDF Report":
 
-    st.title("Generate Report")
+    st.title("Generate Inequality Report")
 
-    if st.button("Create PDF"):
+    if st.button("Create PDF Report"):
 
         buffer=io.BytesIO()
 
         pdf=canvas.Canvas(buffer)
 
         pdf.drawString(100,750,"Global Income Inequality Report")
-        pdf.drawString(100,720,"Average Global Gini Index: 38.5")
-        pdf.drawString(100,700,"Generated by Global Income Intelligence Platform")
+        pdf.drawString(100,720,"Generated by Global Income Intelligence Platform")
 
         pdf.save()
 
@@ -325,24 +330,24 @@ elif menu=="Generate PDF Report":
             "application/pdf"
         )
 
-# ------------------ FAQ ------------------ #
+# ---------------- FAQ ---------------- #
 
 elif menu=="FAQ":
 
     with st.expander("What is Gini Index?"):
-        st.write("Measure of income inequality.")
+        st.write("The Gini Index measures income inequality from 0 (perfect equality) to 100 (perfect inequality).")
 
-    with st.expander("Why inequality matters?"):
-        st.write("High inequality affects social mobility.")
+    with st.expander("Why does inequality matter?"):
+        st.write("High inequality can affect economic growth and social stability.")
 
-# ------------------ ABOUT ------------------ #
+# ---------------- ABOUT ---------------- #
 
 elif menu=="About":
 
     st.write("""
 Global Income Intelligence Platform
 
-Technologies:
+Technologies Used:
 • Streamlit  
 • Plotly  
 • Power BI  
