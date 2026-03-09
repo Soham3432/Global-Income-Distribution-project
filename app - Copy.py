@@ -1,334 +1,284 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
+import plotly.graph_objects as go
 from sklearn.linear_model import LinearRegression
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-from io import BytesIO
+from sklearn.ensemble import RandomForestRegressor
+from reportlab.pdfgen import canvas
+import io
 
-# ---------------------------------------------------
-# PAGE CONFIG
-# ---------------------------------------------------
+st.set_page_config(page_title="Global Income Distribution Platform", layout="wide")
 
-st.set_page_config(
-    page_title="Global Income Distribution AI Platform",
-    layout="wide",
-    page_icon="🌍"
-)
-
-# ---------------------------------------------------
-# GLASSMORPHISM UI
-# ---------------------------------------------------
+# ---------------- STYLE ---------------- #
 
 st.markdown("""
 <style>
-
-.stApp{
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+body{
+background:linear-gradient(135deg,#0e0033,#1c004d);
 color:white;
 }
-
-.card{
-background:rgba(255,255,255,0.08);
-padding:20px;
-border-radius:15px;
-backdrop-filter:blur(10px);
+.title{
+font-size:40px;
+font-weight:bold;
+text-align:center;
+color:#d0bfff;
 }
-
+.card{
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:12px;
+text-align:center;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------
-# LOAD DATA
-# ---------------------------------------------------
+# ---------------- LOAD DATA ---------------- #
 
 @st.cache_data
 def load_data():
-    try:
-        df = pd.read_csv("final.sheet.csv")
-    except:
-        st.error("❌ final.sheet.csv not found in project folder")
-        st.stop()
-
-    df.columns = [c.strip() for c in df.columns]
+    df = pd.read_csv("final.sheet.csv")
     return df
 
 df = load_data()
 
-# ---------------------------------------------------
-# DETECT IMPORTANT COLUMNS
-# ---------------------------------------------------
+numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
+categorical_cols = df.select_dtypes(include=["object"]).columns
 
-year_col=None
-country_col=None
-value_col=None
+# ---------------- LOGIN ---------------- #
 
-for col in df.columns:
+if "login" not in st.session_state:
+    st.session_state.login=False
 
-    if "year" in col.lower():
-        year_col=col
+if not st.session_state.login:
 
-    if "country" in col.lower():
-        country_col=col
+    st.markdown("<div class='title'>Global Income Distribution Dashboard</div>",unsafe_allow_html=True)
 
-    if "value" in col.lower():
-        value_col=col
+    user = st.text_input("Username")
+    pw = st.text_input("Password", type="password")
 
-if year_col is None:
-    year_col=df.columns[0]
+    if st.button("Login"):
+        if user=="admin" and pw=="1234":
+            st.session_state.login=True
+            st.rerun()
+        else:
+            st.error("Invalid Login")
 
-if country_col is None:
-    country_col=df.columns[1]
+    st.stop()
 
-if value_col is None:
-    value_col=df.columns[-1]
+# ---------------- SIDEBAR ---------------- #
 
-# ---------------------------------------------------
-# SIDEBAR
-# ---------------------------------------------------
+menu = st.sidebar.selectbox("Navigation",[
+"Executive Dashboard",
+"Power BI Dashboard",
+"Dataset Explorer",
+"Interactive Charts",
+"Country Analysis",
+"Machine Learning Prediction",
+"ML Forecasting",
+"Generate PDF Report",
+"About"
+])
 
-st.sidebar.title("Dashboard Controls")
+# ---------------- EXECUTIVE DASHBOARD ---------------- #
 
-years=sorted(df[year_col].dropna().unique())
-countries=sorted(df[country_col].dropna().unique())
+if menu=="Executive Dashboard":
 
-selected_year=st.sidebar.selectbox("Select Year",years)
-selected_country=st.sidebar.selectbox("Select Country",countries)
+    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
 
-# ---------------------------------------------------
-# HEADER
-# ---------------------------------------------------
+    st.write("Dataset Shape:", df.shape)
 
-st.title("🌍 Global Income Distribution AI Dashboard")
+    col1,col2,col3 = st.columns(3)
 
-st.write("Interactive analytics platform built using your dataset.")
+    with col1:
+        st.metric("Rows", df.shape[0])
 
-# ---------------------------------------------------
-# FILTER DATA
-# ---------------------------------------------------
+    with col2:
+        st.metric("Columns", df.shape[1])
 
-year_data=df[df[year_col]==selected_year]
-country_data=df[df[country_col]==selected_country]
+    with col3:
+        st.metric("Numeric Variables", len(numeric_cols))
 
-# ---------------------------------------------------
-# KPI METRICS
-# ---------------------------------------------------
+    if len(numeric_cols)>0:
 
-col1,col2,col3=st.columns(3)
+        fig = px.histogram(df, x=numeric_cols[0], title=f"{numeric_cols[0]} Distribution")
 
-try:
-    avg_value=year_data[value_col].mean()
-except:
-    avg_value=0
+        st.plotly_chart(fig,use_container_width=True)
 
-try:
-    top_country=year_data.sort_values(value_col,ascending=False).iloc[0][country_col]
-except:
-    top_country="N/A"
+# ---------------- POWER BI ---------------- #
 
-try:
-    low_country=year_data.sort_values(value_col).iloc[0][country_col]
-except:
-    low_country="N/A"
+elif menu=="Power BI Dashboard":
 
-col1.metric("Average Value",round(avg_value,2))
-col2.metric("Top Country",top_country)
-col3.metric("Lowest Country",low_country)
+    st.title("Power BI Dashboard")
 
-# ---------------------------------------------------
-# GLOBAL MAP
-# ---------------------------------------------------
+    powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9" 
 
-st.subheader("🌎 Global Distribution Map")
+    st.components.v1.iframe(powerbi_url,height=700)
 
-try:
+# ---------------- DATA EXPLORER ---------------- #
 
-    map_fig=px.choropleth(
-        year_data,
-        locations=country_col,
-        locationmode="country names",
-        color=value_col,
-        title="Income Distribution Map"
-    )
+elif menu=="Dataset Explorer":
 
-    st.plotly_chart(map_fig,use_container_width=True)
+    st.title("Dataset Explorer")
 
-except:
-    st.info("Map visualization not available for this dataset format.")
+    st.dataframe(df)
 
-# ---------------------------------------------------
-# COUNTRY TREND
-# ---------------------------------------------------
+    column = st.selectbox("Select Column", df.columns)
 
-st.subheader("📈 Country Trend")
+    st.write(df[column].describe())
 
-try:
+# ---------------- INTERACTIVE CHARTS ---------------- #
 
-    trend_fig=px.line(
-        country_data,
-        x=year_col,
-        y=value_col,
-        title=f"{selected_country} Trend"
-    )
+elif menu=="Interactive Charts":
 
-    st.plotly_chart(trend_fig,use_container_width=True)
+    st.title("Interactive Visualizations")
 
-except:
-    st.info("Trend chart unavailable.")
+    if len(numeric_cols)>0:
 
-# ---------------------------------------------------
-# TOP COUNTRIES
-# ---------------------------------------------------
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
 
-st.subheader("🏆 Top Countries")
+        fig = px.scatter(df, x=x, y=y)
 
-try:
+        st.plotly_chart(fig,use_container_width=True)
 
-    top10=year_data.sort_values(value_col,ascending=False).head(10)
+# ---------------- COUNTRY ANALYSIS ---------------- #
 
-    bar_fig=px.bar(
-        top10,
-        x=country_col,
-        y=value_col,
-        title="Top 10 Countries"
-    )
+elif menu=="Country Analysis":
 
-    st.plotly_chart(bar_fig,use_container_width=True)
+    st.title("Country Analysis")
 
-except:
-    st.info("Top country chart unavailable.")
+    country_cols = [c for c in df.columns if "country" in c.lower()]
 
-# ---------------------------------------------------
-# 3D GLOBE STYLE VISUALIZATION
-# ---------------------------------------------------
+    if country_cols:
 
-st.subheader("🌐 3D Globe Visualization")
+        country_col = country_cols[0]
 
-try:
+        country = st.selectbox("Select Country", df[country_col].unique())
 
-    globe_fig=px.scatter_geo(
-        year_data,
-        locations=country_col,
-        locationmode="country names",
-        size=value_col,
-        projection="orthographic"
-    )
+        filtered = df[df[country_col]==country]
 
-    st.plotly_chart(globe_fig,use_container_width=True)
+        st.dataframe(filtered)
 
-except:
-    st.info("3D globe unavailable.")
+        if len(numeric_cols)>0:
 
-# ---------------------------------------------------
-# ML FORECAST
-# ---------------------------------------------------
+            fig = px.bar(filtered, y=numeric_cols[0])
 
-st.subheader("🧠 ML Prediction")
-
-try:
-
-    temp=country_data[[year_col,value_col]].dropna()
-
-    X=temp[[year_col]]
-    y=temp[value_col]
-
-    model=LinearRegression()
-    model.fit(X,y)
-
-    future_year=st.slider("Predict future year",
-                          int(min(years)),
-                          int(max(years)+20))
-
-    prediction=model.predict([[future_year]])[0]
-
-    st.success(f"Predicted value for {selected_country} in {future_year}: {round(prediction,2)}")
-
-except:
-    st.info("Prediction not available.")
-
-# ---------------------------------------------------
-# AI INSIGHTS
-# ---------------------------------------------------
-
-st.subheader("🤖 Automatic Insights")
-
-try:
-
-    st.write(f"• Average value in {selected_year} is {round(avg_value,2)}.")
-    st.write(f"• {top_country} has the highest value.")
-    st.write(f"• {low_country} has the lowest value.")
-
-except:
-    st.write("Insights unavailable.")
-
-# ---------------------------------------------------
-# CHAT ASSISTANT
-# ---------------------------------------------------
-
-st.subheader("💬 Data Assistant")
-
-question=st.text_input("Ask a question about the data")
-
-if question:
-
-    q=question.lower()
-
-    if "average" in q:
-        st.write(f"Average value is {round(avg_value,2)}")
-
-    elif "top" in q:
-        st.write(f"Top country is {top_country}")
-
-    elif "lowest" in q:
-        st.write(f"Lowest country is {low_country}")
+            st.plotly_chart(fig,use_container_width=True)
 
     else:
-        st.write("Try asking about average, top country, or lowest country.")
 
-# ---------------------------------------------------
-# POWER BI EMBED
-# ---------------------------------------------------
+        st.warning("No country column detected.")
 
-st.subheader("📊 Embedded Power BI Dashboard")
+# ---------------- ML PREDICTION ---------------- #
 
-powerbi_link=st.text_input("Paste Power BI embed URL")
+elif menu=="Machine Learning Prediction":
 
-if powerbi_link:
+    st.title("Machine Learning Prediction")
 
-    st.components.v1.iframe(
-        powerbi_link,
-        height=600
-    )
+    if len(numeric_cols)>=2:
 
-# ---------------------------------------------------
-# PDF REPORT GENERATOR
-# ---------------------------------------------------
+        target = st.selectbox("Select Target Variable", numeric_cols)
 
-st.subheader("📄 Generate PDF Report")
+        features = [c for c in numeric_cols if c!=target]
 
-if st.button("Create Report"):
+        X = df[features].fillna(0)
+        y = df[target].fillna(0)
 
-    buffer=BytesIO()
+        model = LinearRegression()
 
-    doc=SimpleDocTemplate(buffer)
+        model.fit(X,y)
 
-    styles=getSampleStyleSheet()
+        inputs=[]
 
-    story=[]
+        st.write("Enter feature values")
 
-    story.append(Paragraph("Global Income Distribution Report",styles["Title"]))
-    story.append(Spacer(1,20))
+        for col in features:
 
-    story.append(Paragraph(f"Year: {selected_year}",styles["Normal"]))
-    story.append(Paragraph(f"Average Value: {round(avg_value,2)}",styles["Normal"]))
-    story.append(Paragraph(f"Top Country: {top_country}",styles["Normal"]))
-    story.append(Paragraph(f"Lowest Country: {low_country}",styles["Normal"]))
+            val = st.number_input(col,value=float(X[col].mean()))
 
-    doc.build(story)
+            inputs.append(val)
 
-    st.download_button(
-        "Download PDF",
-        buffer.getvalue(),
-        file_name="income_report.pdf"
-    )
+        prediction = model.predict([inputs])[0]
+
+        st.success(f"Predicted {target}: {prediction}")
+
+    else:
+
+        st.warning("Not enough numeric columns for ML.")
+
+# ---------------- ML FORECASTING ---------------- #
+
+elif menu=="ML Forecasting":
+
+    st.title("Advanced ML Forecast")
+
+    if len(numeric_cols)>=2:
+
+        target = st.selectbox("Target Variable", numeric_cols)
+
+        features = [c for c in numeric_cols if c!=target]
+
+        X = df[features].fillna(0)
+        y = df[target].fillna(0)
+
+        model = RandomForestRegressor()
+
+        model.fit(X,y)
+
+        inputs=[]
+
+        for col in features:
+
+            val = st.number_input(col,value=float(X[col].mean()))
+
+            inputs.append(val)
+
+        prediction = model.predict([inputs])[0]
+
+        st.success(f"Forecasted {target}: {prediction}")
+
+# ---------------- PDF REPORT ---------------- #
+
+elif menu=="Generate PDF Report":
+
+    st.title("Generate Report")
+
+    if st.button("Create PDF"):
+
+        buffer = io.BytesIO()
+
+        pdf = canvas.Canvas(buffer)
+
+        pdf.drawString(100,750,"Global Income Distribution Report")
+        pdf.drawString(100,720,f"Dataset rows: {df.shape[0]}")
+        pdf.drawString(100,700,f"Dataset columns: {df.shape[1]}")
+
+        pdf.save()
+
+        st.download_button(
+            "Download PDF",
+            buffer.getvalue(),
+            "report.pdf",
+            "application/pdf"
+        )
+
+# ---------------- ABOUT ---------------- #
+
+elif menu=="About":
+
+    st.write("""
+This dashboard analyzes the dataset **final.sheet.csv** from the GitHub repository.
+
+Features included:
+- Interactive Plotly visualizations
+- Machine Learning prediction models
+- Random Forest forecasting
+- Embedded Power BI dashboard
+- PDF report generation
+
+Built with:
+- Streamlit
+- Plotly
+- Scikit-learn
+- ReportLab
+""")
