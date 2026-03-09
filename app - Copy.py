@@ -3,65 +3,57 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from sklearn.ensemble import IsolationForest, RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score
-from reportlab.pdfgen import canvas
 import time
-import io
 
-st.set_page_config(page_title="Enterprise Data Intelligence Platform", layout="wide")
+st.set_page_config(page_title="AI Data Intelligence Platform", layout="wide")
 
-# --------------------------------------------------
-# GLASSMORPHISM UI
-# --------------------------------------------------
+# ------------------------------------------------
+# ULTRA MODERN UI
+# ------------------------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background:linear-gradient(135deg,#050018,#0d0030,#1b0048);
+background: radial-gradient(circle at top,#0f172a,#020617);
 color:white;
-font-family:Segoe UI;
+font-family:Inter;
 }
 
-.title{
-font-size:48px;
-font-weight:800;
+.big-title{
+font-size:52px;
+font-weight:900;
 text-align:center;
-background:linear-gradient(90deg,#a855f7,#6366f1);
+background:linear-gradient(90deg,#22c1c3,#fdbb2d);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
 .card{
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(15px);
-padding:20px;
+background:rgba(255,255,255,0.04);
 border-radius:20px;
-box-shadow:0 10px 40px rgba(0,0,0,0.7);
+padding:20px;
+backdrop-filter:blur(20px);
+box-shadow:0 20px 60px rgba(0,0,0,0.6);
 }
 
 .stButton>button{
-background:linear-gradient(90deg,#7c3aed,#6366f1);
+background:linear-gradient(90deg,#00c6ff,#0072ff);
 border:none;
-border-radius:10px;
-padding:8px 25px;
+border-radius:12px;
 color:white;
-}
-
-section[data-testid="stSidebar"]{
-background:linear-gradient(180deg,#0a0028,#130044);
+padding:8px 20px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------------------------------------
+# ------------------------------------------------
 # LOAD DATA
-# --------------------------------------------------
+# ------------------------------------------------
 
 @st.cache_data
 def load_data():
@@ -70,276 +62,181 @@ def load_data():
 df = load_data()
 
 numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
-categorical_cols = df.select_dtypes(include=["object"]).columns
 
-# --------------------------------------------------
-# LOGIN
-# --------------------------------------------------
-
-if "login" not in st.session_state:
-    st.session_state.login=False
-
-if not st.session_state.login:
-
-    st.markdown("<div class='title'>🌍 Enterprise Data Intelligence</div>",unsafe_allow_html=True)
-
-    user = st.text_input("Username")
-    pw = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-
-        if user=="admin" and pw=="1234":
-            st.session_state.login=True
-            st.rerun()
-        else:
-            st.error("Invalid login")
-
-    st.stop()
-
-# --------------------------------------------------
-# FILTER PANEL
-# --------------------------------------------------
-
-st.sidebar.title("🎛️ Data Filters")
-
-filtered_df = df.copy()
-
-for col in categorical_cols[:3]:
-
-    values = st.sidebar.multiselect(col, df[col].unique())
-
-    if values:
-        filtered_df = filtered_df[filtered_df[col].isin(values)]
-
-# --------------------------------------------------
-# NAVIGATION
-# --------------------------------------------------
+# ------------------------------------------------
+# SIDEBAR NAVIGATION
+# ------------------------------------------------
 
 menu = st.sidebar.selectbox("Navigation",[
-
-"Live KPI Dashboard",
-"3D Globe Map",
-"Animated Analytics",
-"Auto Anomaly Detection",
-"Auto ML Prediction",
+"Live Streaming Dashboard",
+"3D Rotating Globe",
+"AI Forecast Engine",
+"Automatic Insights",
 "AI Data Analyst",
-"Power BI Dashboard",
-"Generate PDF Report",
 "About"
-
 ])
 
-# --------------------------------------------------
-# LIVE KPI STREAMING
-# --------------------------------------------------
+# ------------------------------------------------
+# LIVE STREAMING CHART
+# ------------------------------------------------
 
-if menu=="Live KPI Dashboard":
+if menu=="Live Streaming Dashboard":
 
-    st.markdown("<div class='title'>⚡ Live KPI Dashboard</div>",unsafe_allow_html=True)
+    st.markdown("<div class='big-title'>⚡ Real-Time Data Stream</div>",unsafe_allow_html=True)
 
-    kpi1,kpi2,kpi3 = st.columns(3)
+    chart_placeholder = st.empty()
 
-    placeholder1 = kpi1.empty()
-    placeholder2 = kpi2.empty()
-    placeholder3 = kpi3.empty()
+    data = []
 
-    for i in range(10):
+    for i in range(50):
 
-        placeholder1.metric("Total Records", filtered_df.shape[0] + np.random.randint(-5,5))
-        placeholder2.metric("Avg Value", round(filtered_df[numeric_cols[0]].mean()+np.random.random(),2))
-        placeholder3.metric("Max Value", filtered_df[numeric_cols[0]].max()+np.random.randint(-2,2))
+        data.append(np.random.randn())
 
-        time.sleep(1)
+        fig = go.Figure()
 
-# --------------------------------------------------
-# 3D GLOBE MAP
-# --------------------------------------------------
+        fig.add_trace(go.Scatter(
+            y=data,
+            mode='lines',
+            line=dict(color='#22c1c3',width=3)
+        ))
 
-elif menu=="3D Globe Map":
+        fig.update_layout(
+        template="plotly_dark",
+        title="Live KPI Streaming",
+        )
 
-    st.title("🌍 Global 3D Map")
+        chart_placeholder.plotly_chart(fig,use_container_width=True)
 
-    country_cols=[c for c in filtered_df.columns if "country" in c.lower()]
+        time.sleep(0.3)
 
-    if country_cols:
+# ------------------------------------------------
+# 3D ROTATING GLOBE
+# ------------------------------------------------
 
-        country_col=country_cols[0]
+elif menu=="3D Rotating Globe":
 
-        fig = px.choropleth(
-            filtered_df,
+    st.markdown("<div class='big-title'>🌍 Global Data Globe</div>",unsafe_allow_html=True)
+
+    if "country" in [c.lower() for c in df.columns]:
+
+        country_col=[c for c in df.columns if "country" in c.lower()][0]
+
+        fig = px.scatter_geo(
+            df,
             locations=country_col,
             locationmode="country names",
+            size=numeric_cols[0],
             color=numeric_cols[0],
-            color_continuous_scale="plasma",
-            template="plotly_dark"
+            projection="orthographic"
+        )
+
+        fig.update_layout(
+        template="plotly_dark",
+        title="3D Rotating World Map"
         )
 
         st.plotly_chart(fig,use_container_width=True)
 
     else:
-        st.warning("Country column not detected")
 
-# --------------------------------------------------
-# ANIMATED ANALYTICS
-# --------------------------------------------------
+        st.warning("No country column detected.")
 
-elif menu=="Animated Analytics":
+# ------------------------------------------------
+# AI FORECAST ENGINE
+# ------------------------------------------------
 
-    st.title("📊 Animated Data Visualization")
+elif menu=="AI Forecast Engine":
 
-    x = st.selectbox("X Axis", numeric_cols)
-    y = st.selectbox("Y Axis", numeric_cols)
+    st.markdown("<div class='big-title'>📈 AI Forecast Engine</div>",unsafe_allow_html=True)
 
-    fig = px.scatter(
-        filtered_df,
-        x=x,
-        y=y,
-        size=numeric_cols[0],
-        color=numeric_cols[0],
-        animation_frame=filtered_df.index,
-        color_continuous_scale="turbo",
-        template="plotly_dark"
-    )
-
-    st.plotly_chart(fig,use_container_width=True)
-
-# --------------------------------------------------
-# ANOMALY DETECTION
-# --------------------------------------------------
-
-elif menu=="Auto Anomaly Detection":
-
-    st.title("📈 AI Anomaly Detection")
-
-    model = IsolationForest()
-
-    X = filtered_df[numeric_cols].fillna(0)
-
-    preds = model.fit_predict(X)
-
-    filtered_df["Anomaly"] = preds
-
-    fig = px.scatter(
-        filtered_df,
-        x=numeric_cols[0],
-        y=numeric_cols[1],
-        color="Anomaly",
-        template="plotly_dark"
-    )
-
-    st.plotly_chart(fig,use_container_width=True)
-
-# --------------------------------------------------
-# AUTO ML
-# --------------------------------------------------
-
-elif menu=="Auto ML Prediction":
-
-    st.title("🧠 Auto Machine Learning")
-
-    target = st.selectbox("Target Variable", numeric_cols)
+    target = st.selectbox("Select Prediction Target", numeric_cols)
 
     features=[c for c in numeric_cols if c!=target]
 
-    X=filtered_df[features].fillna(0)
-    y=filtered_df[target].fillna(0)
+    X=df[features].fillna(0)
+    y=df[target].fillna(0)
 
     X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
 
-    models={
-    "LinearRegression":LinearRegression(),
-    "RandomForest":RandomForestRegressor(),
-    "DecisionTree":DecisionTreeRegressor()
-    }
+    model=RandomForestRegressor()
 
-    scores={}
+    model.fit(X_train,y_train)
 
-    for name,model in models.items():
+    preds=model.predict(X_test)
 
-        model.fit(X_train,y_train)
+    fig=go.Figure()
 
-        preds=model.predict(X_test)
+    fig.add_trace(go.Scatter(y=y_test,mode="lines",name="Actual"))
+    fig.add_trace(go.Scatter(y=preds,mode="lines",name="Predicted"))
 
-        scores[name]=r2_score(y_test,preds)
+    fig.update_layout(
+    template="plotly_dark",
+    title="Forecast Prediction Graph"
+    )
 
-    best=max(scores,key=scores.get)
+    st.plotly_chart(fig,use_container_width=True)
 
-    st.success(f"Best Model: {best}")
+# ------------------------------------------------
+# AUTO INSIGHTS
+# ------------------------------------------------
 
-# --------------------------------------------------
+elif menu=="Automatic Insights":
+
+    st.markdown("<div class='big-title'>🧠 Automatic Insight Story</div>",unsafe_allow_html=True)
+
+    for col in numeric_cols:
+
+        mean=df[col].mean()
+        maxv=df[col].max()
+        minv=df[col].min()
+
+        st.markdown(f"""
+        **Insight for {col}**
+
+        • Average value is **{round(mean,2)}**  
+        • Maximum recorded value is **{maxv}**  
+        • Minimum recorded value is **{minv}**
+
+        """)
+
+# ------------------------------------------------
 # AI DATA ANALYST
-# --------------------------------------------------
+# ------------------------------------------------
 
 elif menu=="AI Data Analyst":
 
-    st.title("🤖 AI Data Analyst")
+    st.markdown("<div class='big-title'>🤖 AI Data Analyst</div>",unsafe_allow_html=True)
 
-    question = st.text_input("Ask about the dataset")
+    question = st.text_input("Ask a question about the dataset")
 
     if question:
 
-        st.write("Dataset shape:", filtered_df.shape)
+        st.write("Dataset Shape:", df.shape)
 
         for col in numeric_cols[:3]:
 
-            st.write(f"{col} mean:", round(filtered_df[col].mean(),2))
+            st.write(f"{col} average:",round(df[col].mean(),2))
 
-# --------------------------------------------------
-# POWER BI
-# --------------------------------------------------
+        st.info("AI suggestion: explore correlations between variables.")
 
-elif menu=="Power BI Dashboard":
-
-    st.title("Power BI Dashboard")
-
-    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
-
-    st.components.v1.iframe(powerbi_url,height=700)
-
-# --------------------------------------------------
-# PDF REPORT
-# --------------------------------------------------
-
-elif menu=="Generate PDF Report":
-
-    st.title("Generate Analytics Report")
-
-    if st.button("Create PDF"):
-
-        buffer = io.BytesIO()
-
-        pdf = canvas.Canvas(buffer)
-
-        pdf.drawString(100,750,"Enterprise Analytics Report")
-        pdf.drawString(100,720,f"Rows: {filtered_df.shape[0]}")
-        pdf.drawString(100,700,f"Columns: {filtered_df.shape[1]}")
-
-        pdf.save()
-
-        st.download_button(
-            "Download PDF",
-            buffer.getvalue(),
-            "report.pdf",
-            "application/pdf"
-        )
-
-# --------------------------------------------------
+# ------------------------------------------------
 # ABOUT
-# --------------------------------------------------
+# ------------------------------------------------
 
 elif menu=="About":
 
+    st.markdown("<div class='big-title'>AI Data Platform</div>",unsafe_allow_html=True)
+
     st.write("""
-Enterprise Data Intelligence Platform.
+This project demonstrates a **modern AI-driven analytics dashboard**.
 
-Features:
+Capabilities:
 
-• 3D global map analytics  
-• animated dashboards  
-• AI anomaly detection  
-• auto machine learning  
-• live KPI streaming  
+• Real-time streaming analytics  
+• 3D global visualization  
+• AI forecasting models  
+• automatic insight storytelling  
 • AI data assistant  
-• Power BI integration  
-• automated PDF reports
+
+Built with Streamlit + Plotly + Machine Learning.
 """)
