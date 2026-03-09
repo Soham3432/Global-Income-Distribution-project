@@ -2,58 +2,65 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
 from reportlab.pdfgen import canvas
-import numpy as np
 import io
 
-st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
+st.set_page_config(page_title="Global Intelligence Platform", layout="wide")
 
-# ---------------------------------------------------
-# GLOBAL STYLE
-# ---------------------------------------------------
+# --------------------------------------------------
+# ULTRA GLASSMORPHISM UI
+# --------------------------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background: linear-gradient(135deg,#09001f,#14003d,#24005f);
+background:linear-gradient(135deg,#070020,#120038,#1b0052);
 color:white;
-font-family: 'Segoe UI';
+font-family:Segoe UI;
 }
 
 .title{
-font-size:45px;
-font-weight:700;
+font-size:48px;
+font-weight:800;
 text-align:center;
-background: linear-gradient(90deg,#a855f7,#6366f1);
+background:linear-gradient(90deg,#a855f7,#6366f1);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.metric{
+.card{
 background:rgba(255,255,255,0.05);
+backdrop-filter:blur(15px);
 padding:20px;
-border-radius:15px;
-text-align:center;
+border-radius:18px;
 box-shadow:0 10px 40px rgba(0,0,0,0.7);
 }
 
 .stButton>button{
 background:linear-gradient(90deg,#7c3aed,#6366f1);
 border:none;
-border-radius:10px;
-padding:8px 25px;
+border-radius:12px;
+padding:10px 25px;
 color:white;
+}
+
+section[data-testid="stSidebar"]{
+background:linear-gradient(180deg,#0a0028,#130044);
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # LOAD DATA
-# ---------------------------------------------------
+# --------------------------------------------------
 
 @st.cache_data
 def load_data():
@@ -64,16 +71,16 @@ df = load_data()
 numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
 categorical_cols = df.select_dtypes(include=["object"]).columns
 
-# ---------------------------------------------------
-# LOGIN SYSTEM
-# ---------------------------------------------------
+# --------------------------------------------------
+# LOGIN
+# --------------------------------------------------
 
 if "login" not in st.session_state:
     st.session_state.login=False
 
 if not st.session_state.login:
 
-    st.markdown("<div class='title'>🌍 Global Income Intelligence</div>",unsafe_allow_html=True)
+    st.markdown("<div class='title'>🌍 Global Intelligence Platform</div>",unsafe_allow_html=True)
 
     user = st.text_input("Username")
     pw = st.text_input("Password", type="password")
@@ -84,43 +91,58 @@ if not st.session_state.login:
             st.session_state.login=True
             st.rerun()
         else:
-            st.error("Invalid Login")
+            st.error("Invalid login")
 
     st.stop()
 
-# ---------------------------------------------------
-# SIDEBAR
-# ---------------------------------------------------
+# --------------------------------------------------
+# PROFESSIONAL FILTER PANEL
+# --------------------------------------------------
+
+st.sidebar.title("🎛️ Global Filters")
+
+filtered_df = df.copy()
+
+for col in categorical_cols[:3]:
+
+    values = st.sidebar.multiselect(col, df[col].unique())
+
+    if values:
+        filtered_df = filtered_df[filtered_df[col].isin(values)]
+
+# --------------------------------------------------
+# SIDEBAR NAVIGATION
+# --------------------------------------------------
 
 menu = st.sidebar.selectbox("Navigation",[
 
 "Executive Dashboard",
-"Power BI Dashboard",
-"Dataset Explorer",
+"3D World Map",
+"Animated Time Series",
 "Advanced Charts",
-"Country Analysis",
-"Machine Learning Prediction",
-"AI Forecasting",
+"AI Insights",
+"Auto ML Prediction",
+"Power BI Dashboard",
 "Generate PDF Report",
 "About"
 
 ])
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # EXECUTIVE DASHBOARD
-# ---------------------------------------------------
+# --------------------------------------------------
 
 if menu=="Executive Dashboard":
 
-    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
+    st.markdown("<div class='title'>Executive Analytics</div>",unsafe_allow_html=True)
 
     col1,col2,col3 = st.columns(3)
 
     with col1:
-        st.metric("Rows", df.shape[0])
+        st.metric("Rows", filtered_df.shape[0])
 
     with col2:
-        st.metric("Columns", df.shape[1])
+        st.metric("Columns", filtered_df.shape[1])
 
     with col3:
         st.metric("Numeric Variables", len(numeric_cols))
@@ -128,52 +150,74 @@ if menu=="Executive Dashboard":
     if len(numeric_cols)>0:
 
         fig = px.histogram(
-            df,
+            filtered_df,
             x=numeric_cols[0],
-            nbins=40,
-            color_discrete_sequence=["#8b5cf6"],
+            color_discrete_sequence=["#a855f7"],
             template="plotly_dark"
         )
 
         st.plotly_chart(fig,use_container_width=True)
 
-# ---------------------------------------------------
-# POWER BI
-# ---------------------------------------------------
+# --------------------------------------------------
+# 3D WORLD MAP
+# --------------------------------------------------
 
-elif menu=="Power BI Dashboard":
+elif menu=="3D World Map":
 
-    st.title("Power BI Dashboard")
+    st.title("🌍 Global Income Map")
 
-    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+    if "country" in [c.lower() for c in filtered_df.columns]:
 
-    st.components.v1.iframe(powerbi_url,height=700)
+        country_col=[c for c in filtered_df.columns if "country" in c.lower()][0]
 
-# ---------------------------------------------------
-# DATASET EXPLORER
-# ---------------------------------------------------
+        fig = px.choropleth(
+            filtered_df,
+            locations=country_col,
+            locationmode="country names",
+            color=numeric_cols[0],
+            color_continuous_scale="plasma",
+            template="plotly_dark"
+        )
 
-elif menu=="Dataset Explorer":
+        st.plotly_chart(fig,use_container_width=True)
 
-    st.title("Dataset Explorer")
+    else:
+        st.warning("No country column found.")
 
-    st.dataframe(df)
+# --------------------------------------------------
+# ANIMATED TIME SERIES
+# --------------------------------------------------
 
-    column = st.selectbox("Select Column", df.columns)
+elif menu=="Animated Time Series":
 
-    st.write(df[column].describe())
+    st.title("📊 Animated Data Growth")
 
-# ---------------------------------------------------
+    x = st.selectbox("X Axis", numeric_cols)
+    y = st.selectbox("Y Axis", numeric_cols)
+
+    fig = px.scatter(
+        filtered_df,
+        x=x,
+        y=y,
+        size=numeric_cols[0],
+        color=numeric_cols[0],
+        animation_frame=filtered_df.index,
+        color_continuous_scale="turbo",
+        template="plotly_dark"
+    )
+
+    st.plotly_chart(fig,use_container_width=True)
+
+# --------------------------------------------------
 # ADVANCED CHARTS
-# ---------------------------------------------------
+# --------------------------------------------------
 
 elif menu=="Advanced Charts":
 
-    st.title("Advanced Plotly Visualizations")
+    st.title("📈 Advanced Data Visualizations")
 
-    chart = st.selectbox("Choose Chart",[
+    chart = st.selectbox("Chart Type",[
         "3D Scatter",
-        "Animated Scatter",
         "Bubble Chart",
         "Radar Chart",
         "Correlation Heatmap",
@@ -182,41 +226,19 @@ elif menu=="Advanced Charts":
 
     if chart=="3D Scatter":
 
-        x = st.selectbox("X Axis", numeric_cols)
-        y = st.selectbox("Y Axis", numeric_cols)
-        z = st.selectbox("Z Axis", numeric_cols)
+        x = st.selectbox("X", numeric_cols)
+        y = st.selectbox("Y", numeric_cols)
+        z = st.selectbox("Z", numeric_cols)
 
         fig = go.Figure(data=[go.Scatter3d(
-            x=df[x],
-            y=df[y],
-            z=df[z],
+            x=filtered_df[x],
+            y=filtered_df[y],
+            z=filtered_df[z],
             mode='markers',
-            marker=dict(
-                size=6,
-                color=df[z],
-                colorscale='Plasma',
-                opacity=0.8
-            )
+            marker=dict(size=6,color=filtered_df[z],colorscale='plasma')
         )])
 
         fig.update_layout(template="plotly_dark")
-
-        st.plotly_chart(fig,use_container_width=True)
-
-    elif chart=="Animated Scatter":
-
-        x = st.selectbox("X Axis", numeric_cols)
-        y = st.selectbox("Y Axis", numeric_cols)
-
-        fig = px.scatter(
-            df,
-            x=x,
-            y=y,
-            size=numeric_cols[0],
-            color=numeric_cols[0],
-            animation_frame=df.index,
-            template="plotly_dark"
-        )
 
         st.plotly_chart(fig,use_container_width=True)
 
@@ -226,21 +248,20 @@ elif menu=="Advanced Charts":
         y = st.selectbox("Y Axis", numeric_cols)
 
         fig = px.scatter(
-            df,
+            filtered_df,
             x=x,
             y=y,
             size=numeric_cols[0],
             color=numeric_cols[0],
-            hover_data=df.columns,
-            color_continuous_scale="Rainbow",
-            template="plotly_dark"
+            template="plotly_dark",
+            color_continuous_scale="rainbow"
         )
 
         st.plotly_chart(fig,use_container_width=True)
 
     elif chart=="Radar Chart":
 
-        sample = df[numeric_cols].mean()
+        sample = filtered_df[numeric_cols].mean()
 
         fig = go.Figure()
 
@@ -256,12 +277,12 @@ elif menu=="Advanced Charts":
 
     elif chart=="Correlation Heatmap":
 
-        corr = df[numeric_cols].corr()
+        corr = filtered_df[numeric_cols].corr()
 
         fig = px.imshow(
             corr,
             text_auto=True,
-            color_continuous_scale="Inferno",
+            color_continuous_scale="inferno",
             template="plotly_dark"
         )
 
@@ -269,112 +290,84 @@ elif menu=="Advanced Charts":
 
     elif chart=="3D Surface":
 
-        z = np.outer(df[numeric_cols[0]][:50], df[numeric_cols[1]][:50])
+        z = np.outer(filtered_df[numeric_cols[0]][:50], filtered_df[numeric_cols[1]][:50])
 
-        fig = go.Figure(data=[go.Surface(z=z, colorscale='Viridis')])
+        fig = go.Figure(data=[go.Surface(z=z, colorscale='viridis')])
 
         fig.update_layout(template="plotly_dark")
 
         st.plotly_chart(fig,use_container_width=True)
 
-# ---------------------------------------------------
-# COUNTRY ANALYSIS
-# ---------------------------------------------------
+# --------------------------------------------------
+# AI INSIGHTS GENERATOR
+# --------------------------------------------------
 
-elif menu=="Country Analysis":
+elif menu=="AI Insights":
 
-    st.title("Country Analysis")
+    st.title("🤖 AI Data Insights")
 
-    country_cols=[c for c in df.columns if "country" in c.lower()]
+    st.write("Automatic insights generated from dataset")
 
-    if country_cols:
+    for col in numeric_cols:
 
-        country_col=country_cols[0]
+        st.write(f"**{col}**")
 
-        country = st.selectbox("Select Country", df[country_col].unique())
+        st.write("Mean:", round(filtered_df[col].mean(),2))
+        st.write("Max:", filtered_df[col].max())
+        st.write("Min:", filtered_df[col].min())
 
-        filtered = df[df[country_col]==country]
+# --------------------------------------------------
+# AUTO ML MODEL SELECTION
+# --------------------------------------------------
 
-        st.dataframe(filtered)
+elif menu=="Auto ML Prediction":
 
-        fig = px.bar(
-            filtered,
-            y=numeric_cols[0],
-            color_discrete_sequence=["#6366f1"],
-            template="plotly_dark"
-        )
-
-        st.plotly_chart(fig,use_container_width=True)
-
-# ---------------------------------------------------
-# ML PREDICTION
-# ---------------------------------------------------
-
-elif menu=="Machine Learning Prediction":
-
-    st.title("Machine Learning Prediction")
+    st.title("🧠 Auto Machine Learning")
 
     target = st.selectbox("Target Variable", numeric_cols)
 
     features=[c for c in numeric_cols if c!=target]
 
-    X=df[features].fillna(0)
-    y=df[target].fillna(0)
+    X=filtered_df[features].fillna(0)
+    y=filtered_df[target].fillna(0)
 
-    model=LinearRegression()
+    X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
 
-    model.fit(X,y)
+    models={
+    "LinearRegression":LinearRegression(),
+    "RandomForest":RandomForestRegressor(),
+    "DecisionTree":DecisionTreeRegressor()
+    }
 
-    inputs=[]
+    scores={}
 
-    for col in features:
+    for name,model in models.items():
 
-        val=st.number_input(col,value=float(X[col].mean()))
+        model.fit(X_train,y_train)
 
-        inputs.append(val)
+        preds=model.predict(X_test)
 
-    if st.button("Predict"):
+        scores[name]=r2_score(y_test,preds)
 
-        prediction=model.predict([inputs])[0]
+    best=max(scores,key=scores.get)
 
-        st.success(f"Predicted {target}: {prediction}")
+    st.success(f"Best Model: {best}")
 
-# ---------------------------------------------------
-# AI FORECAST
-# ---------------------------------------------------
+# --------------------------------------------------
+# POWER BI
+# --------------------------------------------------
 
-elif menu=="AI Forecasting":
+elif menu=="Power BI Dashboard":
 
-    st.title("AI Forecasting")
+    st.title("Power BI Dashboard")
 
-    target = st.selectbox("Target Variable", numeric_cols)
+    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
 
-    features=[c for c in numeric_cols if c!=target]
+    st.components.v1.iframe(powerbi_url,height=700)
 
-    X=df[features].fillna(0)
-    y=df[target].fillna(0)
-
-    model=RandomForestRegressor()
-
-    model.fit(X,y)
-
-    inputs=[]
-
-    for col in features:
-
-        val=st.number_input(col,value=float(X[col].mean()))
-
-        inputs.append(val)
-
-    if st.button("Forecast"):
-
-        prediction=model.predict([inputs])[0]
-
-        st.success(f"Forecasted {target}: {prediction}")
-
-# ---------------------------------------------------
+# --------------------------------------------------
 # PDF REPORT
-# ---------------------------------------------------
+# --------------------------------------------------
 
 elif menu=="Generate PDF Report":
 
@@ -386,9 +379,9 @@ elif menu=="Generate PDF Report":
 
         pdf = canvas.Canvas(buffer)
 
-        pdf.drawString(100,750,"Global Income Report")
-        pdf.drawString(100,720,f"Rows: {df.shape[0]}")
-        pdf.drawString(100,700,f"Columns: {df.shape[1]}")
+        pdf.drawString(100,750,"Global Intelligence Report")
+        pdf.drawString(100,720,f"Rows: {filtered_df.shape[0]}")
+        pdf.drawString(100,700,f"Columns: {filtered_df.shape[1]}")
 
         pdf.save()
 
@@ -399,20 +392,22 @@ elif menu=="Generate PDF Report":
             "application/pdf"
         )
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # ABOUT
-# ---------------------------------------------------
+# --------------------------------------------------
 
 elif menu=="About":
 
     st.write("""
-Advanced analytics platform for **income distribution dataset**.
+Enterprise-grade **data intelligence dashboard**.
 
 Features:
-• 3D data visualizations  
-• Animated charts  
-• Machine learning prediction  
-• AI forecasting  
-• Embedded Power BI  
-• PDF analytics report
+
+• 3D global visualization  
+• animated analytics  
+• AI insights  
+• auto ML prediction  
+• professional filters  
+• Power BI integration  
+• PDF analytics reports
 """)
