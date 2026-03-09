@@ -1,59 +1,106 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-import time
+from sklearn.ensemble import RandomForestRegressor
+from reportlab.pdfgen import canvas
+import io
 
-st.set_page_config(page_title="AI Data Intelligence Platform", layout="wide")
+st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
-# ------------------------------------------------
-# ULTRA MODERN UI
-# ------------------------------------------------
+# ---------------- ADVANCED 3D UI STYLE ---------------- #
 
 st.markdown("""
 <style>
 
-.stApp{
-background: radial-gradient(circle at top,#0f172a,#020617);
-color:white;
-font-family:Inter;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Poppins', sans-serif;
 }
 
-.big-title{
-font-size:52px;
-font-weight:900;
+/* Background */
+
+.stApp{
+background: linear-gradient(135deg,#09001f,#14003d,#24005f);
+color:white;
+}
+
+/* Title */
+
+.main-title{
+font-size:48px;
+font-weight:700;
 text-align:center;
-background:linear-gradient(90deg,#22c1c3,#fdbb2d);
+background: linear-gradient(90deg,#a855f7,#6366f1);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+margin-bottom:20px;
 }
+
+/* Glass Cards */
 
 .card{
-background:rgba(255,255,255,0.04);
-border-radius:20px;
-padding:20px;
-backdrop-filter:blur(20px);
-box-shadow:0 20px 60px rgba(0,0,0,0.6);
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(15px);
+border-radius:18px;
+padding:25px;
+box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+transition:0.4s;
 }
 
+.card:hover{
+transform: translateY(-8px) scale(1.02);
+box-shadow:0 20px 60px rgba(120,0,255,0.6);
+}
+
+/* Metrics */
+
+.metric-card{
+background:linear-gradient(145deg,#2b0a68,#1a0440);
+border-radius:16px;
+padding:25px;
+text-align:center;
+box-shadow:0 10px 40px rgba(0,0,0,0.7);
+}
+
+/* Buttons */
+
 .stButton>button{
-background:linear-gradient(90deg,#00c6ff,#0072ff);
+background:linear-gradient(90deg,#7c3aed,#6366f1);
 border:none;
 border-radius:12px;
+padding:10px 30px;
 color:white;
-padding:8px 20px;
+font-weight:bold;
+transition:0.3s;
+}
+
+.stButton>button:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px #7c3aed;
+}
+
+/* Sidebar */
+
+section[data-testid="stSidebar"]{
+background:linear-gradient(180deg,#0d0028,#14003d);
+border-right:1px solid rgba(255,255,255,0.1);
+}
+
+/* Filter container */
+
+.filter-box{
+background:rgba(255,255,255,0.06);
+padding:15px;
+border-radius:15px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ------------------------------------------------
-# LOAD DATA
-# ------------------------------------------------
+# ---------------- LOAD DATA ---------------- #
 
 @st.cache_data
 def load_data():
@@ -62,181 +109,260 @@ def load_data():
 df = load_data()
 
 numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
+categorical_cols = df.select_dtypes(include=["object"]).columns
 
-# ------------------------------------------------
-# SIDEBAR NAVIGATION
-# ------------------------------------------------
 
-menu = st.sidebar.selectbox("Navigation",[
-"Live Streaming Dashboard",
-"3D Rotating Globe",
-"AI Forecast Engine",
-"Automatic Insights",
-"AI Data Analyst",
-"About"
-])
+# ---------------- LOGIN ---------------- #
 
-# ------------------------------------------------
-# LIVE STREAMING CHART
-# ------------------------------------------------
+if "login" not in st.session_state:
+    st.session_state.login=False
 
-if menu=="Live Streaming Dashboard":
+if not st.session_state.login:
 
-    st.markdown("<div class='big-title'>⚡ Real-Time Data Stream</div>",unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>🌍 Global Income Intelligence</div>", unsafe_allow_html=True)
 
-    chart_placeholder = st.empty()
+    col1,col2,col3 = st.columns([1,2,1])
 
-    data = []
+    with col2:
 
-    for i in range(50):
+        st.markdown("<div class='card'>",unsafe_allow_html=True)
 
-        data.append(np.random.randn())
+        user = st.text_input("👤 Username")
+        pw = st.text_input("🔑 Password", type="password")
 
-        fig = go.Figure()
+        if st.button("🚀 Login"):
+            if user=="admin" and pw=="1234":
+                st.session_state.login=True
+                st.rerun()
+            else:
+                st.error("Invalid credentials")
 
-        fig.add_trace(go.Scatter(
-            y=data,
-            mode='lines',
-            line=dict(color='#22c1c3',width=3)
-        ))
+        st.markdown("</div>",unsafe_allow_html=True)
 
-        fig.update_layout(
-        template="plotly_dark",
-        title="Live KPI Streaming",
-        )
+    st.stop()
 
-        chart_placeholder.plotly_chart(fig,use_container_width=True)
+# ---------------- SIDEBAR ---------------- #
 
-        time.sleep(0.3)
+st.sidebar.title("🚀 Navigation")
 
-# ------------------------------------------------
-# 3D ROTATING GLOBE
-# ------------------------------------------------
+menu = st.sidebar.radio(
+"",
+[
+"📊 Executive Dashboard",
+"📈 Power BI Dashboard",
+"🔎 Dataset Explorer",
+"📉 Interactive Charts",
+"🌎 Country Analysis",
+"🤖 ML Prediction",
+"🧠 ML Forecast",
+"📄 Generate Report",
+"ℹ️ About"
+]
+)
 
-elif menu=="3D Rotating Globe":
+# ---------------- EXECUTIVE DASHBOARD ---------------- #
 
-    st.markdown("<div class='big-title'>🌍 Global Data Globe</div>",unsafe_allow_html=True)
+if menu=="📊 Executive Dashboard":
 
-    if "country" in [c.lower() for c in df.columns]:
+    st.markdown("<div class='main-title'>Executive Analytics Dashboard</div>",unsafe_allow_html=True)
 
-        country_col=[c for c in df.columns if "country" in c.lower()][0]
+    col1,col2,col3 = st.columns(3)
 
-        fig = px.scatter_geo(
+    with col1:
+        st.markdown(f"""
+        <div class="metric-card">
+        <h3>Rows</h3>
+        <h1>{df.shape[0]}</h1>
+        </div>
+        """,unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""
+        <div class="metric-card">
+        <h3>Columns</h3>
+        <h1>{df.shape[1]}</h1>
+        </div>
+        """,unsafe_allow_html=True)
+
+    with col3:
+        st.markdown(f"""
+        <div class="metric-card">
+        <h3>Numeric Variables</h3>
+        <h1>{len(numeric_cols)}</h1>
+        </div>
+        """,unsafe_allow_html=True)
+
+    if len(numeric_cols)>0:
+
+        fig = px.histogram(
             df,
-            locations=country_col,
-            locationmode="country names",
-            size=numeric_cols[0],
-            color=numeric_cols[0],
-            projection="orthographic"
-        )
-
-        fig.update_layout(
-        template="plotly_dark",
-        title="3D Rotating World Map"
+            x=numeric_cols[0],
+            color_discrete_sequence=["#8b5cf6"]
         )
 
         st.plotly_chart(fig,use_container_width=True)
 
-    else:
+# ---------------- POWER BI ---------------- #
 
-        st.warning("No country column detected.")
+elif menu=="📈 Power BI Dashboard":
 
-# ------------------------------------------------
-# AI FORECAST ENGINE
-# ------------------------------------------------
+    st.markdown("<div class='main-title'>Power BI Embedded Dashboard</div>",unsafe_allow_html=True)
 
-elif menu=="AI Forecast Engine":
+    powerbi_url = "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
 
-    st.markdown("<div class='big-title'>📈 AI Forecast Engine</div>",unsafe_allow_html=True)
+    st.components.v1.iframe(powerbi_url,height=700)
 
-    target = st.selectbox("Select Prediction Target", numeric_cols)
+# ---------------- DATA EXPLORER ---------------- #
+
+elif menu=="🔎 Dataset Explorer":
+
+    st.markdown("<div class='main-title'>Dataset Explorer</div>",unsafe_allow_html=True)
+
+    st.dataframe(df,use_container_width=True)
+
+    st.markdown("<div class='filter-box'>",unsafe_allow_html=True)
+
+    column = st.selectbox("Select Column", df.columns)
+
+    st.write(df[column].describe())
+
+    st.markdown("</div>",unsafe_allow_html=True)
+
+# ---------------- INTERACTIVE CHARTS ---------------- #
+
+elif menu=="📉 Interactive Charts":
+
+    st.markdown("<div class='main-title'>Interactive Visualizations</div>",unsafe_allow_html=True)
+
+    st.markdown("<div class='filter-box'>",unsafe_allow_html=True)
+
+    x = st.selectbox("X Axis", numeric_cols)
+    y = st.selectbox("Y Axis", numeric_cols)
+
+    st.markdown("</div>",unsafe_allow_html=True)
+
+    fig = px.scatter(
+        df,
+        x=x,
+        y=y,
+        color_discrete_sequence=["#a855f7"]
+    )
+
+    st.plotly_chart(fig,use_container_width=True)
+
+# ---------------- COUNTRY ANALYSIS ---------------- #
+
+elif menu=="🌎 Country Analysis":
+
+    st.markdown("<div class='main-title'>Country Level Analysis</div>",unsafe_allow_html=True)
+
+    country_cols=[c for c in df.columns if "country" in c.lower()]
+
+    if country_cols:
+
+        country_col=country_cols[0]
+
+        country = st.selectbox("Select Country", df[country_col].unique())
+
+        filtered = df[df[country_col]==country]
+
+        st.dataframe(filtered)
+
+        fig = px.bar(filtered,y=numeric_cols[0],color_discrete_sequence=["#6366f1"])
+
+        st.plotly_chart(fig,use_container_width=True)
+
+# ---------------- ML PREDICTION ---------------- #
+
+elif menu=="🤖 ML Prediction":
+
+    st.markdown("<div class='main-title'>Machine Learning Prediction</div>",unsafe_allow_html=True)
+
+    target = st.selectbox("Target Variable", numeric_cols)
 
     features=[c for c in numeric_cols if c!=target]
 
     X=df[features].fillna(0)
     y=df[target].fillna(0)
 
-    X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
+    model=LinearRegression()
+    model.fit(X,y)
+
+    inputs=[]
+
+    st.subheader("Enter Feature Values")
+
+    for col in features:
+        val = st.number_input(col,value=float(X[col].mean()))
+        inputs.append(val)
+
+    if st.button("Predict"):
+
+        prediction=model.predict([inputs])[0]
+
+        st.success(f"Predicted {target}: {prediction}")
+
+# ---------------- ML FORECAST ---------------- #
+
+elif menu=="🧠 ML Forecast":
+
+    st.markdown("<div class='main-title'>AI Forecasting Engine</div>",unsafe_allow_html=True)
+
+    target = st.selectbox("Target Variable", numeric_cols)
+
+    features=[c for c in numeric_cols if c!=target]
+
+    X=df[features].fillna(0)
+    y=df[target].fillna(0)
 
     model=RandomForestRegressor()
+    model.fit(X,y)
 
-    model.fit(X_train,y_train)
+    inputs=[]
 
-    preds=model.predict(X_test)
+    for col in features:
+        val = st.number_input(col,value=float(X[col].mean()))
+        inputs.append(val)
 
-    fig=go.Figure()
+    if st.button("Forecast"):
 
-    fig.add_trace(go.Scatter(y=y_test,mode="lines",name="Actual"))
-    fig.add_trace(go.Scatter(y=preds,mode="lines",name="Predicted"))
+        prediction=model.predict([inputs])[0]
 
-    fig.update_layout(
-    template="plotly_dark",
-    title="Forecast Prediction Graph"
-    )
+        st.success(f"Forecasted {target}: {prediction}")
 
-    st.plotly_chart(fig,use_container_width=True)
+# ---------------- REPORT ---------------- #
 
-# ------------------------------------------------
-# AUTO INSIGHTS
-# ------------------------------------------------
+elif menu=="📄 Generate Report":
 
-elif menu=="Automatic Insights":
+    st.markdown("<div class='main-title'>Generate Analytics Report</div>",unsafe_allow_html=True)
 
-    st.markdown("<div class='big-title'>🧠 Automatic Insight Story</div>",unsafe_allow_html=True)
+    if st.button("Generate PDF"):
 
-    for col in numeric_cols:
+        buffer = io.BytesIO()
 
-        mean=df[col].mean()
-        maxv=df[col].max()
-        minv=df[col].min()
+        pdf = canvas.Canvas(buffer)
 
-        st.markdown(f"""
-        **Insight for {col}**
+        pdf.drawString(100,750,"Global Income Report")
+        pdf.drawString(100,720,f"Rows: {df.shape[0]}")
+        pdf.drawString(100,700,f"Columns: {df.shape[1]}")
 
-        • Average value is **{round(mean,2)}**  
-        • Maximum recorded value is **{maxv}**  
-        • Minimum recorded value is **{minv}**
+        pdf.save()
 
-        """)
+        st.download_button("Download PDF",buffer.getvalue(),"report.pdf")
 
-# ------------------------------------------------
-# AI DATA ANALYST
-# ------------------------------------------------
+# ---------------- ABOUT ---------------- #
 
-elif menu=="AI Data Analyst":
+elif menu=="ℹ️ About":
 
-    st.markdown("<div class='big-title'>🤖 AI Data Analyst</div>",unsafe_allow_html=True)
-
-    question = st.text_input("Ask a question about the dataset")
-
-    if question:
-
-        st.write("Dataset Shape:", df.shape)
-
-        for col in numeric_cols[:3]:
-
-            st.write(f"{col} average:",round(df[col].mean(),2))
-
-        st.info("AI suggestion: explore correlations between variables.")
-
-# ------------------------------------------------
-# ABOUT
-# ------------------------------------------------
-
-elif menu=="About":
-
-    st.markdown("<div class='big-title'>AI Data Platform</div>",unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>About Platform</div>",unsafe_allow_html=True)
 
     st.write("""
-This project demonstrates a **modern AI-driven analytics dashboard**.
+    This platform provides **advanced analytics for global income distribution.**
 
-Capabilities:
-
-• Real-time streaming analytics  
-• 3D global visualization  
-• AI forecasting models  
-• automatic insight storytelling  
-• AI data assistant  
-
-Built with Streamlit + Plotly + Machine Learning.
-""")
+    Features include:
+    - Interactive dashboards
+    - Embedded Power BI reports
+    - Machine learning prediction
+    - AI forecasting
+    - PDF analytics reports
+    """)
