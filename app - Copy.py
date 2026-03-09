@@ -1,260 +1,418 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from reportlab.pdfgen import canvas
+import numpy as np
+import io
 
-st.set_page_config(
-    page_title="AI Enterprise Analytics Dashboard",
-    layout="wide"
-)
+st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
-# ---------------- CUSTOM CSS ---------------- #
+# ---------------------------------------------------
+# GLOBAL STYLE
+# ---------------------------------------------------
 
 st.markdown("""
 <style>
 
-.main-title{
-font-size:40px;
-font-weight:700;
-text-align:center;
-margin-bottom:30px;
+.stApp{
+background: linear-gradient(135deg,#09001f,#14003d,#24005f);
+color:white;
+font-family: 'Segoe UI';
 }
 
-.glass{
-background: rgba(255,255,255,0.1);
+.title{
+font-size:45px;
+font-weight:700;
+text-align:center;
+background: linear-gradient(90deg,#a855f7,#6366f1);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.metric{
+background:rgba(255,255,255,0.05);
 padding:20px;
 border-radius:15px;
-backdrop-filter: blur(10px);
+text-align:center;
+box-shadow:0 10px 40px rgba(0,0,0,0.7);
+}
+
+.stButton>button{
+background:linear-gradient(90deg,#7c3aed,#6366f1);
+border:none;
+border-radius:10px;
+padding:8px 25px;
+color:white;
 }
 
 </style>
-""",unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# ---------------- HEADER ---------------- #
+# ---------------------------------------------------
+# LOAD DATA
+# ---------------------------------------------------
 
-st.markdown("<div class='main-title'>AI Enterprise Analytics Dashboard</div>",unsafe_allow_html=True)
+@st.cache_data
+def load_data():
+    return pd.read_csv("final.sheet.csv")
 
-# ---------------- FILE UPLOAD ---------------- #
+df = load_data()
 
-file = st.file_uploader("Upload Dataset (CSV)", type=["csv"])
+numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
+categorical_cols = df.select_dtypes(include=["object"]).columns
 
-if file is None:
-    st.info("Upload a dataset to start.")
+# ---------------------------------------------------
+# LOGIN SYSTEM
+# ---------------------------------------------------
+
+if "login" not in st.session_state:
+    st.session_state.login=False
+
+if not st.session_state.login:
+
+    st.markdown("<div class='title'>🌍 Global Income Intelligence</div>",unsafe_allow_html=True)
+
+    user = st.text_input("Username")
+    pw = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+
+        if user=="admin" and pw=="1234":
+            st.session_state.login=True
+            st.rerun()
+        else:
+            st.error("Invalid Login")
+
     st.stop()
 
-df = pd.read_csv(file)
+# ---------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------
 
-numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
+menu = st.sidebar.selectbox("Navigation",[
 
-st.write("Dataset Preview")
-st.dataframe(df.head())
+"Executive Dashboard",
+"Power BI Dashboard",
+"Dataset Explorer",
+"Advanced Charts",
+"Country Analysis",
+"Machine Learning Prediction",
+"AI Forecasting",
+"Generate PDF Report",
+"About"
 
-# ---------------- MENU ---------------- #
+])
 
-menu = st.sidebar.radio(
-    "Navigation",
-    [
-        "📊 Dashboard",
-        "🌍 3D Globe",
-        "📈 Advanced Charts",
-        "🤖 ML Prediction",
-        "🧠 ML Forecast",
-        "💡 AI Insights"
-    ]
-)
+# ---------------------------------------------------
+# EXECUTIVE DASHBOARD
+# ---------------------------------------------------
 
-# ---------------- DASHBOARD ---------------- #
+if menu=="Executive Dashboard":
 
-if menu=="📊 Dashboard":
-
-    st.subheader("Key Metrics")
+    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
 
     col1,col2,col3 = st.columns(3)
 
-    col1.metric("Rows",len(df))
-    col2.metric("Columns",len(df.columns))
-    col3.metric("Numeric Features",len(numeric_cols))
+    with col1:
+        st.metric("Rows", df.shape[0])
 
-    if numeric_cols:
+    with col2:
+        st.metric("Columns", df.shape[1])
 
-        fig = px.histogram(df,x=numeric_cols[0])
+    with col3:
+        st.metric("Numeric Variables", len(numeric_cols))
 
-        st.plotly_chart(fig,use_container_width=True)
+    if len(numeric_cols)>0:
 
-# ---------------- 3D GLOBE ---------------- #
-
-elif menu=="🌍 3D Globe":
-
-    st.subheader("3D Global Visualization")
-
-    lat_col=[c for c in df.columns if "lat" in c.lower()]
-    lon_col=[c for c in df.columns if "lon" in c.lower()]
-
-    if lat_col and lon_col:
-
-        fig = px.scatter_geo(
-            df,
-            lat=lat_col[0],
-            lon=lon_col[0],
-            size=numeric_cols[0] if numeric_cols else None,
-            projection="orthographic"
-        )
-
-        fig.update_layout(height=700)
-
-        st.plotly_chart(fig,use_container_width=True)
-
-    else:
-        st.warning("Dataset needs latitude and longitude columns.")
-
-# ---------------- ADVANCED CHARTS ---------------- #
-
-elif menu=="📈 Advanced Charts":
-
-    st.subheader("Advanced Visualizations")
-
-    if len(numeric_cols)>=2:
-
-        fig = px.scatter(
+        fig = px.histogram(
             df,
             x=numeric_cols[0],
-            y=numeric_cols[1],
-            color=numeric_cols[1],
-            size=numeric_cols[0],
+            nbins=40,
+            color_discrete_sequence=["#8b5cf6"],
             template="plotly_dark"
         )
 
         st.plotly_chart(fig,use_container_width=True)
 
-        fig2 = px.box(df,y=numeric_cols[0])
-        st.plotly_chart(fig2,use_container_width=True)
+# ---------------------------------------------------
+# POWER BI
+# ---------------------------------------------------
 
-# ---------------- ML PREDICTION ---------------- #
+elif menu=="Power BI Dashboard":
 
-elif menu=="🤖 ML Prediction":
+    st.title("Power BI Dashboard")
 
-    st.subheader("Prediction by Year")
+    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
 
-    year_cols=[c for c in df.columns if "year" in c.lower()]
+    st.components.v1.iframe(powerbi_url,height=700)
 
-    if not year_cols:
+# ---------------------------------------------------
+# DATASET EXPLORER
+# ---------------------------------------------------
 
-        st.error("Dataset must contain a Year column.")
-        st.stop()
+elif menu=="Dataset Explorer":
 
-    year_col=year_cols[0]
+    st.title("Dataset Explorer")
+
+    st.dataframe(df)
+
+    column = st.selectbox("Select Column", df.columns)
+
+    st.write(df[column].describe())
+
+# ---------------------------------------------------
+# ADVANCED CHARTS
+# ---------------------------------------------------
+
+elif menu=="Advanced Charts":
+
+    st.title("Advanced Plotly Visualizations")
+
+    chart = st.selectbox("Choose Chart",[
+        "3D Scatter",
+        "Animated Scatter",
+        "Bubble Chart",
+        "Radar Chart",
+        "Correlation Heatmap",
+        "3D Surface"
+    ])
+
+    if chart=="3D Scatter":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+        z = st.selectbox("Z Axis", numeric_cols)
+
+        fig = go.Figure(data=[go.Scatter3d(
+            x=df[x],
+            y=df[y],
+            z=df[z],
+            mode='markers',
+            marker=dict(
+                size=6,
+                color=df[z],
+                colorscale='Plasma',
+                opacity=0.8
+            )
+        )])
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Animated Scatter":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            size=numeric_cols[0],
+            color=numeric_cols[0],
+            animation_frame=df.index,
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Bubble Chart":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            size=numeric_cols[0],
+            color=numeric_cols[0],
+            hover_data=df.columns,
+            color_continuous_scale="Rainbow",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Radar Chart":
+
+        sample = df[numeric_cols].mean()
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatterpolar(
+            r=sample.values,
+            theta=sample.index,
+            fill='toself'
+        ))
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Correlation Heatmap":
+
+        corr = df[numeric_cols].corr()
+
+        fig = px.imshow(
+            corr,
+            text_auto=True,
+            color_continuous_scale="Inferno",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="3D Surface":
+
+        z = np.outer(df[numeric_cols[0]][:50], df[numeric_cols[1]][:50])
+
+        fig = go.Figure(data=[go.Surface(z=z, colorscale='Viridis')])
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+# ---------------------------------------------------
+# COUNTRY ANALYSIS
+# ---------------------------------------------------
+
+elif menu=="Country Analysis":
+
+    st.title("Country Analysis")
+
+    country_cols=[c for c in df.columns if "country" in c.lower()]
+
+    if country_cols:
+
+        country_col=country_cols[0]
+
+        country = st.selectbox("Select Country", df[country_col].unique())
+
+        filtered = df[df[country_col]==country]
+
+        st.dataframe(filtered)
+
+        fig = px.bar(
+            filtered,
+            y=numeric_cols[0],
+            color_discrete_sequence=["#6366f1"],
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+# ---------------------------------------------------
+# ML PREDICTION
+# ---------------------------------------------------
+
+elif menu=="Machine Learning Prediction":
+
+    st.title("Machine Learning Prediction")
 
     target = st.selectbox("Target Variable", numeric_cols)
 
-    X=df[[year_col]]
-    y=df[target]
+    features=[c for c in numeric_cols if c!=target]
+
+    X=df[features].fillna(0)
+    y=df[target].fillna(0)
 
     model=LinearRegression()
+
     model.fit(X,y)
 
-    year_input = st.slider(
-        "Select Year",
-        int(df[year_col].min()),
-        int(df[year_col].max()+10),
-        int(df[year_col].mean())
-    )
+    inputs=[]
+
+    for col in features:
+
+        val=st.number_input(col,value=float(X[col].mean()))
+
+        inputs.append(val)
 
     if st.button("Predict"):
 
-        prediction=model.predict([[year_input]])[0]
+        prediction=model.predict([inputs])[0]
 
-        st.success(f"Predicted {target} for {year_input}: {round(prediction,2)}")
+        st.success(f"Predicted {target}: {prediction}")
 
-        fig = px.scatter(df,x=year_col,y=target)
+# ---------------------------------------------------
+# AI FORECAST
+# ---------------------------------------------------
 
-        fig.add_scatter(
-            x=[year_input],
-            y=[prediction],
-            mode="markers",
-            marker=dict(size=15,color="red"),
-            name="Prediction"
-        )
+elif menu=="AI Forecasting":
 
-        st.plotly_chart(fig,use_container_width=True)
-
-# ---------------- ML FORECAST ---------------- #
-
-elif menu=="🧠 ML Forecast":
-
-    st.subheader("Future Forecast")
-
-    year_cols=[c for c in df.columns if "year" in c.lower()]
-
-    if not year_cols:
-
-        st.error("Dataset must contain a Year column.")
-        st.stop()
-
-    year_col=year_cols[0]
+    st.title("AI Forecasting")
 
     target = st.selectbox("Target Variable", numeric_cols)
 
-    X=df[[year_col]]
-    y=df[target]
+    features=[c for c in numeric_cols if c!=target]
+
+    X=df[features].fillna(0)
+    y=df[target].fillna(0)
 
     model=RandomForestRegressor()
+
     model.fit(X,y)
 
-    future_year = st.slider(
-        "Future Year",
-        int(df[year_col].min()),
-        int(df[year_col].max()+20),
-        int(df[year_col].max()+5)
-    )
+    inputs=[]
+
+    for col in features:
+
+        val=st.number_input(col,value=float(X[col].mean()))
+
+        inputs.append(val)
 
     if st.button("Forecast"):
 
-        prediction=model.predict([[future_year]])[0]
+        prediction=model.predict([inputs])[0]
 
-        st.success(f"Forecasted {target} for {future_year}: {round(prediction,2)}")
+        st.success(f"Forecasted {target}: {prediction}")
 
-        fig = px.line(df,x=year_col,y=target)
+# ---------------------------------------------------
+# PDF REPORT
+# ---------------------------------------------------
 
-        fig.add_scatter(
-            x=[future_year],
-            y=[prediction],
-            mode="markers",
-            marker=dict(size=15,color="orange"),
-            name="Forecast"
+elif menu=="Generate PDF Report":
+
+    st.title("Generate Report")
+
+    if st.button("Create PDF"):
+
+        buffer = io.BytesIO()
+
+        pdf = canvas.Canvas(buffer)
+
+        pdf.drawString(100,750,"Global Income Report")
+        pdf.drawString(100,720,f"Rows: {df.shape[0]}")
+        pdf.drawString(100,700,f"Columns: {df.shape[1]}")
+
+        pdf.save()
+
+        st.download_button(
+            "Download PDF",
+            buffer.getvalue(),
+            "report.pdf",
+            "application/pdf"
         )
 
-        st.plotly_chart(fig,use_container_width=True)
+# ---------------------------------------------------
+# ABOUT
+# ---------------------------------------------------
 
-# ---------------- AI INSIGHTS ---------------- #
+elif menu=="About":
 
-elif menu=="💡 AI Insights":
+    st.write("""
+Advanced analytics platform for **income distribution dataset**.
 
-    st.subheader("Automatic Insight Generator")
-
-    insights=[]
-
-    for col in numeric_cols:
-
-        mean=df[col].mean()
-        std=df[col].std()
-        max_val=df[col].max()
-        min_val=df[col].min()
-
-        insight=f"""
-        {col}
-
-        Average: {round(mean,2)}
-        Highest: {round(max_val,2)}
-        Lowest: {round(min_val,2)}
-        Std Dev: {round(std,2)}
-        """
-
-        insights.append(insight)
-
-    for i in insights:
-
-        st.info(i)
+Features:
+• 3D data visualizations  
+• Animated charts  
+• Machine learning prediction  
+• AI forecasting  
+• Embedded Power BI  
+• PDF analytics report
+""")
