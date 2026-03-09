@@ -3,283 +3,287 @@ import plotly.express as px
 import plotly.graph_objects as go
 import random
 
-st.set_page_config(page_title="Global Income Distribution Dashboard", layout="wide")
+st.set_page_config(page_title="Global Income Distribution Intelligence Platform", layout="wide")
 
-# ---------------- UI STYLE ---------------- #
+# ------------------ UI STYLE ------------------ #
 
 st.markdown("""
 <style>
 
-body{
-background-color:#0E0033;
+body {
+background: linear-gradient(135deg,#0f0033,#1c004d);
 color:white;
 }
 
-.title{
-text-align:center;
-font-size:50px;
-font-weight:bold;
-color:#c9b6ff;
-}
-
-.card{
-background:#1A0F4D;
+.glass {
+background: rgba(255,255,255,0.05);
+border-radius:16px;
 padding:25px;
-border-radius:15px;
-text-align:center;
-box-shadow:0px 5px 15px rgba(0,0,0,0.5);
+backdrop-filter: blur(10px);
+box-shadow:0px 8px 30px rgba(0,0,0,0.6);
 }
 
-.metric{
+.title {
+font-size:48px;
+text-align:center;
+font-weight:700;
+color:#cdb7ff;
+}
+
+.metric {
 font-size:30px;
 font-weight:bold;
 color:#9f8bff;
 }
 
-.sidebar .sidebar-content{
-background:#140a3d;
+.sidebar .sidebar-content {
+background:#150a3d;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- LOGIN PAGE ---------------- #
+# ------------------ SAMPLE DATA ------------------ #
+
+countries = ["USA","India","Brazil","Germany","China","South Africa","UK","France","Japan","Canada"]
+iso = ["USA","IND","BRA","DEU","CHN","ZAF","GBR","FRA","JPN","CAN"]
+gini = [41,35,53,31,38,63,34,32,33,30]
+years = [2000,2005,2010,2015,2020]
+
+trend_data = {
+"USA":[38,39,40,41,42],
+"India":[30,32,33,34,35],
+"Brazil":[55,54,53,52,53],
+"Germany":[29,30,30,31,31],
+"China":[35,36,37,38,38]
+}
+
+# ------------------ LOGIN ------------------ #
 
 if "logged" not in st.session_state:
     st.session_state.logged=False
 
 if not st.session_state.logged:
 
-    st.markdown("<div class='title'>Global Income Distribution Dashboard</div>",unsafe_allow_html=True)
+    st.markdown("<div class='title'>Global Income Distribution Intelligence Platform</div>",unsafe_allow_html=True)
 
     st.write("")
     st.write("")
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+    user=st.text_input("Username")
+    pw=st.text_input("Password",type="password")
 
     if st.button("Login"):
-        if username=="admin" and password=="1234":
+        if user=="admin" and pw=="1234":
             st.session_state.logged=True
             st.rerun()
         else:
-            st.error("Invalid Login")
+            st.error("Invalid login")
 
     st.stop()
 
-# ---------------- SIDEBAR ---------------- #
+# ------------------ SIDEBAR ------------------ #
 
-menu = st.sidebar.selectbox(
-"Navigation",
-[
-"Dashboard",
-"Global Map",
+menu=st.sidebar.selectbox("Navigation",[
+"Executive Dashboard",
+"Power BI Dashboard",
+"Global Inequality Map",
+"Inequality Trends",
 "Country Comparison",
 "Income Distribution",
 "Inequality Simulator",
-"Data Story Mode",
-"Policy Insights",
+"Prediction Model",
+"AI Insights",
+"Data Story",
+"Policy Intelligence",
 "Quiz",
 "FAQ",
 "Dashboard Guide",
 "About Project"
-]
-)
+])
 
-# ---------------- DASHBOARD ---------------- #
+# ------------------ EXECUTIVE DASHBOARD ------------------ #
 
-if menu=="Dashboard":
+if menu=="Executive Dashboard":
 
-    st.markdown("<div class='title'>Global Inequality Overview</div>",unsafe_allow_html=True)
+    st.markdown("<div class='title'>Global Inequality Executive Dashboard</div>",unsafe_allow_html=True)
 
-    c1,c2,c3,c4 = st.columns(4)
+    c1,c2,c3,c4=st.columns(4)
 
     with c1:
-        st.markdown("""
-        <div class="card">
-        Average Global Gini
-        <div class="metric">38.5</div>
-        </div>
-        """,unsafe_allow_html=True)
+        st.markdown("<div class='glass'>Average Global Gini<div class='metric'>38.5</div></div>",unsafe_allow_html=True)
 
     with c2:
-        st.markdown("""
-        <div class="card">
-        Highest Inequality Country
-        <div class="metric">South Africa</div>
-        </div>
-        """,unsafe_allow_html=True)
+        st.markdown("<div class='glass'>Highest Inequality<div class='metric'>South Africa</div></div>",unsafe_allow_html=True)
 
     with c3:
-        st.markdown("""
-        <div class="card">
-        Lowest Inequality Country
-        <div class="metric">Slovenia</div>
-        </div>
-        """,unsafe_allow_html=True)
+        st.markdown("<div class='glass'>Lowest Inequality<div class='metric'>Canada</div></div>",unsafe_allow_html=True)
 
     with c4:
-        st.markdown("""
-        <div class="card">
-        Countries Analyzed
-        <div class="metric">120+</div>
-        </div>
-        """,unsafe_allow_html=True)
+        st.markdown("<div class='glass'>Countries Analyzed<div class='metric'>100+</div></div>",unsafe_allow_html=True)
 
-    st.write("")
-    st.write("")
-
-    # Chart
-    countries=["USA","India","Brazil","Germany","China","South Africa","UK"]
-    gini=[41,35,53,31,38,63,34]
-
-    fig=px.bar(x=countries,y=gini,title="Sample Global Inequality Comparison")
+    fig=px.bar(x=countries,y=gini,title="Global Inequality Comparison")
     st.plotly_chart(fig,use_container_width=True)
 
-    with st.expander("Chart Explanation"):
-        st.write("""
-This chart shows **income inequality levels across countries**.
+# ------------------ POWER BI EMBED ------------------ #
 
-Higher Gini index values indicate **greater inequality**.
+elif menu=="Power BI Dashboard":
 
-South Africa shows extremely high inequality compared to European countries like Germany.
-""")
+    st.title("Power BI Analytics Dashboard")
 
-# ---------------- GLOBAL MAP ---------------- #
+    st.write("Embedded Power BI dashboard below.")
 
-elif menu=="Global Map":
+    powerbi_url=st.text_input("Paste your Power BI Embed URL")
+
+    if powerbi_url:
+        st.components.v1.iframe(powerbi_url,height=700)
+
+    st.info("Get embed link from Power BI → File → Embed → Website")
+
+# ------------------ GLOBAL MAP ------------------ #
+
+elif menu=="Global Inequality Map":
 
     st.title("Global Inequality Map")
-
-    countries=["USA","India","Brazil","Germany","China","South Africa","UK"]
-    iso=["USA","IND","BRA","DEU","CHN","ZAF","GBR"]
-    gini=[41,35,53,31,38,63,34]
 
     fig=px.choropleth(
     locations=iso,
     color=gini,
     hover_name=countries,
-    color_continuous_scale="Plasma",
-    title="Global Income Inequality Map"
+    color_continuous_scale="Plasma"
     )
 
     st.plotly_chart(fig,use_container_width=True)
 
-    st.info("Darker colors represent higher inequality levels.")
+# ------------------ TRENDS ------------------ #
 
-# ---------------- COUNTRY COMPARISON ---------------- #
+elif menu=="Inequality Trends":
+
+    st.title("Income Inequality Trends")
+
+    country=st.selectbox("Select Country",list(trend_data.keys()))
+
+    fig=px.line(x=years,y=trend_data[country],title=f"{country} Inequality Trend")
+    st.plotly_chart(fig,use_container_width=True)
+
+# ------------------ COUNTRY COMPARISON ------------------ #
 
 elif menu=="Country Comparison":
 
     st.title("Country Comparison Tool")
 
-    countries=["USA","India","Brazil","Germany","China","South Africa","UK"]
-    gini=[41,35,53,31,38,63,34]
+    c1=st.selectbox("Country 1",countries)
+    c2=st.selectbox("Country 2",countries)
 
-    c1=st.selectbox("Select Country 1",countries)
-    c2=st.selectbox("Select Country 2",countries)
+    g1=gini[countries.index(c1)]
+    g2=gini[countries.index(c2)]
 
-    if st.button("Compare"):
+    fig=go.Figure()
 
-        g1=gini[countries.index(c1)]
-        g2=gini[countries.index(c2)]
-
-        fig=go.Figure(data=[
-        go.Bar(name=c1,x=["Gini"],y=[g1]),
-        go.Bar(name=c2,x=["Gini"],y=[g2])
-        ])
-
-        st.plotly_chart(fig,use_container_width=True)
-
-        st.write(f"{c1} Gini: {g1}")
-        st.write(f"{c2} Gini: {g2}")
-
-# ---------------- INCOME DISTRIBUTION ---------------- #
-
-elif menu=="Income Distribution":
-
-    st.title("Income Share Distribution")
-
-    groups=["Top 10%","Middle 40%","Bottom 50%"]
-    income=[52,35,13]
-
-    fig=px.pie(values=income,names=groups,title="Global Income Share")
+    fig.add_bar(name=c1,x=["Gini"],y=[g1])
+    fig.add_bar(name=c2,x=["Gini"],y=[g2])
 
     st.plotly_chart(fig,use_container_width=True)
 
-    with st.expander("Insight"):
-        st.write("""
-The top 10% controls over half of global income, 
-while the bottom 50% receives a very small share.
-""")
+# ------------------ INCOME SHARE ------------------ #
 
-# ---------------- SIMULATOR ---------------- #
+elif menu=="Income Distribution":
+
+    groups=["Top 10%","Middle 40%","Bottom 50%"]
+    share=[52,35,13]
+
+    fig=px.pie(values=share,names=groups,title="Global Income Distribution")
+    st.plotly_chart(fig,use_container_width=True)
+
+# ------------------ SIMULATOR ------------------ #
 
 elif menu=="Inequality Simulator":
 
-    st.title("Inequality Policy Simulator")
+    st.title("Policy Impact Simulator")
 
-    tax=st.slider("Tax Rate (%)",0,60,20)
-    welfare=st.slider("Social Welfare Spending (%)",0,50,15)
+    tax=st.slider("Tax Rate",0,60,20)
+    welfare=st.slider("Welfare Spending",0,50,15)
 
-    base_gini=45
+    base=45
 
-    new_gini=base_gini-(tax*0.2)-(welfare*0.1)
+    new=base-(tax*0.2)-(welfare*0.1)
 
-    st.metric("Estimated Gini Index",round(new_gini,2))
+    st.metric("Estimated Gini Index",round(new,2))
 
-    st.info("Higher tax and welfare policies tend to reduce inequality.")
+# ------------------ PREDICTION ------------------ #
 
-# ---------------- STORY MODE ---------------- #
+elif menu=="Prediction Model":
 
-elif menu=="Data Story Mode":
+    st.title("Inequality Prediction Model")
 
-    st.title("Global Inequality Story")
+    gdp=st.slider("GDP per Capita",1000,80000,20000)
+    education=st.slider("Education Index",0.1,1.0,0.6)
+
+    predicted=50-(gdp/10000)-(education*10)
+
+    st.metric("Predicted Gini Index",round(predicted,2))
+
+# ------------------ AI INSIGHTS ------------------ #
+
+elif menu=="AI Insights":
+
+    st.title("AI Generated Insights")
+
+    insights=[
+    "Countries with strong welfare systems show lower inequality.",
+    "High GDP does not always mean equal income distribution.",
+    "Education access strongly correlates with equality.",
+    "Progressive taxation helps reduce income concentration."
+    ]
+
+    st.success(random.choice(insights))
+
+# ------------------ STORY ------------------ #
+
+elif menu=="Data Story":
 
     step=st.slider("Story Step",1,4)
 
     if step==1:
-        st.write("Global inequality has increased significantly since 1980.")
+        st.write("Global inequality has grown since the 1980s.")
 
-    elif step==2:
-        st.write("Emerging economies show rapid income growth but uneven distribution.")
+    if step==2:
+        st.write("Technological growth increased wealth concentration.")
 
-    elif step==3:
-        st.write("Policy intervention plays a major role in reducing inequality.")
+    if step==3:
+        st.write("Policy interventions help balance income.")
 
-    elif step==4:
-        st.write("Future economic reforms may reshape income distribution.")
+    if step==4:
+        st.write("Future reforms could reshape economic distribution.")
 
-# ---------------- POLICY ---------------- #
+# ------------------ POLICY ------------------ #
 
-elif menu=="Policy Insights":
+elif menu=="Policy Intelligence":
 
-    st.title("Policies That Reduce Inequality")
+    st.title("Policy Solutions")
 
     st.markdown("""
-### Progressive Taxation
-Higher taxes on wealthy individuals redistribute income.
+### Progressive Taxation  
+Redistributes wealth through higher tax brackets.
 
-### Universal Education
-Access to education increases income mobility.
+### Education Investment  
+Improves economic mobility.
 
-### Healthcare Systems
-Universal healthcare prevents poverty traps.
+### Universal Healthcare  
+Prevents poverty traps.
 
-### Social Safety Nets
-Government support reduces extreme poverty.
+### Social Protection Programs  
+Protect vulnerable populations.
 """)
 
-# ---------------- QUIZ ---------------- #
+# ------------------ QUIZ ------------------ #
 
 elif menu=="Quiz":
 
-    st.title("Income Inequality Quiz")
+    st.title("Inequality Knowledge Quiz")
 
-    q=st.radio(
-    "What does Gini Index = 0 mean?",
-    ["Perfect Equality","Perfect Inequality","Economic Growth"]
-    )
+    q=st.radio("What does Gini = 0 represent?",
+    ["Perfect Equality","Perfect Inequality","Economic Growth"])
 
     if st.button("Submit"):
 
@@ -288,56 +292,43 @@ elif menu=="Quiz":
         else:
             st.error("Incorrect")
 
-# ---------------- FAQ ---------------- #
+# ------------------ FAQ ------------------ #
 
 elif menu=="FAQ":
 
-    st.title("FAQ")
+    with st.expander("What is income inequality?"):
+        st.write("Unequal distribution of income among population.")
 
-    with st.expander("What is Income Inequality?"):
-        st.write("Income inequality refers to unequal income distribution across a population.")
+    with st.expander("What is Gini index?"):
+        st.write("Measurement of inequality from 0 to 100.")
 
-    with st.expander("What is the Gini Index?"):
-        st.write("The Gini index measures inequality from 0 (equal) to 100 (unequal).")
-
-    with st.expander("Why does inequality matter?"):
-        st.write("High inequality can reduce economic mobility and social stability.")
-
-# ---------------- GUIDE ---------------- #
+# ------------------ GUIDE ------------------ #
 
 elif menu=="Dashboard Guide":
 
-    st.title("Dashboard Guide")
-
     st.write("""
-This dashboard helps users explore **global income inequality**.
+This platform allows exploration of global inequality through:
 
-Features included:
-
-• Interactive charts  
-• Global inequality map  
+• Interactive maps  
+• Trend analysis  
 • Country comparison  
-• Policy simulator  
-• Educational insights  
-
-Use the sidebar to explore different analytical tools.
+• Policy simulations  
+• AI insights  
+• Embedded Power BI dashboards
 """)
 
-# ---------------- ABOUT ---------------- #
+# ------------------ ABOUT ------------------ #
 
 elif menu=="About Project":
 
-    st.title("About This Project")
-
     st.write("""
-**Global Income Distribution Dashboard**
-
-This project demonstrates how data visualization can help analyze global economic inequality.
+Global Income Distribution Intelligence Platform
 
 Tools Used:
-- Streamlit
-- Plotly
+• Streamlit
+• Plotly
+• Power BI
 
-Goal:
-To provide an interactive platform for exploring global income distribution patterns.
+Purpose:
+To analyze global income inequality through interactive analytics.
 """)
