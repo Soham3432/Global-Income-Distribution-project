@@ -2,205 +2,417 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from reportlab.pdfgen import canvas
 import numpy as np
 import io
-from sklearn.linear_model import LinearRegression
+
+st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
 # ---------------------------------------------------
-# DYNAMIC UI THEME ENGINE
+# GLOBAL STYLE
 # ---------------------------------------------------
-st.sidebar.title("🎨 UI Settings")
-theme_color = st.sidebar.color_picker("Accent Color", "#7c3aed")
-glow_effect = st.sidebar.slider("Glow Intensity", 0, 20, 10)
 
-st.markdown(f"""
+st.markdown("""
 <style>
-    .stApp {{
-        background: linear-gradient(135deg, #050010 0%, #0d0026 50%, #1a0040 100%);
-        color: white;
-    }}
-    .title {{
-        font-size: 50px;
-        font-weight: 900;
-        text-align: center;
-        color: {theme_color};
-        text-shadow: 0 0 {glow_effect}px {theme_color};
-        margin-bottom: 30px;
-    }}
-    /* Custom Card Style */
-    .metric-card {{
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid {theme_color}44;
-        border-radius: 15px;
-        padding: 20px;
-        transition: 0.3s;
-    }}
-    .metric-card:hover {{
-        border: 1px solid {theme_color};
-        box-shadow: 0 0 {glow_effect}px {theme_color}66;
-    }}
-    .stButton>button {{
-        background: {theme_color} !important;
-        box-shadow: 0 0 {glow_effect}px {theme_color}aa;
-        border: none; color: white; border-radius: 8px;
-    }}
+
+.stApp{
+background: linear-gradient(135deg,#09001f,#14003d,#24005f);
+color:white;
+font-family: 'Segoe UI';
+}
+
+.title{
+font-size:45px;
+font-weight:700;
+text-align:center;
+background: linear-gradient(90deg,#a855f7,#6366f1);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.metric{
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 10px 40px rgba(0,0,0,0.7);
+}
+
+.stButton>button{
+background:linear-gradient(90deg,#7c3aed,#6366f1);
+border:none;
+border-radius:10px;
+padding:8px 25px;
+color:white;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# DATA INITIALIZATION
+# LOAD DATA
 # ---------------------------------------------------
+
 @st.cache_data
 def load_data():
-    try:
-        return pd.read_csv("final.sheet.csv")
-    except:
-        # Generate high-dimensional dummy data if file is missing
-        data = np.random.randn(200, 5)
-        return pd.DataFrame(data, columns=['Income_Index', 'GDP_Growth', 'Education_Rank', 'Tech_Adoption', 'Stability'])
+    return pd.read_csv("final.sheet.csv")
 
 df = load_data()
-numeric_cols = df.select_dtypes(include=[np.number]).columns
+
+numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
+categorical_cols = df.select_dtypes(include=["object"]).columns
 
 # ---------------------------------------------------
-# NAVIGATION
+# LOGIN SYSTEM
 # ---------------------------------------------------
-menu = st.sidebar.selectbox("Navigation", [
-    "Advanced Plotly Explorer",
-    "Executive Dashboard", 
-    "ML Predictor",
-    "Dataset Explorer"
+
+if "login" not in st.session_state:
+    st.session_state.login=False
+
+if not st.session_state.login:
+
+    st.markdown("<div class='title'>🌍 Global Income Intelligence</div>",unsafe_allow_html=True)
+
+    user = st.text_input("Username")
+    pw = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+
+        if user=="admin" and pw=="1234":
+            st.session_state.login=True
+            st.rerun()
+        else:
+            st.error("Invalid Login")
+
+    st.stop()
+
+# ---------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------
+
+menu = st.sidebar.selectbox("Navigation",[
+
+"Executive Dashboard",
+"Power BI Dashboard",
+"Dataset Explorer",
+"Advanced Charts",
+"Country Analysis",
+"Machine Learning Prediction",
+"AI Forecasting",
+"Generate PDF Report",
+"About"
+
 ])
 
 # ---------------------------------------------------
-# ADVANCED PLOTLY EXPLORER (EXPANDED)
+# EXECUTIVE DASHBOARD
 # ---------------------------------------------------
-if menu == "Advanced Plotly Explorer":
-    st.markdown("<div class='title'>3D Multi-Dimensional Analysis</div>", unsafe_allow_html=True)
-    
-    tab1, tab2, tab3 = st.tabs(["3D Hyper-Visuals", "Relational Mapping", "Polar Intelligence"])
 
-    with tab1:
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.subheader("Controls")
-            x_ax = st.selectbox("X Axis", numeric_cols, key="x1")
-            y_ax = st.selectbox("Y Axis", numeric_cols, key="y1")
-            z_ax = st.selectbox("Z Axis", numeric_cols, key="z1")
-            c_scale = st.selectbox("Color Palette", ["Viridis", "Magma", "Electric", "Hot"])
-        
-        with col2:
-            # 3D Mesh / Surface logic
-            fig = go.Figure(data=[go.Mesh3d(
-                x=df[x_ax], y=df[y_ax], z=df[z_ax],
-                intensity=df[z_ax],
-                colorscale=c_scale,
-                opacity=0.50,
-                showscale=True
-            )])
-            
-            # Adding Scatter points on top of Mesh for detail
-            fig.add_trace(go.Scatter3d(
-                x=df[x_ax], y=df[y_ax], z=df[z_ax],
-                mode='markers',
-                marker=dict(size=4, color='white', opacity=0.8)
-            ))
+if menu=="Executive Dashboard":
 
-            fig.update_layout(
-                template="plotly_dark",
-                margin=dict(l=0, r=0, b=0, t=0),
-                scene=dict(
-                    xaxis_title=x_ax, yaxis_title=y_ax, zaxis_title=z_ax,
-                    xaxis=dict(gridcolor=theme_color+"33"),
-                    yaxis=dict(gridcolor=theme_color+"33"),
-                    zaxis=dict(gridcolor=theme_color+"33"),
-                )
-            )
-            st.plotly_chart(fig, use_container_width=True)
+    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
 
-    with tab2:
-        st.subheader("Interactive Correlation Matrix")
-        corr = df[numeric_cols].corr()
-        fig_corr = px.imshow(
-            corr, 
-            text_auto=True, 
-            aspect="auto",
-            color_continuous_scale=[[0, "#000000"], [1, theme_color]],
+    col1,col2,col3 = st.columns(3)
+
+    with col1:
+        st.metric("Rows", df.shape[0])
+
+    with col2:
+        st.metric("Columns", df.shape[1])
+
+    with col3:
+        st.metric("Numeric Variables", len(numeric_cols))
+
+    if len(numeric_cols)>0:
+
+        fig = px.histogram(
+            df,
+            x=numeric_cols[0],
+            nbins=40,
+            color_discrete_sequence=["#8b5cf6"],
             template="plotly_dark"
         )
-        st.plotly_chart(fig_corr, use_container_width=True)
 
-    with tab3:
-        st.subheader("Radial Performance Metrics")
-        # Radar chart for the first 5 rows
-        categories = numeric_cols.tolist()
-        fig_radar = go.Figure()
+        st.plotly_chart(fig,use_container_width=True)
 
-        for i in range(min(3, len(df))):
-            fig_radar.add_trace(go.Scatterpolar(
-                r=df.iloc[i][numeric_cols].values,
-                theta=categories,
-                fill='toself',
-                name=f'Record {i}'
-            ))
+# ---------------------------------------------------
+# POWER BI
+# ---------------------------------------------------
 
-        fig_radar.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, df[numeric_cols].max().max()])),
-            template="plotly_dark",
-            showlegend=True
+elif menu=="Power BI Dashboard":
+
+    st.title("Power BI Dashboard")
+
+    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+
+    st.components.v1.iframe(powerbi_url,height=700)
+
+# ---------------------------------------------------
+# DATASET EXPLORER
+# ---------------------------------------------------
+
+elif menu=="Dataset Explorer":
+
+    st.title("Dataset Explorer")
+
+    st.dataframe(df)
+
+    column = st.selectbox("Select Column", df.columns)
+
+    st.write(df[column].describe())
+
+# ---------------------------------------------------
+# ADVANCED CHARTS
+# ---------------------------------------------------
+
+elif menu=="Advanced Charts":
+
+    st.title("Advanced Plotly Visualizations")
+
+    chart = st.selectbox("Choose Chart",[
+        "3D Scatter",
+        "Animated Scatter",
+        "Bubble Chart",
+        "Radar Chart",
+        "Correlation Heatmap",
+        "3D Surface"
+    ])
+
+    if chart=="3D Scatter":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+        z = st.selectbox("Z Axis", numeric_cols)
+
+        fig = go.Figure(data=[go.Scatter3d(
+            x=df[x],
+            y=df[y],
+            z=df[z],
+            mode='markers',
+            marker=dict(
+                size=6,
+                color=df[z],
+                colorscale='Plasma',
+                opacity=0.8
+            )
+        )])
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Animated Scatter":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            size=numeric_cols[0],
+            color=numeric_cols[0],
+            animation_frame=df.index,
+            template="plotly_dark"
         )
-        st.plotly_chart(fig_radar, use_container_width=True)
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Bubble Chart":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            size=numeric_cols[0],
+            color=numeric_cols[0],
+            hover_data=df.columns,
+            color_continuous_scale="Rainbow",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Radar Chart":
+
+        sample = df[numeric_cols].mean()
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatterpolar(
+            r=sample.values,
+            theta=sample.index,
+            fill='toself'
+        ))
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="Correlation Heatmap":
+
+        corr = df[numeric_cols].corr()
+
+        fig = px.imshow(
+            corr,
+            text_auto=True,
+            color_continuous_scale="Inferno",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    elif chart=="3D Surface":
+
+        z = np.outer(df[numeric_cols[0]][:50], df[numeric_cols[1]][:50])
+
+        fig = go.Figure(data=[go.Surface(z=z, colorscale='Viridis')])
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
 
 # ---------------------------------------------------
-# EXECUTIVE DASHBOARD (RESTYLED)
+# COUNTRY ANALYSIS
 # ---------------------------------------------------
-elif menu == "Executive Dashboard":
-    st.markdown("<div class='title'>Platform Intelligence</div>", unsafe_allow_html=True)
-    
-    m1, m2, m3, m4 = st.columns(4)
-    with m1:
-        st.markdown(f"<div class='metric-card'><h3>Records</h3><h2>{df.shape[0]}</h2></div>", unsafe_allow_html=True)
-    with m2:
-        st.markdown(f"<div class='metric-card'><h3>Features</h3><h2>{df.shape[1]}</h2></div>", unsafe_allow_html=True)
-    with m3:
-        st.markdown(f"<div class='metric-card'><h3>Nulls</h3><h2>{df.isna().sum().sum()}</h2></div>", unsafe_allow_html=True)
-    with m4:
-        st.markdown(f"<div class='metric-card'><h3>D-Type</h3><h2>Float64</h2></div>", unsafe_allow_html=True)
 
-    st.markdown("---")
-    # Animated Growth Chart
-    st.subheader("Temporal Trend Simulation")
-    fig_anim = px.area(df, y=numeric_cols[0], template="plotly_dark", color_discrete_sequence=[theme_color])
-    fig_anim.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-    st.plotly_chart(fig_anim, use_container_width=True)
+elif menu=="Country Analysis":
+
+    st.title("Country Analysis")
+
+    country_cols=[c for c in df.columns if "country" in c.lower()]
+
+    if country_cols:
+
+        country_col=country_cols[0]
+
+        country = st.selectbox("Select Country", df[country_col].unique())
+
+        filtered = df[df[country_col]==country]
+
+        st.dataframe(filtered)
+
+        fig = px.bar(
+            filtered,
+            y=numeric_cols[0],
+            color_discrete_sequence=["#6366f1"],
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
 
 # ---------------------------------------------------
-# ML PREDICTOR
+# ML PREDICTION
 # ---------------------------------------------------
-elif menu == "ML Predictor":
-    st.markdown("<div class='title'>Predictive Engine</div>", unsafe_allow_html=True)
-    
-    target = st.selectbox("Select Target Variable", numeric_cols)
-    feats = [c for c in numeric_cols if c != target]
-    
-    X = df[feats].fillna(df[feats].mean())
-    y = df[target].fillna(df[target].mean())
-    
-    model = LinearRegression().fit(X, y)
-    
-    st.write("Adjust input parameters to simulate outcomes:")
-    inputs = []
-    input_cols = st.columns(len(feats))
-    for i, col in enumerate(feats):
-        with input_cols[i]:
-            val = st.number_input(col, value=float(X[col].mean()))
-            inputs.append(val)
-            
-    if st.button("Run Simulation"):
-        res = model.predict([inputs])[0]
-        st.balloons()
-        st.markdown(f"""
-        <div style="text-align:center; padding:30px; border-radius:20px; background:{theme_color}22; border:2px solid {theme_color}">
-            <h1 style="color:{theme_color}">Result: {round(res, 4)}</h1>
-        </div>
-        """, unsafe_allow_html=True)
+
+elif menu=="Machine Learning Prediction":
+
+    st.title("Machine Learning Prediction")
+
+    target = st.selectbox("Target Variable", numeric_cols)
+
+    features=[c for c in numeric_cols if c!=target]
+
+    X=df[features].fillna(0)
+    y=df[target].fillna(0)
+
+    model=LinearRegression()
+
+    model.fit(X,y)
+
+    inputs=[]
+
+    for col in features:
+
+        val=st.number_input(col,value=float(X[col].mean()))
+
+        inputs.append(val)
+
+    if st.button("Predict"):
+
+        prediction=model.predict([inputs])[0]
+
+        st.success(f"Predicted {target}: {prediction}")
+
+# ---------------------------------------------------
+# AI FORECAST
+# ---------------------------------------------------
+
+elif menu=="AI Forecasting":
+
+    st.title("AI Forecasting")
+
+    target = st.selectbox("Target Variable", numeric_cols)
+
+    features=[c for c in numeric_cols if c!=target]
+
+    X=df[features].fillna(0)
+    y=df[target].fillna(0)
+
+    model=RandomForestRegressor()
+
+    model.fit(X,y)
+
+    inputs=[]
+
+    for col in features:
+
+        val=st.number_input(col,value=float(X[col].mean()))
+
+        inputs.append(val)
+
+    if st.button("Forecast"):
+
+        prediction=model.predict([inputs])[0]
+
+        st.success(f"Forecasted {target}: {prediction}")
+
+# ---------------------------------------------------
+# PDF REPORT
+# ---------------------------------------------------
+
+elif menu=="Generate PDF Report":
+
+    st.title("Generate Report")
+
+    if st.button("Create PDF"):
+
+        buffer = io.BytesIO()
+
+        pdf = canvas.Canvas(buffer)
+
+        pdf.drawString(100,750,"Global Income Report")
+        pdf.drawString(100,720,f"Rows: {df.shape[0]}")
+        pdf.drawString(100,700,f"Columns: {df.shape[1]}")
+
+        pdf.save()
+
+        st.download_button(
+            "Download PDF",
+            buffer.getvalue(),
+            "report.pdf",
+            "application/pdf"
+        )
+
+# ---------------------------------------------------
+# ABOUT
+# ---------------------------------------------------
+
+elif menu=="About":
+
+    st.write("""
+Advanced analytics platform for **income distribution dataset**.
+
+Features:
+• 3D data visualizations  
+• Animated charts  
+• Machine learning prediction  
+• AI forecasting  
+• Embedded Power BI  
+• PDF analytics report
+""")
