@@ -11,46 +11,55 @@ import io
 st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
 # --------------------------------------------------
-# WHITE MODERN UI STYLE
+# ADVANCED 3D DARK UI STYLE
 # --------------------------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background:white;
-color:#1f2937;
+background: radial-gradient(circle at top,#020617,#020617,#0f172a,#020617);
+color:white;
 font-family:'Segoe UI';
 }
 
 .main-title{
-font-size:50px;
+font-size:52px;
 font-weight:800;
 text-align:center;
-color:#2563eb;
+background: linear-gradient(90deg,#3b82f6,#22c55e,#ec4899);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 .card{
-background:white;
+background:rgba(255,255,255,0.04);
 padding:25px;
-border-radius:14px;
-border:1px solid #e5e7eb;
+border-radius:16px;
 text-align:center;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
+box-shadow:0 10px 40px rgba(59,130,246,0.4);
+transition:0.4s;
+}
+
+.card:hover{
+transform:translateY(-8px) scale(1.03);
+box-shadow:0 10px 60px rgba(236,72,153,0.6);
 }
 
 .navbar{
-background:#f9fafb;
-padding:10px;
-border-radius:10px;
+background:rgba(255,255,255,0.05);
+padding:12px;
+border-radius:12px;
 margin-bottom:20px;
 }
 
 .logo{
-font-size:26px;
+font-size:28px;
 font-weight:700;
-color:#2563eb;
 text-align:center;
+background: linear-gradient(90deg,#3b82f6,#22c55e,#ec4899);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 </style>
@@ -85,7 +94,7 @@ if not st.session_state.login:
 
 st.markdown("""
 <div class='navbar'>
-<div class='logo'>DataSphere Analytics Platform</div>
+<div class='logo'>🚀 DataSphere Analytics Platform</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -105,7 +114,7 @@ menu = st.radio("",
 ],horizontal=True)
 
 # --------------------------------------------------
-# LOAD DEFAULT DATA
+# LOAD DATA
 # --------------------------------------------------
 
 @st.cache_data
@@ -144,20 +153,23 @@ if menu=="Dashboard":
 
     if len(numeric_cols)>0:
 
-        fig = plt.figure()
-        plt.hist(df[numeric_cols[0]], bins=30, color="blue")
-        plt.title("Distribution Overview")
-        plt.xlabel(numeric_cols[0])
-        plt.ylabel("Frequency")
+        fig,ax = plt.subplots()
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        ax.hist(df[numeric_cols[0]], bins=30, color="#3b82f6")
+
+        ax.set_title("Distribution Overview")
+
         st.pyplot(fig)
 
 # --------------------------------------------------
-# DATASET UPLOAD FEATURE
+# DATASET UPLOAD
 # --------------------------------------------------
 
 elif menu=="Upload Dataset":
 
-    st.title("Upload Your Dataset")
+    st.title("Upload Dataset")
 
     file=st.file_uploader("Upload CSV",type=["csv"])
 
@@ -184,9 +196,12 @@ elif menu=="Chart Explorer":
 
         col=st.selectbox("Column",numeric_cols)
 
-        fig=plt.figure()
-        plt.bar(range(len(df[col])),df[col],color="yellow")
-        plt.title("Bar Chart")
+        fig,ax=plt.subplots()
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        ax.bar(range(len(df[col])),df[col],color="#22c55e")
+
         st.pyplot(fig)
 
     elif chart=="Pie":
@@ -195,18 +210,24 @@ elif menu=="Chart Explorer":
 
         data=df[col].value_counts()
 
-        fig=plt.figure()
-        plt.pie(data.values,labels=data.index,colors=["yellow","blue","red","green"]) 
-        plt.title("Pie Chart")
+        fig,ax=plt.subplots()
+        fig.patch.set_facecolor("white")
+
+        ax.pie(data.values,labels=data.index,
+               colors=["#3b82f6","#22c55e","#ec4899","#facc15"])
+
         st.pyplot(fig)
 
     elif chart=="Line":
 
         col=st.selectbox("Column",numeric_cols)
 
-        fig=plt.figure()
-        plt.plot(df[col],color="red")
-        plt.title("Line Trend")
+        fig,ax=plt.subplots()
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        ax.plot(df[col],color="#ec4899",linewidth=2)
+
         st.pyplot(fig)
 
     elif chart=="Scatter":
@@ -214,9 +235,12 @@ elif menu=="Chart Explorer":
         x=st.selectbox("X",numeric_cols)
         y=st.selectbox("Y",numeric_cols)
 
-        fig=plt.figure()
-        plt.scatter(df[x],df[y],color="blue")
-        plt.title("Scatter Relationship")
+        fig,ax=plt.subplots()
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        ax.scatter(df[x],df[y],color="#3b82f6")
+
         st.pyplot(fig)
 
 # --------------------------------------------------
@@ -231,9 +255,11 @@ elif menu=="Statistics Lab":
 
     st.write(df[col].describe())
 
-    fig=plt.figure()
-    plt.boxplot(df[col])
-    plt.title("Boxplot Analysis")
+    fig,ax=plt.subplots()
+    fig.patch.set_facecolor("white")
+
+    ax.boxplot(df[col])
+
     st.pyplot(fig)
 
 # --------------------------------------------------
@@ -250,9 +276,9 @@ elif menu=="AI Insights":
 
     st.write(df.isnull().sum())
 
-    st.write("Top Correlations")
-
     corr=df.corr(numeric_only=True)
+
+    st.write("Correlation Matrix")
 
     st.write(corr)
 
@@ -266,11 +292,18 @@ elif menu=="Correlation Analyzer":
 
     corr=df.corr(numeric_only=True)
 
-    fig=plt.figure()
-    plt.imshow(corr,cmap="coolwarm")
-    plt.colorbar()
-    plt.xticks(range(len(corr.columns)),corr.columns,rotation=90)
-    plt.yticks(range(len(corr.columns)),corr.columns)
+    fig,ax=plt.subplots()
+    fig.patch.set_facecolor("white")
+
+    cax=ax.imshow(corr,cmap="coolwarm")
+
+    fig.colorbar(cax)
+
+    ax.set_xticks(range(len(corr.columns)))
+    ax.set_xticklabels(corr.columns,rotation=90)
+
+    ax.set_yticks(range(len(corr.columns)))
+    ax.set_yticklabels(corr.columns)
 
     st.pyplot(fig)
 
@@ -284,9 +317,13 @@ elif menu=="Auto Dashboard":
 
     for col in numeric_cols:
 
-        fig=plt.figure()
-        plt.hist(df[col],color="blue")
-        plt.title(col)
+        fig,ax=plt.subplots()
+        fig.patch.set_facecolor("white")
+
+        ax.hist(df[col],color="#3b82f6")
+
+        ax.set_title(col)
+
         st.pyplot(fig)
 
 # --------------------------------------------------
@@ -314,12 +351,11 @@ elif menu=="Time Series Forecast":
 
     pred=model.predict(future_index)
 
-    fig=plt.figure()
+    fig,ax=plt.subplots()
+    fig.patch.set_facecolor("white")
 
-    plt.plot(df[col],color="blue")
-    plt.plot(range(len(df),len(df)+future),pred,color="red")
-
-    plt.title("Forecast")
+    ax.plot(df[col],color="#3b82f6")
+    ax.plot(range(len(df),len(df)+future),pred,color="#ec4899")
 
     st.pyplot(fig)
 
@@ -391,18 +427,6 @@ This analytics platform allows users to explore datasets using
 interactive visualizations, machine learning predictions,
 and automated statistical insights.
 
-Features include
-
-• Dataset upload
-• Chart explorer
-• Statistical analysis
-• AI insights
-• Correlation analysis
-• Automatic dashboards
-• Forecasting models
-• Machine learning predictions
-• PDF report generation
-
-This system is designed as a professional portfolio-level
-analytics platform similar to enterprise BI tools.
+Features include dataset upload, chart explorer, forecasting,
+correlation analysis, ML prediction and PDF report generation.
 """)
