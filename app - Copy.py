@@ -10,59 +10,68 @@ import io
 
 st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
-# ---------------- GLOBAL STYLE ----------------
+# --------------------------------------------------
+# GLOBAL ADVANCED UI STYLE
+# --------------------------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background: radial-gradient(circle at top,#0f0229,#050012,#000000);
+background: radial-gradient(circle at top,#12002e,#070016,#000000);
 color:white;
-font-family: 'Segoe UI';
+font-family:'Segoe UI';
 }
 
 .main-title{
-font-size:50px;
+font-size:55px;
 font-weight:800;
 text-align:center;
-background: linear-gradient(90deg,#8b5cf6,#22d3ee);
+background:linear-gradient(90deg,#a855f7,#22d3ee,#6366f1);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+}
+
+.navbar{
+background:rgba(255,255,255,0.05);
+padding:12px;
+border-radius:14px;
+display:flex;
+justify-content:center;
+margin-bottom:20px;
+box-shadow:0 0 20px rgba(168,85,247,0.4);
+}
+
+.logo{
+font-size:30px;
+font-weight:700;
+color:#c084fc;
 }
 
 .card{
 background:rgba(255,255,255,0.05);
 padding:25px;
 border-radius:18px;
-box-shadow:0 0 30px rgba(139,92,246,0.4);
 text-align:center;
+box-shadow:0 0 35px rgba(168,85,247,0.4);
 transition:0.4s;
 }
 
 .card:hover{
-transform:translateY(-8px) scale(1.02);
-box-shadow:0 0 50px rgba(34,211,238,0.6);
+transform:translateY(-10px) scale(1.03);
+box-shadow:0 0 60px rgba(34,211,238,0.6);
 }
 
-.navbar{
-background:rgba(255,255,255,0.05);
-padding:12px;
-border-radius:12px;
-display:flex;
-justify-content:space-around;
-margin-bottom:20px;
-}
-
-.logo{
-font-size:28px;
-font-weight:700;
-color:#a78bfa;
+.section{
+margin-top:40px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- LOAD DATA ----------------
+# --------------------------------------------------
+# LOAD DATA
+# --------------------------------------------------
 
 @st.cache_data
 def load_data():
@@ -73,49 +82,60 @@ df = load_data()
 numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
 categorical_cols = df.select_dtypes(include=["object"]).columns
 
-# ---------------- LOGIN ----------------
+# --------------------------------------------------
+# LOGIN SYSTEM
+# --------------------------------------------------
 
 if "login" not in st.session_state:
     st.session_state.login=False
 
 if not st.session_state.login:
 
-    st.markdown("<div class='main-title'>🌍 Global Income Intelligence</div>",unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>🌍 Global Income Intelligence Platform</div>",unsafe_allow_html=True)
 
     user = st.text_input("Username")
     pw = st.text_input("Password", type="password")
 
     if st.button("Login"):
+
         if user=="admin" and pw=="1234":
             st.session_state.login=True
             st.rerun()
+
         else:
-            st.error("Invalid login")
+            st.error("Invalid Login")
 
     st.stop()
 
-# ---------------- NAVIGATION ----------------
+# --------------------------------------------------
+# NAVBAR WEBSITE STYLE
+# --------------------------------------------------
 
 st.markdown("""
 <div class='navbar'>
-<span class='logo'>🚀 DataSphere</span>
+<span class='logo'>🚀 DataSphere Analytics</span>
 </div>
 """, unsafe_allow_html=True)
 
 menu = st.radio(
-"Navigation",
+"",
 [
 "🏠 Dashboard",
-"📊 Chart Explorer",
-"📈 Statistics Lab",
-"🌍 Country Insights",
-"🤖 ML Prediction",
-"🔮 AI Forecast",
-"📑 Generate Report",
+"📊 Power BI",
+"📈 Chart Explorer",
+"📊 Statistics Lab",
+"🌍 World Analytics",
+"🤖 AI Insights",
+"🧠 Correlation AI",
+"⚙ Auto Dashboard Builder",
+"🔮 ML Prediction",
+"📑 Report Generator",
 "❓ FAQ"
 ],horizontal=True)
 
-# ---------------- DASHBOARD ----------------
+# --------------------------------------------------
+# MAIN DASHBOARD
+# --------------------------------------------------
 
 if menu=="🏠 Dashboard":
 
@@ -125,66 +145,69 @@ if menu=="🏠 Dashboard":
 
     with col1:
         st.markdown(f"""<div class='card'>
-        <h2>{df.shape[0]}</h2>
+        <h1>{df.shape[0]}</h1>
         <p>Total Records</p>
         </div>""",unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""<div class='card'>
-        <h2>{df.shape[1]}</h2>
+        <h1>{df.shape[1]}</h1>
         <p>Total Columns</p>
         </div>""",unsafe_allow_html=True)
 
     with col3:
         st.markdown(f"""<div class='card'>
-        <h2>{len(numeric_cols)}</h2>
-        <p>Numeric Variables</p>
+        <h1>{len(numeric_cols)}</h1>
+        <p>Numeric Features</p>
         </div>""",unsafe_allow_html=True)
 
     with col4:
         st.markdown(f"""<div class='card'>
-        <h2>{len(categorical_cols)}</h2>
-        <p>Categorical Variables</p>
+        <h1>{len(categorical_cols)}</h1>
+        <p>Categorical Features</p>
         </div>""",unsafe_allow_html=True)
 
-    st.markdown("### Platform Overview")
+    st.markdown("### 3D Data Overview")
 
-    st.write("""
-This platform provides advanced analytics capabilities for income datasets. 
-Users can explore interactive charts, perform machine learning predictions, 
-and analyze global income distribution patterns.
-
-The dashboard includes 3D visualization tools, statistical exploration modules, 
-and automated AI forecasting models that help identify trends, correlations, 
-and predictive insights.
-""")
-
-    if len(numeric_cols)>1:
+    if len(numeric_cols) > 2:
 
         fig = px.scatter_3d(
             df,
             x=numeric_cols[0],
             y=numeric_cols[1],
-            z=numeric_cols[2] if len(numeric_cols)>2 else numeric_cols[0],
+            z=numeric_cols[2],
             color=numeric_cols[0],
             template="plotly_dark"
         )
 
         st.plotly_chart(fig,use_container_width=True)
 
-# ---------------- CHART EXPLORER ----------------
+# --------------------------------------------------
+# POWER BI DASHBOARD EMBED
+# --------------------------------------------------
 
-elif menu=="📊 Chart Explorer":
+elif menu=="📊 Power BI":
 
-    st.title("Interactive Chart Explorer")
+    st.title("Embedded Power BI Dashboard")
 
-    chart = st.selectbox("Choose Chart Type",[
+    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+
+    st.components.v1.iframe(powerbi_url,height=700)
+
+# --------------------------------------------------
+# CHART EXPLORER
+# --------------------------------------------------
+
+elif menu=="📈 Chart Explorer":
+
+    st.title("Advanced Chart Explorer")
+
+    chart = st.selectbox("Chart Type",[
         "3D Scatter",
         "3D Surface",
         "3D Line",
-        "Bubble",
-        "Pie",
         "Bar",
+        "Pie",
         "Line"
     ])
 
@@ -199,14 +222,18 @@ elif menu=="📊 Chart Explorer":
 
     elif chart=="3D Surface":
 
-        z=np.outer(df[numeric_cols[0]][:50],df[numeric_cols[1]][:50])
+        z=np.outer(df[numeric_cols[0]][:40],df[numeric_cols[1]][:40])
+
         fig=go.Figure(data=[go.Surface(z=z)])
+
         fig.update_layout(template="plotly_dark")
+
         st.plotly_chart(fig,use_container_width=True)
 
     elif chart=="3D Line":
 
         fig=go.Figure()
+
         fig.add_trace(go.Scatter3d(
             x=df.index,
             y=df[numeric_cols[0]],
@@ -215,43 +242,56 @@ elif menu=="📊 Chart Explorer":
         ))
 
         fig.update_layout(template="plotly_dark")
+
         st.plotly_chart(fig,use_container_width=True)
 
     elif chart=="Bar":
 
         col=st.selectbox("Column",numeric_cols)
+
         fig=px.bar(df,y=col,template="plotly_dark")
+
         st.plotly_chart(fig,use_container_width=True)
 
     elif chart=="Pie":
 
         col=st.selectbox("Category",categorical_cols)
+
         fig=px.pie(df,names=col,template="plotly_dark")
+
         st.plotly_chart(fig,use_container_width=True)
 
     elif chart=="Line":
 
         col=st.selectbox("Column",numeric_cols)
+
         fig=px.line(df,y=col,template="plotly_dark")
+
         st.plotly_chart(fig,use_container_width=True)
 
-# ---------------- STATISTICS LAB ----------------
+# --------------------------------------------------
+# STATISTICS LAB
+# --------------------------------------------------
 
-elif menu=="📈 Statistics Lab":
+elif menu=="📊 Statistics Lab":
 
-    st.title("Statistical Analysis")
+    st.title("Statistical Analyzer")
 
-    column=st.selectbox("Select Column",numeric_cols)
+    column = st.selectbox("Choose Column", numeric_cols)
 
     st.write(df[column].describe())
 
-    fig=px.histogram(df,x=column,nbins=40,template="plotly_dark")
+    fig = px.histogram(df,x=column,nbins=40,template="plotly_dark")
 
     st.plotly_chart(fig,use_container_width=True)
 
-# ---------------- COUNTRY INSIGHTS ----------------
+# --------------------------------------------------
+# WORLD MAP ANALYTICS
+# --------------------------------------------------
 
-elif menu=="🌍 Country Insights":
+elif menu=="🌍 World Analytics":
+
+    st.title("World Income Visualization")
 
     country_cols=[c for c in df.columns if "country" in c.lower()]
 
@@ -259,41 +299,69 @@ elif menu=="🌍 Country Insights":
 
         country_col=country_cols[0]
 
-        country=st.selectbox("Country",df[country_col].unique())
+        metric=st.selectbox("Metric",numeric_cols)
 
-        data=df[df[country_col]==country]
-
-        fig=px.bar(data,y=numeric_cols[0],template="plotly_dark")
+        fig=px.choropleth(
+            df,
+            locations=country_col,
+            locationmode="country names",
+            color=metric,
+            color_continuous_scale="Plasma"
+        )
 
         st.plotly_chart(fig,use_container_width=True)
 
-# ---------------- ML PREDICTION ----------------
+# --------------------------------------------------
+# AI INSIGHTS GENERATOR
+# --------------------------------------------------
 
-elif menu=="🤖 ML Prediction":
+elif menu=="🤖 AI Insights":
 
-    target=st.selectbox("Target",numeric_cols)
+    st.title("Automated Data Insights")
 
-    features=[c for c in numeric_cols if c!=target]
+    st.write("Dataset Shape:",df.shape)
 
-    X=df[features].fillna(0)
-    y=df[target].fillna(0)
+    st.write("Missing Values:")
 
-    model=LinearRegression()
-    model.fit(X,y)
+    st.write(df.isna().sum())
 
-    inputs=[]
+    st.write("Correlation Summary")
 
-    for col in features:
-        val=st.number_input(col,value=float(X[col].mean()))
-        inputs.append(val)
+    st.write(df.corr(numeric_only=True))
 
-    if st.button("Predict"):
-        pred=model.predict([inputs])[0]
-        st.success(f"Prediction: {pred}")
+# --------------------------------------------------
+# CORRELATION AI
+# --------------------------------------------------
 
-# ---------------- FORECAST ----------------
+elif menu=="🧠 Correlation AI":
 
-elif menu=="🔮 AI Forecast":
+    st.title("Correlation Explorer")
+
+    corr=df.corr(numeric_only=True)
+
+    fig=px.imshow(corr,text_auto=True,color_continuous_scale="Inferno")
+
+    st.plotly_chart(fig,use_container_width=True)
+
+# --------------------------------------------------
+# AUTO DASHBOARD BUILDER
+# --------------------------------------------------
+
+elif menu=="⚙ Auto Dashboard Builder":
+
+    st.title("Automatic Dashboard")
+
+    for col in numeric_cols:
+
+        fig=px.histogram(df,x=col,template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+# --------------------------------------------------
+# ML PREDICTION
+# --------------------------------------------------
+
+elif menu=="🔮 ML Prediction":
 
     target=st.selectbox("Target",numeric_cols)
 
@@ -303,59 +371,70 @@ elif menu=="🔮 AI Forecast":
     y=df[target].fillna(0)
 
     model=RandomForestRegressor()
+
     model.fit(X,y)
 
     inputs=[]
 
     for col in features:
+
         val=st.number_input(col,value=float(X[col].mean()))
+
         inputs.append(val)
 
-    if st.button("Forecast"):
+    if st.button("Predict"):
+
         pred=model.predict([inputs])[0]
-        st.success(f"Forecast value: {pred}")
 
-# ---------------- REPORT ----------------
+        st.success(f"Predicted Value: {pred}")
 
-elif menu=="📑 Generate Report":
+# --------------------------------------------------
+# REPORT GENERATOR
+# --------------------------------------------------
 
-    if st.button("Create PDF"):
+elif menu=="📑 Report Generator":
+
+    if st.button("Generate PDF Report"):
 
         buffer=io.BytesIO()
+
         pdf=canvas.Canvas(buffer)
 
-        pdf.drawString(100,750,"Income Intelligence Report")
+        pdf.drawString(100,750,"Global Income Intelligence Report")
         pdf.drawString(100,720,f"Rows: {df.shape[0]}")
         pdf.drawString(100,700,f"Columns: {df.shape[1]}")
 
         pdf.save()
 
-        st.download_button("Download",buffer.getvalue(),"report.pdf")
+        st.download_button("Download Report",buffer.getvalue(),"analytics_report.pdf")
 
-# ---------------- FAQ ----------------
+# --------------------------------------------------
+# FAQ
+# --------------------------------------------------
 
 elif menu=="❓ FAQ":
 
-    st.title("Platform Guide")
+    st.title("Platform Documentation")
 
     st.write("""
-**What insights can be extracted?**
+This platform is an advanced analytics solution designed for interactive
+exploration of global income datasets.
 
-Users can analyze income distribution, detect correlations, 
-and visualize multi-dimensional relationships using 3D analytics.
+Users can explore charts, analyze correlations, generate automated dashboards,
+and apply machine learning models to identify insights.
 
-**What charts are supported?**
+Key Capabilities
 
-The system includes scatter plots, bubble charts, 3D surfaces, 
-statistical histograms, correlation heatmaps, and interactive dashboards.
+• Interactive 3D visualizations
+• Embedded Power BI dashboards
+• Automated AI insights
+• Correlation analytics
+• World income visualization
+• Machine learning predictions
+• Automatic dashboard generation
+• PDF analytics reporting
 
-**What machine learning models are used?**
-
-Linear Regression and Random Forest models are integrated 
-to generate predictions and forecasting analytics.
-
-**Who should use this platform?**
-
-Data analysts, economists, and researchers who need 
-interactive exploratory analytics for structured datasets.
+The system is built using Streamlit, Plotly, Scikit-Learn and modern
+web-style UI design to simulate enterprise analytics platforms like
+Power BI, Tableau and modern SaaS analytics tools.
 """)
