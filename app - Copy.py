@@ -5,62 +5,69 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
-from reportlab.pdfgen import canvas
-import io
 
-st.set_page_config(layout="wide", page_title="Analytics Studio")
+st.set_page_config(layout="wide", page_title="Analytics SaaS Platform")
 
-# -------------------------------------------------
-# OVERLEAF STYLE UI
-# -------------------------------------------------
+# ---------------------------------------------------
+# DARK SaaS UI
+# ---------------------------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background:#f6f8fb;
+background: radial-gradient(circle at top,#020617,#020617,#0f172a,#020617);
+color:white;
+font-family:Segoe UI;
 }
 
-/* Top toolbar */
+/* TOP BAR */
 
-.toolbar{
+.topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:10px 20px;
-background:white;
-border-bottom:1px solid #e5e7eb;
+padding:12px 20px;
+background:#020617;
+border-bottom:1px solid #1e293b;
 }
 
 .logo{
 font-size:22px;
-font-weight:bold;
-color:#2563eb;
+font-weight:700;
+background:linear-gradient(90deg,#3b82f6,#22c55e,#ec4899);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
-/* Sidebar */
+/* SIDEBAR TREE */
 
-.sidebar{
-background:white;
-border-right:1px solid #e5e7eb;
-padding:20px;
+.sidebar-tree{
+padding:10px;
+border-right:1px solid #1e293b;
 height:100vh;
 }
 
-/* Cards */
+/* WORKSPACE PANEL */
+
+.workspace{
+padding:20px;
+}
+
+/* CARD */
 
 .card{
-background:white;
+background:#020617;
 padding:15px;
 border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.08);
+border:1px solid #1e293b;
 text-align:center;
 }
 
-/* Buttons */
+/* BUTTONS */
 
 .stButton>button{
-background:#2563eb;
+background:#1e293b;
 color:white;
 border-radius:6px;
 }
@@ -68,26 +75,26 @@ border-radius:6px;
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------------------------------------
+# ---------------------------------------------------
 # TOP TOOLBAR
-# -------------------------------------------------
+# ---------------------------------------------------
 
 st.markdown("""
-<div class="toolbar">
+<div class="topbar">
 <div class="logo">Analytics Studio</div>
-<div>Data Science Dashboard Workspace</div>
+<div>AI Data Platform</div>
 </div>
 """, unsafe_allow_html=True)
 
-# -------------------------------------------------
+# ---------------------------------------------------
 # LAYOUT
-# -------------------------------------------------
+# ---------------------------------------------------
 
-sidebar, main = st.columns([1,4])
+sidebar, main, ai_panel = st.columns([1.3,4,1.5])
 
-# -------------------------------------------------
+# ---------------------------------------------------
 # DATA
-# -------------------------------------------------
+# ---------------------------------------------------
 
 @st.cache_data
 def load_data():
@@ -98,96 +105,71 @@ if "data" not in st.session_state:
 
 df = st.session_state.data
 
-numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
-categorical_cols = df.select_dtypes(include=["object"]).columns
+numeric = df.select_dtypes(include=["int64","float64"]).columns
+categorical = df.select_dtypes(include=["object"]).columns
 
-# -------------------------------------------------
-# SIDEBAR NAVIGATION
-# -------------------------------------------------
+# ---------------------------------------------------
+# PROJECT FILE TREE SIDEBAR
+# ---------------------------------------------------
 
 with sidebar:
 
-    st.markdown("### Workspace Menu")
+    st.markdown("### Project Explorer")
 
     page = st.radio(
         "",
         [
             "Dashboard",
-            "Power BI Dashboard",
-            "Upload Dataset",
-            "Chart Explorer",
-            "Chart Explainer",
-            "Statistics Lab",
-            "AI Insights",
-            "Correlation Analyzer",
-            "Forecasting",
+            "Charts",
+            "Statistics",
             "Machine Learning",
-            "Report Generator",
-            "FAQ"
+            "Forecasting",
+            "Power BI",
+            "Dataset",
+            "Reports"
         ]
     )
 
-# -------------------------------------------------
-# DASHBOARD
-# -------------------------------------------------
+# ---------------------------------------------------
+# MAIN WORKSPACE WITH TABS
+# ---------------------------------------------------
 
 with main:
 
-    if page == "Dashboard":
+    st.markdown("## Workspace")
 
-        st.title("Executive Analytics Dashboard")
+    tabs = st.tabs(["Dashboard","Charts","ML","Insights"])
+
+# ---------------------------------------------------
+# DASHBOARD TAB
+# ---------------------------------------------------
+
+    with tabs[0]:
+
+        st.subheader("Executive Dashboard")
 
         c1,c2,c3,c4 = st.columns(4)
 
         c1.metric("Rows", df.shape[0])
         c2.metric("Columns", df.shape[1])
-        c3.metric("Numeric Features", len(numeric_cols))
-        c4.metric("Categorical Features", len(categorical_cols))
+        c3.metric("Numeric", len(numeric))
+        c4.metric("Categorical", len(categorical))
 
-        if len(numeric_cols) > 0:
+        if len(numeric)>0:
 
             fig, ax = plt.subplots(figsize=(3,2))
-            ax.hist(df[numeric_cols[0]], color="blue")
+
+            ax.hist(df[numeric[0]], color="#3b82f6")
+
             st.pyplot(fig)
 
-# -------------------------------------------------
-# POWER BI EMBED
-# -------------------------------------------------
+# ---------------------------------------------------
+# CHART TAB
+# ---------------------------------------------------
 
-    elif page == "Power BI Dashboard":
+    with tabs[1]:
 
-        st.title("Power BI Dashboard")
-
-        st.components.v1.iframe(
-            "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9",
-            height=650
-        )
-
-# -------------------------------------------------
-# DATASET UPLOAD
-# -------------------------------------------------
-
-    elif page == "Upload Dataset":
-
-        st.title("Upload Dataset")
-
-        file = st.file_uploader("Upload CSV")
-
-        if file:
-
-            st.session_state.data = pd.read_csv(file)
-
-            st.success("Dataset Uploaded")
-
-            st.dataframe(st.session_state.data.head())
-
-# -------------------------------------------------
-# CHART EXPLORER
-# -------------------------------------------------
-
-    elif page == "Chart Explorer":
-
-        st.title("Chart Explorer")
+        st.subheader("Chart Explorer")
 
         chart = st.selectbox(
             "Chart Type",
@@ -196,32 +178,32 @@ with main:
 
         if chart == "Bar":
 
-            col = st.selectbox("Column", numeric_cols)
+            col = st.selectbox("Column", numeric)
 
             fig, ax = plt.subplots(figsize=(3,2))
-            ax.bar(range(len(df[col])), df[col], color="green")
+            ax.bar(range(len(df[col])), df[col], color="#22c55e")
             st.pyplot(fig)
 
-        elif chart == "Line":
+        if chart == "Line":
 
-            col = st.selectbox("Column", numeric_cols)
+            col = st.selectbox("Column", numeric)
 
             fig, ax = plt.subplots(figsize=(3,2))
-            ax.plot(df[col], color="red")
+            ax.plot(df[col], color="#ec4899")
             st.pyplot(fig)
 
-        elif chart == "Scatter":
+        if chart == "Scatter":
 
-            x = st.selectbox("X", numeric_cols)
-            y = st.selectbox("Y", numeric_cols)
+            x = st.selectbox("X", numeric)
+            y = st.selectbox("Y", numeric)
 
             fig, ax = plt.subplots(figsize=(3,2))
-            ax.scatter(df[x], df[y], color="blue")
+            ax.scatter(df[x], df[y], color="#3b82f6")
             st.pyplot(fig)
 
-        elif chart == "Pie":
+        if chart == "Pie":
 
-            col = st.selectbox("Category", categorical_cols)
+            col = st.selectbox("Category", categorical)
 
             data = df[col].value_counts()
 
@@ -229,135 +211,26 @@ with main:
             ax.pie(data.values, labels=data.index)
             st.pyplot(fig)
 
-# -------------------------------------------------
-# CHART EXPLAINER
-# -------------------------------------------------
+# ---------------------------------------------------
+# MACHINE LEARNING TAB
+# ---------------------------------------------------
 
-    elif page == "Chart Explainer":
+    with tabs[2]:
 
-        st.title("Chart Explainer")
+        st.subheader("Prediction Model")
 
-        explain = {
+        target = st.selectbox("Target Column", numeric)
 
-        "Bar Chart":"Used to compare categories such as sales by region.",
-
-        "Line Chart":"Used for time trend analysis such as revenue growth.",
-
-        "Scatter Plot":"Used to identify correlations between variables.",
-
-        "Pie Chart":"Used to display percentage distribution."
-        }
-
-        c = st.selectbox("Chart", list(explain.keys()))
-
-        st.write(explain[c])
-
-# -------------------------------------------------
-# STATISTICS LAB
-# -------------------------------------------------
-
-    elif page == "Statistics Lab":
-
-        st.title("Statistical Analysis")
-
-        col = st.selectbox("Column", numeric_cols)
-
-        st.write(df[col].describe())
-
-        fig, ax = plt.subplots(figsize=(3,2))
-        ax.boxplot(df[col])
-        st.pyplot(fig)
-
-# -------------------------------------------------
-# AI INSIGHTS
-# -------------------------------------------------
-
-    elif page == "AI Insights":
-
-        st.title("Automated Insights")
-
-        st.write("Dataset Shape:", df.shape)
-
-        st.write("Missing Values")
-
-        st.write(df.isnull().sum())
-
-        st.write("Correlation")
-
-        st.write(df.corr(numeric_only=True))
-
-# -------------------------------------------------
-# CORRELATION
-# -------------------------------------------------
-
-    elif page == "Correlation Analyzer":
-
-        st.title("Correlation Heatmap")
-
-        corr = df.corr(numeric_only=True)
-
-        fig, ax = plt.subplots(figsize=(3,2))
-
-        cax = ax.imshow(corr)
-
-        fig.colorbar(cax)
-
-        st.pyplot(fig)
-
-# -------------------------------------------------
-# FORECASTING
-# -------------------------------------------------
-
-    elif page == "Forecasting":
-
-        st.title("Time Series Forecasting")
-
-        col = st.selectbox("Target", numeric_cols)
-
-        df["t"] = range(len(df))
-
-        X = df[["t"]]
-
-        y = df[col]
-
-        model = LinearRegression()
-
-        model.fit(X,y)
-
-        future = st.slider("Future",1,30,10)
-
-        future_x = np.arange(len(df), len(df)+future).reshape(-1,1)
-
-        pred = model.predict(future_x)
-
-        fig, ax = plt.subplots(figsize=(3,2))
-
-        ax.plot(df[col])
-        ax.plot(range(len(df), len(df)+future), pred)
-
-        st.pyplot(fig)
-
-# -------------------------------------------------
-# MACHINE LEARNING
-# -------------------------------------------------
-
-    elif page == "Machine Learning":
-
-        st.title("Prediction Model")
-
-        target = st.selectbox("Target", numeric_cols)
-
-        features = [c for c in numeric_cols if c != target]
+        features = [c for c in numeric if c != target]
 
         X = df[features]
-
         y = df[target]
 
         model = RandomForestRegressor()
 
         model.fit(X,y)
 
-        inputs=[]
+        inputs = []
 
         for f in features:
 
@@ -367,61 +240,71 @@ with main:
 
         if st.button("Predict"):
 
-            p = model.predict([inputs])[0]
+            pred = model.predict([inputs])[0]
 
-            st.success(f"Prediction: {p}")
+            st.success(f"Prediction: {pred}")
 
             st.write("Model R2:", r2_score(y, model.predict(X)))
 
-# -------------------------------------------------
-# PDF REPORT
-# -------------------------------------------------
+# ---------------------------------------------------
+# INSIGHTS TAB
+# ---------------------------------------------------
 
-    elif page == "Report Generator":
+    with tabs[3]:
 
-        st.title("PDF Report")
+        st.subheader("AI Data Insights")
 
-        if st.button("Generate Report"):
+        st.write("Dataset shape:", df.shape)
 
-            buffer = io.BytesIO()
+        st.write("Missing Values")
 
-            pdf = canvas.Canvas(buffer)
+        st.write(df.isnull().sum())
 
-            pdf.drawString(100,750,"Analytics Report")
+        st.write("Correlation Matrix")
 
-            pdf.drawString(100,720,f"Rows: {df.shape[0]}")
+        st.write(df.corr(numeric_only=True))
 
-            pdf.drawString(100,700,f"Columns: {df.shape[1]}")
+# ---------------------------------------------------
+# SPLIT SCREEN POWER BI
+# ---------------------------------------------------
 
-            pdf.save()
+    st.subheader("Split Screen Analytics")
 
-            st.download_button(
-                "Download",
-                buffer.getvalue(),
-                "report.pdf"
-            )
+    left,right = st.columns(2)
 
-# -------------------------------------------------
-# FAQ
-# -------------------------------------------------
+    with left:
 
-    elif page == "FAQ":
+        st.write("Python Charts")
 
-        st.title("FAQ")
+        if len(numeric)>0:
 
-        faq = {
+            fig, ax = plt.subplots(figsize=(3,2))
+            ax.hist(df[numeric[0]], color="#3b82f6")
+            st.pyplot(fig)
 
-        "Why combine Power BI with Python?":
-        "To combine enterprise dashboards with advanced analytics.",
+    with right:
 
-        "Why forecasting is useful?":
-        "It predicts future trends using historical data.",
+        st.write("Power BI Dashboard")
 
-        "Why correlation analysis matters?":
-        "It identifies relationships between variables."
+        st.components.v1.iframe(
+        "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9",
+        height=420
+        )
 
-        }
+# ---------------------------------------------------
+# AI ASSISTANT PANEL
+# ---------------------------------------------------
 
-        q = st.selectbox("Question", list(faq.keys()))
+with ai_panel:
 
-        st.write(faq[q])
+    st.markdown("### AI Assistant")
+
+    question = st.text_input("Ask about your dataset")
+
+    if question:
+
+        st.write("AI Insight:")
+
+        st.write(
+        "Based on the dataset structure, numeric variables appear to dominate. Consider correlation analysis and forecasting for deeper insights."
+        )
