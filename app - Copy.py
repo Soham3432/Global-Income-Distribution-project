@@ -12,12 +12,11 @@ import time
 st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
 # --------------------------------------------------
-# 3D DARK UI STYLE
+# DARK 3D UI STYLE
 # --------------------------------------------------
 
 st.markdown("""
 <style>
-
 .stApp{
 background: radial-gradient(circle at top,#020617,#020617,#0f172a,#020617);
 color:white;
@@ -25,39 +24,27 @@ font-family:'Segoe UI';
 }
 
 .main-title{
-font-size:52px;
+font-size:48px;
 font-weight:800;
 text-align:center;
 background: linear-gradient(90deg,#3b82f6,#22c55e,#ec4899);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+margin-bottom:10px;
 }
 
 .card{
-background:rgba(255,255,255,0.04);
-padding:20px;
-border-radius:14px;
+background:rgba(255,255,255,0.05);
+padding:16px;
+border-radius:12px;
 text-align:center;
-box-shadow:0 10px 40px rgba(59,130,246,0.35);
+box-shadow:0 10px 30px rgba(59,130,246,0.35);
 }
 
 .topnav{
 text-align:center;
-padding:10px;
+padding:15px;
 margin-bottom:20px;
-}
-
-button[kind="secondary"]{
-background:#111827;
-color:white;
-border-radius:8px;
-padding:6px 14px;
-margin:3px;
-border:1px solid #374151;
-}
-
-button[kind="secondary"]:hover{
-background:#1f2937;
 }
 
 </style>
@@ -87,13 +74,16 @@ if not st.session_state.login:
     st.stop()
 
 # --------------------------------------------------
-# NAVIGATION CENTER FILTER BUTTONS
+# TOP NAVIGATION (CENTER)
 # --------------------------------------------------
 
 st.markdown("<div class='topnav'>",unsafe_allow_html=True)
-menu = st.radio("",
+
+menu = st.radio(
+"",
 [
 "Dashboard",
+"Power BI Dashboard",
 "Upload Dataset",
 "Chart Explorer",
 "Chart Explainer",
@@ -105,7 +95,10 @@ menu = st.radio("",
 "Machine Learning",
 "Report",
 "FAQ"
-],horizontal=True)
+],
+horizontal=True
+)
+
 st.markdown("</div>",unsafe_allow_html=True)
 
 # --------------------------------------------------
@@ -125,19 +118,19 @@ numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
 categorical_cols = df.select_dtypes(include=["object"]).columns
 
 # --------------------------------------------------
-# DASHBOARD WITH ANIMATED KPI
+# DASHBOARD
 # --------------------------------------------------
 
 if menu=="Dashboard":
 
-    st.markdown("<div class='main-title'>Executive Dashboard</div>",unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>Executive Analytics Dashboard</div>",unsafe_allow_html=True)
 
     def animated_counter(label,value):
         placeholder=st.empty()
         for i in range(int(value)):
-            placeholder.markdown(f"""<div class='card'><h2>{i}</h2>{label}</div>""",unsafe_allow_html=True)
-            time.sleep(0.01)
-        placeholder.markdown(f"""<div class='card'><h2>{value}</h2>{label}</div>""",unsafe_allow_html=True)
+            placeholder.markdown(f"<div class='card'><h3>{i}</h3>{label}</div>",unsafe_allow_html=True)
+            time.sleep(0.002)
+        placeholder.markdown(f"<div class='card'><h3>{value}</h3>{label}</div>",unsafe_allow_html=True)
 
     c1,c2,c3,c4=st.columns(4)
 
@@ -153,16 +146,18 @@ if menu=="Dashboard":
     with c4:
         animated_counter("Categorical",len(categorical_cols))
 
-    if len(numeric_cols)>0:
+# --------------------------------------------------
+# POWER BI EMBED
+# --------------------------------------------------
 
-        fig,ax = plt.subplots(figsize=(4,3))
-        fig.patch.set_facecolor("white")
-        ax.set_facecolor("white")
+elif menu=="Power BI Dashboard":
 
-        ax.hist(df[numeric_cols[0]], bins=30, color="#3b82f6")
-        ax.set_title("Distribution")
+    st.title("Embedded Power BI Dashboard")
 
-        st.pyplot(fig)
+    st.components.v1.iframe(
+        "https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9",
+        height=600
+    )
 
 # --------------------------------------------------
 # DATASET UPLOAD
@@ -180,7 +175,7 @@ elif menu=="Upload Dataset":
 
         st.success("Dataset Loaded")
 
-        st.dataframe(st.session_state.data.head(100))
+        st.dataframe(st.session_state.data.head(50))
 
 # --------------------------------------------------
 # CHART EXPLORER (SMALL CHARTS)
@@ -190,15 +185,15 @@ elif menu=="Chart Explorer":
 
     st.title("Chart Explorer")
 
-    chart=st.selectbox("Chart Type",
-    ["Bar","Pie","Line","Scatter"])
+    chart=st.selectbox("Chart Type",["Bar","Pie","Line","Scatter"])
 
     if chart=="Bar":
 
         col=st.selectbox("Column",numeric_cols)
 
-        fig,ax=plt.subplots(figsize=(4,3))
+        fig,ax=plt.subplots(figsize=(3,2))
         fig.patch.set_facecolor("white")
+
         ax.bar(range(len(df[col])),df[col],color="#22c55e")
 
         st.pyplot(fig)
@@ -209,7 +204,7 @@ elif menu=="Chart Explorer":
 
         data=df[col].value_counts()
 
-        fig,ax=plt.subplots(figsize=(4,3))
+        fig,ax=plt.subplots(figsize=(3,2))
         fig.patch.set_facecolor("white")
 
         ax.pie(data.values,labels=data.index,
@@ -221,7 +216,7 @@ elif menu=="Chart Explorer":
 
         col=st.selectbox("Column",numeric_cols)
 
-        fig,ax=plt.subplots(figsize=(4,3))
+        fig,ax=plt.subplots(figsize=(3,2))
         fig.patch.set_facecolor("white")
 
         ax.plot(df[col],color="#ec4899")
@@ -233,7 +228,7 @@ elif menu=="Chart Explorer":
         x=st.selectbox("X",numeric_cols)
         y=st.selectbox("Y",numeric_cols)
 
-        fig,ax=plt.subplots(figsize=(4,3))
+        fig,ax=plt.subplots(figsize=(3,2))
         fig.patch.set_facecolor("white")
 
         ax.scatter(df[x],df[y],color="#3b82f6")
@@ -246,47 +241,18 @@ elif menu=="Chart Explorer":
 
 elif menu=="Chart Explainer":
 
-    st.title("Chart Explainer for Business Dashboards")
+    st.title("Chart Explanation for BI Dashboards")
 
     explanations={
 
-    "Bar Chart":"""
-Bar charts compare categories. They are widely used in Power BI dashboards
-for sales comparison, country level income comparison, KPI ranking and
-performance analysis.
+    "Bar Chart":"Bar charts compare categories and are commonly used in Power BI dashboards for performance comparisons across departments, products or regions.",
 
-Business Use Cases:
-- Comparing revenue across regions
-- Department performance tracking
-- Category level distribution
-""",
+    "Line Chart":"Line charts show trends over time and are widely used in revenue analysis, financial forecasting and KPI monitoring.",
 
-    "Line Chart":"""
-Line charts are used to analyze trends over time.
+    "Pie Chart":"Pie charts visualize percentage distribution such as market share or product contribution.",
 
-Business Use Cases:
-- Sales growth trends
-- Time series forecasting
-- Monthly revenue tracking
-""",
+    "Scatter Plot":"Scatter plots reveal correlations between variables and help identify patterns or anomalies."
 
-    "Pie Chart":"""
-Pie charts display percentage distribution.
-
-Business Use Cases:
-- Market share
-- Product contribution
-- Expense breakdown
-""",
-
-    "Scatter Plot":"""
-Scatter plots identify relationships between variables.
-
-Business Use Cases:
-- Correlation analysis
-- Risk vs return analysis
-- Customer segmentation
-"""
     }
 
     chart=st.selectbox("Select Chart",list(explanations.keys()))
@@ -294,7 +260,7 @@ Business Use Cases:
     st.write(explanations[chart])
 
 # --------------------------------------------------
-# STATISTICS LAB
+# STATISTICS
 # --------------------------------------------------
 
 elif menu=="Statistics Lab":
@@ -305,7 +271,7 @@ elif menu=="Statistics Lab":
 
     st.write(df[col].describe())
 
-    fig,ax=plt.subplots(figsize=(4,3))
+    fig,ax=plt.subplots(figsize=(3,2))
     fig.patch.set_facecolor("white")
 
     ax.boxplot(df[col])
@@ -322,16 +288,16 @@ elif menu=="AI Insights":
 
     st.write("Dataset Shape:",df.shape)
 
-    st.write("Missing Values:")
+    st.write("Missing Values")
 
     st.write(df.isnull().sum())
 
-    st.write("Top Correlations")
+    st.write("Correlation Matrix")
 
     st.write(df.corr(numeric_only=True))
 
 # --------------------------------------------------
-# CORRELATION ANALYZER
+# CORRELATION
 # --------------------------------------------------
 
 elif menu=="Correlation Analyzer":
@@ -340,7 +306,7 @@ elif menu=="Correlation Analyzer":
 
     corr=df.corr(numeric_only=True)
 
-    fig,ax=plt.subplots(figsize=(5,4))
+    fig,ax=plt.subplots(figsize=(3,2))
 
     cax=ax.imshow(corr,cmap="coolwarm")
 
@@ -364,7 +330,7 @@ elif menu=="Auto Dashboard":
 
     for col in numeric_cols:
 
-        fig,ax=plt.subplots(figsize=(4,3))
+        fig,ax=plt.subplots(figsize=(3,2))
         fig.patch.set_facecolor("white")
 
         ax.hist(df[col],color="#3b82f6")
@@ -398,7 +364,7 @@ elif menu=="Forecasting":
 
     pred=model.predict(future_index)
 
-    fig,ax=plt.subplots(figsize=(5,3))
+    fig,ax=plt.subplots(figsize=(3,2))
     fig.patch.set_facecolor("white")
 
     ax.plot(df[col],color="#3b82f6")
@@ -462,43 +428,22 @@ elif menu=="Report":
         st.download_button("Download",buffer.getvalue(),"report.pdf")
 
 # --------------------------------------------------
-# FAQ (COMPLEX Q/A)
+# FAQ
 # --------------------------------------------------
 
 elif menu=="FAQ":
 
-    st.title("Advanced FAQ for Analytics Platform")
+    st.title("Analytics Platform FAQ")
 
     faq={
 
-"What insights can analysts derive from this dashboard?":
-"""
-The platform enables analysts to explore data distributions, correlations,
-trend patterns and predictive insights. By combining statistical analysis,
-visual exploration and machine learning models, analysts can identify
-hidden relationships within the dataset.
-""",
+"How does this dashboard help data analysts?":"It combines visualization, statistical analysis and machine learning to explore datasets, identify patterns and generate predictive insights.",
 
-"How does forecasting help business decisions?":
-"""
-Forecasting models estimate future trends based on historical data.
-Businesses use these predictions to plan budgets, manage resources,
-and anticipate market demand.
-""",
+"Why integrate Power BI with Streamlit?":"Embedding Power BI allows combining enterprise dashboards with custom Python analytics tools in a single interface.",
 
-"Why is correlation analysis important?":
-"""
-Correlation analysis helps determine whether two variables move together.
-Understanding these relationships helps analysts identify drivers of
-business performance.
-""",
+"What is the purpose of automated dashboards?":"Auto dashboards allow quick exploration of datasets by generating charts automatically for all numerical variables.",
 
-"What role does machine learning play in analytics dashboards?":
-"""
-Machine learning enables predictive analytics. Instead of only visualizing
-past data, the dashboard can estimate future outcomes and identify patterns
-that traditional statistical analysis may miss.
-"""
+"How does forecasting work here?":"The forecasting module uses regression models to estimate future values based on historical patterns."
 
 }
 
