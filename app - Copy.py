@@ -15,7 +15,7 @@ import io
 st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
 # -------------------------------
-# CUSTOM STYLE
+# ADVANCED UI STYLE
 # -------------------------------
 
 st.markdown("""
@@ -24,15 +24,66 @@ st.markdown("""
 .stApp{
 background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
 color:white;
+font-family: 'Segoe UI';
 }
 
+/* Title */
+
 .title{
-font-size:42px;
-font-weight:700;
+font-size:45px;
+font-weight:800;
 text-align:center;
-background: linear-gradient(90deg,#a855f7,#6366f1);
+background: linear-gradient(90deg,#a855f7,#6366f1,#06b6d4);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
+margin-bottom:25px;
+}
+
+/* Glass Cards */
+
+.card{
+background: rgba(255,255,255,0.08);
+backdrop-filter: blur(12px);
+border-radius:20px;
+padding:25px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px) scale(1.02);
+}
+
+/* KPI Cards */
+
+.kpi-card{
+background: linear-gradient(145deg,#1e1b4b,#312e81);
+border-radius:18px;
+padding:25px;
+text-align:center;
+box-shadow:0 12px 35px rgba(0,0,0,0.6);
+transition:0.3s;
+}
+
+.kpi-card:hover{
+transform:scale(1.05);
+}
+
+.kpi-number{
+font-size:40px;
+font-weight:800;
+color:#a78bfa;
+}
+
+.kpi-label{
+font-size:16px;
+color:#ddd;
+}
+
+/* Sidebar */
+
+section[data-testid="stSidebar"]{
+background: linear-gradient(180deg,#020617,#111827);
 }
 
 </style>
@@ -84,58 +135,177 @@ if not st.session_state.login:
 st.sidebar.title("Navigation")
 
 menu = st.sidebar.radio(
-
 "Go To",
-
 [
-"Executive Dashboard",
-"Power BI Dashboard",
-"Dataset Explorer",
-"Chart Explorer",
-"AI Insights Generator",
-"Country Analysis",
-"Global Map Visualization",
-"Machine Learning Prediction",
-"Auto ML Prediction",
-"Time Series Forecasting",
-"Generate PDF Report",
-"FAQ",
-"About"
+"🏠 Executive Dashboard",
+"📘 Dashboard Guide",
+"📊 Power BI Dashboard",
+"🧾 Dataset Explorer",
+"📈 Chart Explorer",
+"🤖 AI Insights Generator",
+"🌍 Country Analysis",
+"🗺 Global Map Visualization",
+"🧠 Machine Learning Prediction",
+"⚡ Auto ML Prediction",
+"⏳ Time Series Forecasting",
+"📄 Generate PDF Report",
+"❓ FAQ",
+"ℹ About"
 ]
-
 )
 
 # -------------------------------
 # EXECUTIVE DASHBOARD
 # -------------------------------
 
-if menu=="Executive Dashboard":
+if menu=="🏠 Executive Dashboard":
 
     st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
 
-    col1,col2,col3=st.columns(3)
+    col1,col2,col3,col4=st.columns(4)
 
-    col1.metric("Rows",df.shape[0])
-    col2.metric("Columns",df.shape[1])
-    col3.metric("Numeric Variables",len(numeric_cols))
+    col1.markdown(f"""
+    <div class="kpi-card">
+    <div class="kpi-number">{df.shape[0]}</div>
+    <div class="kpi-label">Total Rows</div>
+    </div>
+    """,unsafe_allow_html=True)
+
+    col2.markdown(f"""
+    <div class="kpi-card">
+    <div class="kpi-number">{df.shape[1]}</div>
+    <div class="kpi-label">Total Columns</div>
+    </div>
+    """,unsafe_allow_html=True)
+
+    col3.markdown(f"""
+    <div class="kpi-card">
+    <div class="kpi-number">{len(numeric_cols)}</div>
+    <div class="kpi-label">Numeric Features</div>
+    </div>
+    """,unsafe_allow_html=True)
+
+    col4.markdown(f"""
+    <div class="kpi-card">
+    <div class="kpi-number">{len(categorical_cols)}</div>
+    <div class="kpi-label">Categorical Features</div>
+    </div>
+    """,unsafe_allow_html=True)
 
     st.subheader("Dataset Preview")
 
     st.dataframe(df.head())
 
+    st.subheader("Dataset Insights")
+
+    col1,col2=st.columns(2)
+
+    col1.markdown(f"""
+    <div class="card">
+    <h4>Missing Values</h4>
+    <p>{df.isnull().sum().sum()} missing values detected.</p>
+    </div>
+    """,unsafe_allow_html=True)
+
+    col2.markdown(f"""
+    <div class="card">
+    <h4>Duplicate Rows</h4>
+    <p>{df.duplicated().sum()} duplicate rows found.</p>
+    </div>
+    """,unsafe_allow_html=True)
+
     if len(numeric_cols)>0:
 
         fig,ax=plt.subplots()
-
         df[numeric_cols[0]].hist(ax=ax)
-
         st.pyplot(fig)
 
 # -------------------------------
-# POWER BI DASHBOARD
+# DASHBOARD GUIDE
 # -------------------------------
 
-elif menu=="Power BI Dashboard":
+elif menu=="📘 Dashboard Guide":
+
+    st.markdown("<div class='title'>Platform User Guide</div>",unsafe_allow_html=True)
+
+    st.markdown("""
+
+### 🌍 Global Income Intelligence Platform Guide
+
+This guide explains each module in the system.
+
+---
+
+### Executive Dashboard
+Provides a high-level overview of dataset statistics and quick analytics.
+
+---
+
+### Power BI Dashboard
+Displays enterprise-grade BI analytics using Power BI embedded reports.
+
+---
+
+### Dataset Explorer
+Used to inspect dataset structure, statistics, missing values and duplicates.
+
+---
+
+### Chart Explorer
+Provides multiple visualizations such as histograms, boxplots, scatter plots and heatmaps.
+
+---
+
+### AI Insights Generator
+Automatically calculates statistical insights for each numeric column.
+
+---
+
+### Country Analysis
+Allows filtering and analyzing income data by country.
+
+---
+
+### Global Map Visualization
+Shows global data distribution using interactive choropleth maps.
+
+---
+
+### Machine Learning Prediction
+Uses Linear Regression to predict numeric variables.
+
+---
+
+### Auto ML Prediction
+Automatically compares multiple models and selects the best one.
+
+---
+
+### Time Series Forecasting
+Visualizes trends across time columns.
+
+---
+
+### Generate PDF Report
+Creates a downloadable report summarizing dataset information.
+
+---
+
+### FAQ
+Provides quick answers about the platform.
+
+---
+
+### About
+Describes the technology stack used.
+
+""")
+
+# -------------------------------
+# POWER BI
+# -------------------------------
+
+elif menu=="📊 Power BI Dashboard":
 
     st.title("Power BI Dashboard")
 
@@ -147,7 +317,7 @@ elif menu=="Power BI Dashboard":
 # DATASET EXPLORER
 # -------------------------------
 
-elif menu=="Dataset Explorer":
+elif menu=="🧾 Dataset Explorer":
 
     st.title("Dataset Explorer")
 
@@ -166,27 +336,22 @@ elif menu=="Dataset Explorer":
     st.write(df.duplicated().sum())
 
     st.download_button(
-
     "Download Dataset",
     df.to_csv(index=False),
     "dataset.csv"
-
     )
 
 # -------------------------------
 # CHART EXPLORER
 # -------------------------------
 
-elif menu=="Chart Explorer":
+elif menu=="📈 Chart Explorer":
 
     st.title("Chart Explorer")
 
     chart = st.selectbox(
-
     "Choose Chart",
-
     ["Histogram","Boxplot","Scatter","Bar","Line","Correlation Heatmap"]
-
     )
 
     fig,ax=plt.subplots()
@@ -194,18 +359,12 @@ elif menu=="Chart Explorer":
     if chart=="Histogram":
 
         col=st.selectbox("Column",numeric_cols)
-
         sns.histplot(df[col],ax=ax)
-
-        explanation="Histogram shows distribution of values."
 
     elif chart=="Boxplot":
 
         col=st.selectbox("Column",numeric_cols)
-
         sns.boxplot(x=df[col],ax=ax)
-
-        explanation="Boxplot shows median and outliers."
 
     elif chart=="Scatter":
 
@@ -214,47 +373,31 @@ elif menu=="Chart Explorer":
 
         sns.scatterplot(x=df[x],y=df[y],ax=ax)
 
-        explanation="Scatter shows relationship between two variables."
-
     elif chart=="Bar":
 
         col=st.selectbox("Column",categorical_cols)
-
         df[col].value_counts().plot(kind="bar",ax=ax)
-
-        explanation="Bar chart compares category frequencies."
 
     elif chart=="Line":
 
         col=st.selectbox("Column",numeric_cols)
-
         df[col].plot(ax=ax)
-
-        explanation="Line chart shows trend across index."
 
     elif chart=="Correlation Heatmap":
 
         sns.heatmap(df[numeric_cols].corr(),annot=True,ax=ax)
 
-        explanation="Heatmap shows correlation between numeric variables."
-
     st.pyplot(fig)
 
-    st.info(explanation)
-
 # -------------------------------
-# AI INSIGHTS GENERATOR
+# AI INSIGHTS
 # -------------------------------
 
-elif menu=="AI Insights Generator":
+elif menu=="🤖 AI Insights Generator":
 
     st.title("Automatic AI Insights")
 
-    st.subheader("Dataset Summary")
-
     st.write(df.describe())
-
-    st.subheader("Generated Insights")
 
     for col in numeric_cols:
 
@@ -268,7 +411,7 @@ elif menu=="AI Insights Generator":
 # COUNTRY ANALYSIS
 # -------------------------------
 
-elif menu=="Country Analysis":
+elif menu=="🌍 Country Analysis":
 
     st.title("Country Analysis")
 
@@ -292,35 +435,28 @@ elif menu=="Country Analysis":
 # GLOBAL MAP
 # -------------------------------
 
-elif menu=="Global Map Visualization":
+elif menu=="🗺 Global Map Visualization":
 
     st.title("Global Income Map")
 
     country_col=st.selectbox("Country Column",df.columns)
-
     value_col=st.selectbox("Value Column",numeric_cols)
 
     fig=px.choropleth(
-
     df,
-
     locations=country_col,
-
     locationmode="country names",
-
     color=value_col,
-
     color_continuous_scale="Viridis"
-
     )
 
     st.plotly_chart(fig,use_container_width=True)
 
 # -------------------------------
-# ML PREDICTION
+# MACHINE LEARNING
 # -------------------------------
 
-elif menu=="Machine Learning Prediction":
+elif menu=="🧠 Machine Learning Prediction":
 
     st.title("Machine Learning Prediction")
 
@@ -353,7 +489,7 @@ elif menu=="Machine Learning Prediction":
 # AUTO ML
 # -------------------------------
 
-elif menu=="Auto ML Prediction":
+elif menu=="⚡ Auto ML Prediction":
 
     st.title("Auto ML Model Selection")
 
@@ -367,13 +503,9 @@ elif menu=="Auto ML Prediction":
     X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
 
     models={
-
     "Linear Regression":LinearRegression(),
-
     "Decision Tree":DecisionTreeRegressor(),
-
     "Random Forest":RandomForestRegressor()
-
     }
 
     results={}
@@ -398,7 +530,7 @@ elif menu=="Auto ML Prediction":
 # TIME SERIES
 # -------------------------------
 
-elif menu=="Time Series Forecasting":
+elif menu=="⏳ Time Series Forecasting":
 
     st.title("Time Series Analysis")
 
@@ -412,15 +544,13 @@ elif menu=="Time Series Forecasting":
 
     ax.plot(df_sorted[time_col],df_sorted[value_col])
 
-    ax.set_title("Trend Over Time")
-
     st.pyplot(fig)
 
 # -------------------------------
 # PDF REPORT
 # -------------------------------
 
-elif menu=="Generate PDF Report":
+elif menu=="📄 Generate PDF Report":
 
     st.title("Generate Report")
 
@@ -437,29 +567,24 @@ elif menu=="Generate PDF Report":
         pdf.save()
 
         st.download_button(
-
         "Download Report",
-
         buffer.getvalue(),
-
         "report.pdf",
-
         "application/pdf"
-
         )
 
 # -------------------------------
 # FAQ
 # -------------------------------
 
-elif menu=="FAQ":
+elif menu=="❓ FAQ":
 
     st.title("Frequently Asked Questions")
 
     st.markdown("""
 
 **What does this platform do?**  
-Provides analytics and machine learning insights for income datasets.
+Provides analytics and ML insights for income datasets.
 
 **What ML algorithms are used?**  
 Linear Regression, Decision Tree, Random Forest.
@@ -476,7 +601,7 @@ Yes, PDF reports and dataset downloads are available.
 # ABOUT
 # -------------------------------
 
-elif menu=="About":
+elif menu=="ℹ About":
 
     st.title("About Platform")
 
@@ -488,6 +613,6 @@ Global Income Intelligence Platform built with:
 • Streamlit  
 • Machine Learning  
 • Plotly Visualization  
-• Power BI Integration  
+• Power BI Integration
 
 """)
