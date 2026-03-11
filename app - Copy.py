@@ -355,7 +355,7 @@ st.sidebar.markdown("---")
 # -------------------------------
 st.sidebar.markdown("### 📊 Quick Stats")
 
-st.sidebar.metric("Countries", 180)
+st.sidebar.metric("Countries", 200)
 st.sidebar.metric("Records", "1.2M")
 st.sidebar.metric("Models", 5)
 
@@ -3090,6 +3090,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
