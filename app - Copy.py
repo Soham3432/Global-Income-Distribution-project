@@ -742,15 +742,134 @@ elif menu=="🤖 AI Insights Generator":
 # COUNTRY ANALYSIS
 # -------------------------------
 elif menu=="🌍 Country Analysis":
-    st.title("Country Analysis")
+
+    st.title("🌍 Country Analysis Dashboard")
+
     country_cols=[c for c in df.columns if "country" in c.lower()]
+
     if country_cols:
+
         country_col=country_cols[0]
+
         country=st.selectbox("Select Country",df[country_col].unique())
+
         filtered=df[df[country_col]==country]
+
+        st.subheader("Country Dataset")
         st.dataframe(filtered)
-        fig=px.bar(filtered,y=numeric_cols[0])
-        st.plotly_chart(fig,use_container_width=True)
+
+        st.divider()
+
+        # ---------------- BAR CHART ----------------
+
+        st.subheader("📊 Income Indicator Comparison")
+
+        fig1=px.bar(
+            filtered,
+            y=numeric_cols,
+            title="Country Indicator Comparison",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig1,use_container_width=True)
+
+        # ---------------- LINE CHART ----------------
+
+        year_cols=[c for c in df.columns if "year" in c.lower()]
+
+        if year_cols:
+
+            year_col=year_cols[0]
+
+            st.subheader("📈 Trend Over Time")
+
+            fig2=px.line(
+                filtered,
+                x=year_col,
+                y=numeric_cols,
+                markers=True,
+                template="plotly_dark",
+                title="Income Trend Over Years"
+            )
+
+            st.plotly_chart(fig2,use_container_width=True)
+
+        # ---------------- AREA CHART ----------------
+
+        st.subheader("📉 Area Distribution")
+
+        fig3=px.area(
+            filtered,
+            y=numeric_cols[0],
+            template="plotly_dark",
+            title="Income Distribution Area"
+        )
+
+        st.plotly_chart(fig3,use_container_width=True)
+
+        # ---------------- PIE CHART ----------------
+
+        st.subheader("🥧 Indicator Contribution")
+
+        pie_df=filtered[numeric_cols].mean().reset_index()
+        pie_df.columns=["Indicator","Value"]
+
+        fig4=px.pie(
+            pie_df,
+            names="Indicator",
+            values="Value",
+            hole=0.4,
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig4,use_container_width=True)
+
+        # ---------------- SCATTER PLOT ----------------
+
+        if len(numeric_cols) >= 2:
+
+            st.subheader("📉 Indicator Relationship")
+
+            fig5=px.scatter(
+                filtered,
+                x=numeric_cols[0],
+                y=numeric_cols[1],
+                size=numeric_cols[0],
+                color=numeric_cols[1],
+                template="plotly_dark",
+                title="Income Relationship Scatter"
+            )
+
+            st.plotly_chart(fig5,use_container_width=True)
+
+        # ---------------- BOX PLOT ----------------
+
+        st.subheader("📊 Distribution Analysis")
+
+        fig6=px.box(
+            filtered,
+            y=numeric_cols,
+            template="plotly_dark",
+            title="Indicator Distribution"
+        )
+
+        st.plotly_chart(fig6,use_container_width=True)
+
+        # ---------------- HEATMAP ----------------
+
+        st.subheader("🔥 Correlation Heatmap")
+
+        corr=filtered[numeric_cols].corr()
+
+        fig7=px.imshow(
+            corr,
+            text_auto=True,
+            color_continuous_scale="RdBu",
+            title="Indicator Correlation",
+            template="plotly_dark"
+        )
+
+        st.plotly_chart(fig7,use_container_width=True)
 
 # -------------------------------
 # GLOBAL MAP
@@ -1033,4 +1152,5 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
