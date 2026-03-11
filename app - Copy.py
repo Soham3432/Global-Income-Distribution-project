@@ -421,12 +421,31 @@ import streamlit as st
 st.sidebar.markdown("""
 <div style="
 text-align:center;
-padding:10px;
-border-radius:12px;
-background:linear-gradient(135deg,#6366f1,#06b6d4,#a855f7);
-box-shadow:0 0 20px rgba(0,0,0,0.5);
+padding:14px;
+border-radius:14px;
+background:linear-gradient(135deg,#1e293b,#0f172a);
+border:1px solid rgba(255,255,255,0.1);
+box-shadow:0 6px 25px rgba(0,0,0,0.6);
 ">
-<h2 style="color:Red;">🚀 Global Data Analytics Platform</h2>
+
+<h2 style="
+color:white;
+font-weight:800;
+letter-spacing:1px;
+text-shadow:0 0 10px rgba(0,0,0,0.8);
+margin-bottom:4px;
+">
+🚀 Global Data Analytics Platform
+</h2>
+
+<p style="
+font-size:14px;
+color:#cbd5f5;
+margin-top:0;
+">
+Analytics Platform
+</p>
+
 </div>
 """, unsafe_allow_html=True)
 
@@ -3341,6 +3360,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
