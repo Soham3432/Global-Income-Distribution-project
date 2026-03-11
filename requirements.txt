@@ -1,8 +1,13 @@
 streamlit
-plotly
 pandas
 numpy
+plotly
 scikit-learn
-reportlab
 matplotlib
 seaborn
+reportlab
+shap
+prophet
+fpdf
+setuptools
+wheel
