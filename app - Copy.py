@@ -12,6 +12,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from reportlab.pdfgen import canvas
 import io
+from sklearn.model_selection import train_test_split
+
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.neighbors import KNeighborsRegressor
+
+# METRICS
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
 # -------------------------------
 # PAGE CONFIG
@@ -1815,6 +1824,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
