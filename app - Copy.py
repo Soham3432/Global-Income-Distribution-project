@@ -681,31 +681,314 @@ elif menu=="🧾 Dataset Explorer":
     st.download_button("Download Dataset", df.to_csv(index=False), "dataset.csv")
 
 # -------------------------------
-# CHART EXPLORER
+# ADVANCED CHART EXPLORER
 # -------------------------------
 elif menu=="📈 Chart Explorer":
-    st.title("Chart Explorer")
-    chart = st.selectbox("Choose Chart", ["Histogram","Boxplot","Scatter","Bar","Line","Correlation Heatmap"])
-    fig,ax=plt.subplots()
-    if chart=="Histogram":
-        col=st.selectbox("Column",numeric_cols)
-        sns.histplot(df[col],ax=ax)
-    elif chart=="Boxplot":
-        col=st.selectbox("Column",numeric_cols)
-        sns.boxplot(x=df[col],ax=ax)
-    elif chart=="Scatter":
-        x=st.selectbox("X Axis",numeric_cols)
-        y=st.selectbox("Y Axis",numeric_cols)
-        sns.scatterplot(x=df[x],y=df[y],ax=ax)
-    elif chart=="Bar":
-        col=st.selectbox("Column",categorical_cols)
-        df[col].value_counts().plot(kind="bar",ax=ax)
-    elif chart=="Line":
-        col=st.selectbox("Column",numeric_cols)
-        df[col].plot(ax=ax)
-    elif chart=="Correlation Heatmap":
-        sns.heatmap(df[numeric_cols].corr(),annot=True,ax=ax)
-    st.pyplot(fig)
+
+    st.title("📈 Advanced Chart Explorer")
+
+    chart_type = st.selectbox(
+        "Select Chart Type",
+        [
+            "Histogram",
+            "Box Plot",
+            "Scatter Plot",
+            "Line Chart",
+            "Bar Chart",
+            "Area Chart",
+            "Violin Plot",
+            "Bubble Chart",
+            "3D Scatter",
+            "Pie Chart",
+            "Sunburst",
+            "Treemap",
+            "Density Contour",
+            "Correlation Heatmap"
+        ]
+    )
+
+    # -----------------------------
+    # STYLE OPTIONS
+    # -----------------------------
+
+    st.sidebar.header("🎨 Chart Customization")
+
+    color_palette = st.sidebar.selectbox(
+        "Color Theme",
+        ["viridis","plasma","inferno","magma","cividis","blues","reds","greens"]
+    )
+
+    template_style = st.sidebar.selectbox(
+        "Plot Style",
+        ["plotly","plotly_dark","ggplot2","seaborn"]
+    )
+
+    marker_size = st.sidebar.slider("Marker Size",5,30,10)
+
+    # -----------------------------
+    # HISTOGRAM
+    # -----------------------------
+
+    if chart_type == "Histogram":
+
+        col = st.selectbox("Select Column", numeric_cols)
+
+        bins = st.slider("Bins",10,100,30)
+
+        fig = px.histogram(
+            df,
+            x=col,
+            nbins=bins,
+            color_discrete_sequence=[px.colors.sequential.Viridis[4]],
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # SCATTER
+    # -----------------------------
+
+    elif chart_type == "Scatter Plot":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+        color = st.selectbox("Color By", df.columns)
+
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            color=color,
+            size_max=marker_size,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # LINE
+    # -----------------------------
+
+    elif chart_type == "Line Chart":
+
+        x = st.selectbox("X Axis", df.columns)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.line(
+            df,
+            x=x,
+            y=y,
+            markers=True,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # BAR
+    # -----------------------------
+
+    elif chart_type == "Bar Chart":
+
+        x = st.selectbox("Category", df.columns)
+        y = st.selectbox("Value", numeric_cols)
+
+        fig = px.bar(
+            df,
+            x=x,
+            y=y,
+            color=x,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # AREA
+    # -----------------------------
+
+    elif chart_type == "Area Chart":
+
+        x = st.selectbox("X Axis", df.columns)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.area(
+            df,
+            x=x,
+            y=y,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # BOX
+    # -----------------------------
+
+    elif chart_type == "Box Plot":
+
+        x = st.selectbox("Category", df.columns)
+        y = st.selectbox("Value", numeric_cols)
+
+        fig = px.box(
+            df,
+            x=x,
+            y=y,
+            color=x,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # VIOLIN
+    # -----------------------------
+
+    elif chart_type == "Violin Plot":
+
+        x = st.selectbox("Category", df.columns)
+        y = st.selectbox("Value", numeric_cols)
+
+        fig = px.violin(
+            df,
+            x=x,
+            y=y,
+            color=x,
+            box=True,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # BUBBLE
+    # -----------------------------
+
+    elif chart_type == "Bubble Chart":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+        size = st.selectbox("Bubble Size", numeric_cols)
+
+        fig = px.scatter(
+            df,
+            x=x,
+            y=y,
+            size=size,
+            color=size,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # 3D SCATTER
+    # -----------------------------
+
+    elif chart_type == "3D Scatter":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+        z = st.selectbox("Z Axis", numeric_cols)
+
+        fig = px.scatter_3d(
+            df,
+            x=x,
+            y=y,
+            z=z,
+            color=z,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # PIE
+    # -----------------------------
+
+    elif chart_type == "Pie Chart":
+
+        col = st.selectbox("Category", categorical_cols)
+
+        fig = px.pie(
+            df,
+            names=col,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # TREEMAP
+    # -----------------------------
+
+    elif chart_type == "Treemap":
+
+        cat = st.selectbox("Category", categorical_cols)
+        val = st.selectbox("Value", numeric_cols)
+
+        fig = px.treemap(
+            df,
+            path=[cat],
+            values=val,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # SUNBURST
+    # -----------------------------
+
+    elif chart_type == "Sunburst":
+
+        cat = st.selectbox("Category", categorical_cols)
+        val = st.selectbox("Value", numeric_cols)
+
+        fig = px.sunburst(
+            df,
+            path=[cat],
+            values=val,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # DENSITY
+    # -----------------------------
+
+    elif chart_type == "Density Contour":
+
+        x = st.selectbox("X Axis", numeric_cols)
+        y = st.selectbox("Y Axis", numeric_cols)
+
+        fig = px.density_contour(
+            df,
+            x=x,
+            y=y,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    # -----------------------------
+    # HEATMAP
+    # -----------------------------
+
+    elif chart_type == "Correlation Heatmap":
+
+        corr = df[numeric_cols].corr()
+
+        fig = px.imshow(
+            corr,
+            text_auto=True,
+            color_continuous_scale=color_palette,
+            template=template_style
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
 
 # -------------------------------
 # COUNTRY COMPARISON
@@ -2003,6 +2286,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
