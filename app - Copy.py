@@ -1,493 +1,368 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.express as px
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+import plotly.graph_objects as go
+import shap
+import openai
+import requests
+import boto3
+from sqlalchemy import create_engine
+from passlib.hash import bcrypt
+from prophet import Prophet
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
-from reportlab.pdfgen import canvas
-import io
+from sklearn.linear_model import LinearRegression,Ridge,Lasso
+from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR
+from sklearn.neighbors import KNeighborsRegressor
+from fpdf import FPDF
 
-st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
+st.set_page_config(layout="wide")
 
-# -------------------------------
-# CUSTOM STYLE
-# -------------------------------
+# ---------------- UI ----------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
 color:white;
 }
 
-.title{
-font-size:42px;
-font-weight:700;
+.kpi{
+background:rgba(255,255,255,0.1);
+padding:25px;
+border-radius:18px;
 text-align:center;
-background: linear-gradient(90deg,#a855f7,#6366f1);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
 }
 
 </style>
 """,unsafe_allow_html=True)
 
-# -------------------------------
-# LOAD DATA
-# -------------------------------
+# ---------------- DATABASE ----------------
 
-@st.cache_data
-def load_data():
-    return pd.read_csv("final.sheet.csv")
+DATABASE_URL="sqlite:///users.db"
 
-df = load_data()
+engine=create_engine(DATABASE_URL)
 
-numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
-categorical_cols = df.select_dtypes(include=["object"]).columns
+def authenticate(username,password):
 
-# -------------------------------
-# LOGIN SYSTEM
-# -------------------------------
+    users=pd.read_sql("SELECT * FROM users",engine)
+
+    user=users[users.username==username]
+
+    if len(user)>0:
+
+        if bcrypt.verify(password,user.password_hash.values[0]):
+
+            return True
+
+    return False
+
+# ---------------- LOGIN ----------------
 
 if "login" not in st.session_state:
     st.session_state.login=False
 
 if not st.session_state.login:
 
-    st.markdown("<div class='title'>🌍 Global Income Intelligence Platform</div>",unsafe_allow_html=True)
+    st.title("Enterprise AI Analytics Platform")
 
-    user=st.text_input("Username")
-    pw=st.text_input("Password",type="password")
+    u=st.text_input("Username")
+    p=st.text_input("Password",type="password")
 
     if st.button("Login"):
 
-        if user=="admin" and pw=="1234":
+        if authenticate(u,p):
 
             st.session_state.login=True
             st.rerun()
 
         else:
-            st.error("Invalid login")
+
+            st.error("Invalid credentials")
 
     st.stop()
 
-# -------------------------------
-# SIDEBAR NAVIGATION
-# -------------------------------
+# ---------------- LOAD DATA ----------------
 
-st.sidebar.title("Navigation")
+@st.cache_data
+def load_data():
+    return pd.read_csv("final.sheet.csv")
 
-menu = st.sidebar.radio(
+df=load_data()
 
-"Go To",
+numeric_cols=df.select_dtypes(include=["int64","float64"]).columns
 
-[
+# ---------------- SIDEBAR ----------------
+
+menu=st.sidebar.radio("Navigation",[
+
 "Executive Dashboard",
 "Power BI Dashboard",
 "Dataset Explorer",
-"Chart Explorer",
-"AI Insights Generator",
-"Country Analysis",
-"Global Map Visualization",
-"Machine Learning Prediction",
-"Auto ML Prediction",
-"Time Series Forecasting",
-"Generate PDF Report",
-"FAQ",
+"Visualizations",
+"AI Dataset Analyst",
+"Automatic Insights",
+"Explainable AI",
+"Machine Learning",
+"AutoML",
+"Forecasting",
+"3D Globe Map",
+"AWS S3 Connector",
+"Snowflake Connector",
+"Live API Data",
+"Streaming Dashboard",
+"PDF Report",
 "About"
-]
 
-)
+])
 
-# -------------------------------
-# EXECUTIVE DASHBOARD
-# -------------------------------
+# ---------------- EXECUTIVE DASHBOARD ----------------
 
 if menu=="Executive Dashboard":
 
-    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
+    c1,c2,c3=st.columns(3)
 
-    col1,col2,col3=st.columns(3)
-
-    col1.metric("Rows",df.shape[0])
-    col2.metric("Columns",df.shape[1])
-    col3.metric("Numeric Variables",len(numeric_cols))
-
-    st.subheader("Dataset Preview")
+    c1.markdown(f"<div class='kpi'><h2>{df.shape[0]}</h2>Rows</div>",unsafe_allow_html=True)
+    c2.markdown(f"<div class='kpi'><h2>{df.shape[1]}</h2>Columns</div>",unsafe_allow_html=True)
+    c3.markdown(f"<div class='kpi'><h2>{len(numeric_cols)}</h2>Numeric</div>",unsafe_allow_html=True)
 
     st.dataframe(df.head())
 
-    if len(numeric_cols)>0:
-
-        fig,ax=plt.subplots()
-
-        df[numeric_cols[0]].hist(ax=ax)
-
-        st.pyplot(fig)
-
-# -------------------------------
-# POWER BI DASHBOARD
-# -------------------------------
+# ---------------- POWER BI ----------------
 
 elif menu=="Power BI Dashboard":
 
-    st.title("Power BI Dashboard")
+    url="YOUR_POWERBI_EMBED_LINK"
 
-    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+    st.components.v1.iframe(url,height=700)
 
-    st.components.v1.iframe(powerbi_url,height=700)
+# ---------------- VISUALIZATION ----------------
 
-# -------------------------------
-# DATASET EXPLORER
-# -------------------------------
+elif menu=="Visualizations":
 
-elif menu=="Dataset Explorer":
+    chart=st.selectbox("Chart",[
 
-    st.title("Dataset Explorer")
+    "Histogram",
+    "Scatter",
+    "Box",
+    "Violin",
+    "Area",
+    "Line"
 
-    st.dataframe(df)
+    ])
 
-    column = st.selectbox("Select Column",df.columns)
+    col=st.selectbox("Column",numeric_cols)
 
-    st.write(df[column].describe())
+    fig=px.histogram(df,x=col)
 
-    st.subheader("Missing Values")
+    st.plotly_chart(fig)
 
-    st.write(df.isnull().sum())
+# ---------------- AI ANALYST ----------------
 
-    st.subheader("Duplicate Rows")
+elif menu=="AI Dataset Analyst":
 
-    st.write(df.duplicated().sum())
+    api=st.text_input("OpenAI API Key",type="password")
 
-    st.download_button(
+    q=st.text_input("Ask dataset question")
 
-    "Download Dataset",
-    df.to_csv(index=False),
-    "dataset.csv"
+    if st.button("Ask"):
 
-    )
+        openai.api_key=api
 
-# -------------------------------
-# CHART EXPLORER
-# -------------------------------
+        prompt=f"Dataset columns: {list(df.columns)}. Question:{q}"
 
-elif menu=="Chart Explorer":
+        response=openai.ChatCompletion.create(
 
-    st.title("Chart Explorer")
+        model="gpt-4o-mini",
 
-    chart = st.selectbox(
+        messages=[{"role":"user","content":prompt}]
 
-    "Choose Chart",
+        )
 
-    ["Histogram","Boxplot","Scatter","Bar","Line","Correlation Heatmap"]
+        st.write(response.choices[0].message.content)
 
-    )
+# ---------------- AUTO INSIGHTS ----------------
 
-    fig,ax=plt.subplots()
-
-    if chart=="Histogram":
-
-        col=st.selectbox("Column",numeric_cols)
-
-        sns.histplot(df[col],ax=ax)
-
-        explanation="Histogram shows distribution of values."
-
-    elif chart=="Boxplot":
-
-        col=st.selectbox("Column",numeric_cols)
-
-        sns.boxplot(x=df[col],ax=ax)
-
-        explanation="Boxplot shows median and outliers."
-
-    elif chart=="Scatter":
-
-        x=st.selectbox("X Axis",numeric_cols)
-        y=st.selectbox("Y Axis",numeric_cols)
-
-        sns.scatterplot(x=df[x],y=df[y],ax=ax)
-
-        explanation="Scatter shows relationship between two variables."
-
-    elif chart=="Bar":
-
-        col=st.selectbox("Column",categorical_cols)
-
-        df[col].value_counts().plot(kind="bar",ax=ax)
-
-        explanation="Bar chart compares category frequencies."
-
-    elif chart=="Line":
-
-        col=st.selectbox("Column",numeric_cols)
-
-        df[col].plot(ax=ax)
-
-        explanation="Line chart shows trend across index."
-
-    elif chart=="Correlation Heatmap":
-
-        sns.heatmap(df[numeric_cols].corr(),annot=True,ax=ax)
-
-        explanation="Heatmap shows correlation between numeric variables."
-
-    st.pyplot(fig)
-
-    st.info(explanation)
-
-# -------------------------------
-# AI INSIGHTS GENERATOR
-# -------------------------------
-
-elif menu=="AI Insights Generator":
-
-    st.title("Automatic AI Insights")
-
-    st.subheader("Dataset Summary")
-
-    st.write(df.describe())
-
-    st.subheader("Generated Insights")
+elif menu=="Automatic Insights":
 
     for col in numeric_cols:
 
-        mean=df[col].mean()
-        median=df[col].median()
-        std=df[col].std()
+        st.write(
 
-        st.info(f"{col}: Mean={mean:.2f} | Median={median:.2f} | Std Dev={std:.2f}")
+        f"{col} mean: {df[col].mean():.2f}, std: {df[col].std():.2f}"
 
-# -------------------------------
-# COUNTRY ANALYSIS
-# -------------------------------
+        )
 
-elif menu=="Country Analysis":
+# ---------------- EXPLAINABLE AI ----------------
 
-    st.title("Country Analysis")
+elif menu=="Explainable AI":
 
-    country_cols=[c for c in df.columns if "country" in c.lower()]
+    target=st.selectbox("Target",numeric_cols)
 
-    if country_cols:
+    X=df[numeric_cols].drop(columns=[target])
+    y=df[target]
 
-        country_col=country_cols[0]
-
-        country=st.selectbox("Select Country",df[country_col].unique())
-
-        filtered=df[df[country_col]==country]
-
-        st.dataframe(filtered)
-
-        fig=px.bar(filtered,y=numeric_cols[0])
-
-        st.plotly_chart(fig,use_container_width=True)
-
-# -------------------------------
-# GLOBAL MAP
-# -------------------------------
-
-elif menu=="Global Map Visualization":
-
-    st.title("Global Income Map")
-
-    country_col=st.selectbox("Country Column",df.columns)
-
-    value_col=st.selectbox("Value Column",numeric_cols)
-
-    fig=px.choropleth(
-
-    df,
-
-    locations=country_col,
-
-    locationmode="country names",
-
-    color=value_col,
-
-    color_continuous_scale="Viridis"
-
-    )
-
-    st.plotly_chart(fig,use_container_width=True)
-
-# -------------------------------
-# ML PREDICTION
-# -------------------------------
-
-elif menu=="Machine Learning Prediction":
-
-    st.title("Machine Learning Prediction")
-
-    target=st.selectbox("Target Variable",numeric_cols)
-
-    features=[c for c in numeric_cols if c!=target]
-
-    X=df[features].fillna(0)
-    y=df[target].fillna(0)
-
-    model=LinearRegression()
+    model=RandomForestRegressor()
 
     model.fit(X,y)
 
-    inputs=[]
+    explainer=shap.Explainer(model,X)
 
-    for col in features:
+    shap_values=explainer(X)
 
-        val=st.number_input(col,value=float(X[col].mean()))
+    shap.summary_plot(shap_values,X,show=False)
 
-        inputs.append(val)
+    st.pyplot()
 
-    if st.button("Predict"):
+# ---------------- AUTOML ----------------
 
-        prediction=model.predict([inputs])[0]
+elif menu=="AutoML":
 
-        st.success(f"Predicted {target}: {prediction}")
+    target=st.selectbox("Target",numeric_cols)
 
-# -------------------------------
-# AUTO ML
-# -------------------------------
-
-elif menu=="Auto ML Prediction":
-
-    st.title("Auto ML Model Selection")
-
-    target=st.selectbox("Target Variable",numeric_cols)
-
-    features=[c for c in numeric_cols if c!=target]
-
-    X=df[features]
+    X=df[numeric_cols].drop(columns=[target])
     y=df[target]
 
     X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
 
     models={
 
-    "Linear Regression":LinearRegression(),
-
-    "Decision Tree":DecisionTreeRegressor(),
-
-    "Random Forest":RandomForestRegressor()
+    "Linear":LinearRegression(),
+    "Tree":DecisionTreeRegressor(),
+    "Forest":RandomForestRegressor(),
+    "GradientBoost":GradientBoostingRegressor(),
+    "SVM":SVR(),
+    "KNN":KNeighborsRegressor(),
+    "Ridge":Ridge(),
+    "Lasso":Lasso()
 
     }
 
-    results={}
+    scores={}
 
-    for name,model in models.items():
+    for name,m in models.items():
 
-        model.fit(X_train,y_train)
+        m.fit(X_train,y_train)
 
-        pred=model.predict(X_test)
+        pred=m.predict(X_test)
 
-        score=r2_score(y_test,pred)
+        scores[name]=r2_score(y_test,pred)
 
-        results[name]=score
+    st.write(scores)
 
-    best=max(results,key=results.get)
+# ---------------- FORECASTING ----------------
 
-    st.success(f"Best Model: {best}")
+elif menu=="Forecasting":
 
-    st.write(results)
+    date_col=st.selectbox("Date",df.columns)
+    value_col=st.selectbox("Value",numeric_cols)
 
-# -------------------------------
-# TIME SERIES
-# -------------------------------
+    data=df[[date_col,value_col]].dropna()
 
-elif menu=="Time Series Forecasting":
+    data.columns=["ds","y"]
 
-    st.title("Time Series Analysis")
+    model=Prophet()
 
-    time_col=st.selectbox("Time Column",df.columns)
+    model.fit(data)
 
-    value_col=st.selectbox("Value Column",numeric_cols)
+    future=model.make_future_dataframe(periods=365)
 
-    df_sorted=df.sort_values(time_col)
+    forecast=model.predict(future)
 
-    fig,ax=plt.subplots()
-
-    ax.plot(df_sorted[time_col],df_sorted[value_col])
-
-    ax.set_title("Trend Over Time")
+    fig=model.plot(forecast)
 
     st.pyplot(fig)
 
-# -------------------------------
-# PDF REPORT
-# -------------------------------
+# ---------------- 3D GLOBE ----------------
 
-elif menu=="Generate PDF Report":
+elif menu=="3D Globe Map":
 
-    st.title("Generate Report")
+    fig=go.Figure(go.Scattergeo())
 
-    if st.button("Create PDF"):
+    fig.update_layout(
 
-        buffer=io.BytesIO()
+    geo=dict(projection_type="orthographic")
 
-        pdf=canvas.Canvas(buffer)
+    )
 
-        pdf.drawString(100,750,"Global Income Report")
-        pdf.drawString(100,720,f"Rows: {df.shape[0]}")
-        pdf.drawString(100,700,f"Columns: {df.shape[1]}")
+    st.plotly_chart(fig)
 
-        pdf.save()
+# ---------------- AWS S3 ----------------
 
-        st.download_button(
+elif menu=="AWS S3 Connector":
 
-        "Download Report",
+    bucket=st.text_input("S3 Bucket")
 
-        buffer.getvalue(),
+    if st.button("Load"):
 
-        "report.pdf",
+        s3=boto3.client("s3")
 
-        "application/pdf"
+        obj=s3.get_object(Bucket=bucket,Key="data.csv")
 
-        )
+        df=pd.read_csv(obj["Body"])
 
-# -------------------------------
-# FAQ
-# -------------------------------
+        st.dataframe(df)
 
-elif menu=="FAQ":
+# ---------------- SNOWFLAKE ----------------
 
-    st.title("Frequently Asked Questions")
+elif menu=="Snowflake Connector":
 
-    st.markdown("""
+    conn=st.text_input("Snowflake Connection String")
 
-**What does this platform do?**  
-Provides analytics and machine learning insights for income datasets.
+    if st.button("Connect"):
 
-**What ML algorithms are used?**  
-Linear Regression, Decision Tree, Random Forest.
+        engine=create_engine(conn)
 
-**Can I visualize data?**  
-Yes, multiple charts and maps are supported.
+        data=pd.read_sql("SELECT * FROM table",engine)
 
-**Can I export reports?**  
-Yes, PDF reports and dataset downloads are available.
+        st.dataframe(data)
 
-""")
+# ---------------- API ----------------
 
-# -------------------------------
-# ABOUT
-# -------------------------------
+elif menu=="Live API Data":
+
+    url=st.text_input("API URL")
+
+    if st.button("Fetch"):
+
+        r=requests.get(url)
+
+        data=pd.DataFrame(r.json())
+
+        st.dataframe(data)
+
+# ---------------- STREAMING ----------------
+
+elif menu=="Streaming Dashboard":
+
+    st.write("Real-time streaming charts placeholder")
+
+# ---------------- PDF ----------------
+
+elif menu=="PDF Report":
+
+    if st.button("Generate"):
+
+        pdf=FPDF()
+
+        pdf.add_page()
+
+        pdf.set_font("Arial","B",16)
+
+        pdf.cell(0,10,"Enterprise AI Report",ln=True)
+
+        pdf.output("report.pdf")
+
+        with open("report.pdf","rb") as f:
+
+            st.download_button("Download",f,"report.pdf")
+
+# ---------------- ABOUT ----------------
 
 elif menu=="About":
 
-    st.title("About Platform")
-
-    st.write("""
-
-Global Income Intelligence Platform built with:
-
-• Python  
-• Streamlit  
-• Machine Learning  
-• Plotly Visualization  
-• Power BI Integration  
-
-""")
+    st.write("Enterprise AI Analytics Platform built with Streamlit.")
