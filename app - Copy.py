@@ -336,32 +336,67 @@ st.session_state.last_activity = time.time()
 
 import streamlit as st
 
-# Logo / Header
-st.sidebar.markdown("## 🚀 Global Data Analytics Platform")
+# -------------------------------
+# SIDEBAR HEADER
+# -------------------------------
+
+st.sidebar.markdown("""
+<div style="
+text-align:center;
+padding:10px;
+border-radius:12px;
+background:linear-gradient(135deg,#6366f1,#06b6d4,#a855f7);
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+">
+<h2 style="color:white;">🚀 Global Data Analytics Platform</h2>
+</div>
+""", unsafe_allow_html=True)
+
 st.sidebar.markdown("---")
 
 # -------------------------------
-# MAIN NAVIGATION
+# USER PROFILE CARD
+# -------------------------------
+
+st.sidebar.markdown("""
+<div style="
+padding:12px;
+border-radius:12px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+text-align:center;
+box-shadow:0 5px 20px rgba(0,0,0,0.4);
+">
+<h4>👤 Welcome Analyst</h4>
+<p style="font-size:12px;color:#ccc;">Enterprise BI Workspace</p>
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("---")
+
+# -------------------------------
+# MODULE SELECTOR
 # -------------------------------
 
 nav_section = st.sidebar.selectbox(
-"📂 Select Module",
+"📂 Select Analytics Module",
 [
-"Overview",
-"Dashboards",
-"Data Exploration",
-"AI Analytics",
-"Machine Learning",
-"Forecasting",
-"Reports",
-"Help"
+"🏠 Overview",
+"📊 Dashboards",
+"🧾 Data Exploration",
+"🤖 AI Analytics",
+"🧠 Machine Learning",
+"📈 Forecasting",
+"📄 Reports",
+"❓ Help Center"
 ]
 )
 
 # -------------------------------
 # OVERVIEW
 # -------------------------------
-if nav_section == "Overview":
+
+if nav_section == "🏠 Overview":
 
     menu = st.sidebar.radio(
     "Navigation",
@@ -373,7 +408,8 @@ if nav_section == "Overview":
 # -------------------------------
 # DASHBOARDS
 # -------------------------------
-elif nav_section == "Dashboards":
+
+elif nav_section == "📊 Dashboards":
 
     menu = st.sidebar.radio(
     "Dashboard Pages",
@@ -385,7 +421,8 @@ elif nav_section == "Dashboards":
 # -------------------------------
 # DATA EXPLORATION
 # -------------------------------
-elif nav_section == "Data Exploration":
+
+elif nav_section == "🧾 Data Exploration":
 
     menu = st.sidebar.radio(
     "Explore Data",
@@ -400,7 +437,8 @@ elif nav_section == "Data Exploration":
 # -------------------------------
 # AI ANALYTICS
 # -------------------------------
-elif nav_section == "AI Analytics":
+
+elif nav_section == "🤖 AI Analytics":
 
     menu = st.sidebar.radio(
     "AI Tools",
@@ -411,7 +449,8 @@ elif nav_section == "AI Analytics":
 # -------------------------------
 # MACHINE LEARNING
 # -------------------------------
-elif nav_section == "Machine Learning":
+
+elif nav_section == "🧠 Machine Learning":
 
     menu = st.sidebar.radio(
     "ML Models",
@@ -423,7 +462,8 @@ elif nav_section == "Machine Learning":
 # -------------------------------
 # FORECASTING
 # -------------------------------
-elif nav_section == "Forecasting":
+
+elif nav_section == "📈 Forecasting":
 
     menu = st.sidebar.radio(
     "Forecasting Tools",
@@ -434,7 +474,8 @@ elif nav_section == "Forecasting":
 # -------------------------------
 # REPORTS
 # -------------------------------
-elif nav_section == "Reports":
+
+elif nav_section == "📄 Reports":
 
     menu = st.sidebar.radio(
     "Reports",
@@ -445,7 +486,8 @@ elif nav_section == "Reports":
 # -------------------------------
 # HELP
 # -------------------------------
-elif nav_section == "Help":
+
+elif nav_section == "❓ Help Center":
 
     menu = st.sidebar.radio(
     "Help Center",
@@ -459,18 +501,43 @@ st.sidebar.markdown("---")
 # -------------------------------
 # QUICK STATS PANEL
 # -------------------------------
-st.sidebar.markdown("### 📊 Quick Stats")
 
-st.sidebar.metric("Countries", 200)
-st.sidebar.metric("Records", "1.2M")
-st.sidebar.metric("Models", 5)
+st.sidebar.markdown("### 📊 Platform Stats")
+
+col1, col2 = st.sidebar.columns(2)
+
+with col1:
+    st.metric("Countries", 200)
+
+with col2:
+    st.metric("Models", 5)
+
+st.sidebar.metric("Dataset Records", "1.2M")
+
+st.sidebar.markdown("---")
+
+# -------------------------------
+# SYSTEM STATUS
+# -------------------------------
+
+st.sidebar.markdown("### ⚡ System Status")
+
+st.sidebar.success("AI Engine Online")
+st.sidebar.info("Data Updated Today")
 
 st.sidebar.markdown("---")
 
 # -------------------------------
 # THEME SWITCHER
 # -------------------------------
+
 theme = st.sidebar.toggle("🌙 Dark Mode", value=True)
+
+if theme:
+    st.sidebar.write("Dark theme enabled")
+else:
+    st.sidebar.write("Light theme enabled")
+
 
 
 # -------------------------------
@@ -3196,6 +3263,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
