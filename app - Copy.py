@@ -207,22 +207,128 @@ numeric_cols = df.select_dtypes(include=["int64","float64"]).columns
 categorical_cols = df.select_dtypes(include=["object"]).columns
 
 # -------------------------------
-# LOGIN SYSTEM
+# ADVANCED LOGIN SYSTEM
 # -------------------------------
+
+import streamlit as st
+import hashlib
+import time
+
+# -------------------------------
+# USER DATABASE
+# -------------------------------
+
+users = {
+    "admin": {
+        "password": hashlib.sha256("admin123".encode()).hexdigest(),
+        "role": "Admin"
+    },
+    "analyst": {
+        "password": hashlib.sha256("data123".encode()).hexdigest(),
+        "role": "Analyst"
+    },
+    "viewer": {
+        "password": hashlib.sha256("view123".encode()).hexdigest(),
+        "role": "Viewer"
+    }
+}
+
+# -------------------------------
+# SESSION STATE INITIALIZATION
+# -------------------------------
+
 if "login" not in st.session_state:
-    st.session_state.login=False
+    st.session_state.login = False
+    st.session_state.user = None
+    st.session_state.role = None
+    st.session_state.login_attempts = 0
+    st.session_state.last_activity = time.time()
+
+# -------------------------------
+# SESSION TIMEOUT (10 MINUTES)
+# -------------------------------
+
+TIMEOUT = 600
+
+if st.session_state.login:
+    if time.time() - st.session_state.last_activity > TIMEOUT:
+        st.session_state.login = False
+        st.warning("Session expired. Please login again.")
+        st.rerun()
+
+# -------------------------------
+# LOGIN SCREEN
+# -------------------------------
 
 if not st.session_state.login:
-    st.markdown("<div class='title'>🌍 Global Income Intelligence Platform</div>",unsafe_allow_html=True)
-    user = st.text_input("Username")
-    pw = st.text_input("Password",type="password")
-    if st.button("Login"):
-        if user=="admin" and pw=="1234":
-            st.session_state.login=True
+
+    st.markdown(
+        "<div class='title'>🌍 Global Income Intelligence Platform</div>",
+        unsafe_allow_html=True
+    )
+
+    st.markdown("### 🔐 Secure Login")
+
+    username = st.text_input("👤 Username")
+    password = st.text_input("🔑 Password", type="password")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        login_btn = st.button("🚀 Login")
+
+    with col2:
+        st.button("🔑 Forgot Password")
+
+    if login_btn:
+
+        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+
+        if username in users and users[username]["password"] == hashed_pw:
+
+            st.session_state.login = True
+            st.session_state.user = username
+            st.session_state.role = users[username]["role"]
+            st.session_state.last_activity = time.time()
+            st.success("Login successful")
+            time.sleep(1)
             st.rerun()
+
         else:
-            st.error("Invalid login")
+
+            st.session_state.login_attempts += 1
+            st.error("Invalid username or password")
+
+            if st.session_state.login_attempts >= 3:
+                st.warning("Too many attempts. Please wait 10 seconds.")
+                time.sleep(10)
+
     st.stop()
+
+# -------------------------------
+# USER HEADER
+# -------------------------------
+
+st.sidebar.markdown("### 👤 User Info")
+st.sidebar.write("User:", st.session_state.user)
+st.sidebar.write("Role:", st.session_state.role)
+
+# -------------------------------
+# LOGOUT BUTTON
+# -------------------------------
+
+if st.sidebar.button("🚪 Logout"):
+    st.session_state.login = False
+    st.session_state.user = None
+    st.session_state.role = None
+    st.rerun()
+
+# -------------------------------
+# UPDATE ACTIVITY TIMER
+# -------------------------------
+
+st.session_state.last_activity = time.time()
+
 
 # -------------------------------
 # ULTRA ADVANCED SIDEBAR NAVIGATION
@@ -3090,6 +3196,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
