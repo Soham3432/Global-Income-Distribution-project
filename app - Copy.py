@@ -399,10 +399,17 @@ elif menu=="⏳ Time Series Forecasting":
 elif menu=="📄 Generate PDF Report":
     st.title("Generate Report")
     if st.button("Create PDF"):
-        buffer=io.BytesIO()
-        pdf=canvas.Canvas(buffer)
-        pdf.drawString(100,750,"Global Income Report")
-        pdf.drawString(100,720,f"Rows: {df.shape[0]}")
-        pdf.drawString(100,700,f"Columns: {df.shape[1]}")
+        buffer = io.BytesIO()
+        pdf = canvas.Canvas(buffer)
+        pdf.drawString(100, 750, "Global Income Report")
+        pdf.drawString(100, 720, f"Rows: {df.shape[0]}")
+        pdf.drawString(100, 700, f"Columns: {df.shape[1]}")
         pdf.save()
-        st.download_button("Download
+        buffer.seek(0)  # Important: reset buffer position before download
+        st.download_button(
+            label="Download PDF Report",
+            data=buffer,
+            file_name="Global_Income_Report.pdf",
+            mime="application/pdf"
+        )download_button("Download
+
