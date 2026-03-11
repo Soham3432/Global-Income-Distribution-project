@@ -28,103 +28,170 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 st.set_page_config(page_title="Global Income Intelligence Platform", layout="wide")
 
 # -------------------------------
-# ADVANCED STYLING
+# ULTRA ADVANCED DASHBOARD STYLING
 # -------------------------------
 st.markdown("""
 <style>
-/* App background and font */
+
+/* GLOBAL APP BACKGROUND */
 .stApp {
-    background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    background: linear-gradient(-45deg,#0f0c29,#302b63,#24243e,#1f2937);
+    background-size: 400% 400%;
+    animation: gradientBG 18s ease infinite;
     color:white;
-    font-family: 'Segoe UI';
+    font-family: 'Segoe UI', sans-serif;
 }
 
-/* Animated Gradient Title */
-.title {
-    font-size: 50px;
-    font-weight: 900;
-    text-align: center;
-    background: linear-gradient(270deg,#ff6ec4,#7873f5,#00f2ff);
-    background-size: 600% 600%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientAnimation 8s ease infinite;
-    margin-bottom: 25px;
-}
-
-@keyframes gradientAnimation {
+@keyframes gradientBG {
   0%{background-position:0% 50%}
   50%{background-position:100% 50%}
   100%{background-position:0% 50%}
 }
 
-/* Glass Cards */
-.card {
-    background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(15px);
-    border-radius: 25px;
-    padding: 30px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
-}
-.card:hover {
-    transform: scale(1.05) rotateX(3deg) rotateY(3deg);
-    box-shadow: 0 15px 45px rgba(0,0,0,0.5);
-    background: rgba(255,255,255,0.12);
-}
-
-/* KPI Cards */
-.kpi-card {
-    background: linear-gradient(135deg,#1e1b4b,#312e81);
-    border-radius: 20px;
-    padding: 30px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 10px #6366f1;
-    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-}
-.kpi-card:hover {
-    transform: scale(1.1) rotateX(5deg) rotateY(5deg);
-    background: linear-gradient(145deg,#3b30a0,#5140c4,#06b6d4);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 20px #a78bfa;
+/* TITLE WITH ANIMATED GLOW */
+.title{
+    font-size:55px;
+    font-weight:900;
+    text-align:center;
+    background: linear-gradient(270deg,#ff6ec4,#7873f5,#00f2ff,#22d3ee);
+    background-size:600% 600%;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation: gradientText 8s ease infinite;
+    text-shadow:0 0 25px rgba(255,255,255,0.3);
+    margin-bottom:30px;
 }
 
-.kpi-number {
-    font-size: 45px;
-    font-weight: 900;
-    background: linear-gradient(90deg,#a78bfa,#06b6d4,#f59e0b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: all 0.3s ease;
-}
-.kpi-label {
-    font-size: 18px;
-    color: #ddd;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+@keyframes gradientText{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 
-/* Sidebar styling */
+/* GLASS PANEL */
+.card{
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(18px);
+    border-radius:25px;
+    padding:30px;
+    border:1px solid rgba(255,255,255,0.1);
+    box-shadow:0 15px 40px rgba(0,0,0,0.4);
+    transition:all 0.4s ease;
+}
+
+.card:hover{
+    transform:translateY(-8px) scale(1.02);
+    box-shadow:0 25px 60px rgba(0,0,0,0.6);
+}
+
+/* KPI CARDS */
+.kpi-card{
+    background:linear-gradient(135deg,#1e1b4b,#312e81,#1e293b);
+    border-radius:22px;
+    padding:30px;
+    text-align:center;
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.6),
+        inset 0 0 20px rgba(255,255,255,0.05);
+    transition:all 0.35s ease;
+    position:relative;
+    overflow:hidden;
+}
+
+/* animated border */
+.kpi-card::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:linear-gradient(270deg,#6366f1,#06b6d4,#f59e0b,#ec4899);
+    background-size:600% 600%;
+    animation:borderGlow 6s linear infinite;
+    z-index:-1;
+    filter:blur(12px);
+}
+
+@keyframes borderGlow{
+  0%{background-position:0%}
+  100%{background-position:400%}
+}
+
+.kpi-card:hover{
+    transform:scale(1.08) rotateX(6deg) rotateY(6deg);
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.8),
+        0 0 25px #6366f1;
+}
+
+/* KPI NUMBER */
+.kpi-number{
+    font-size:48px;
+    font-weight:900;
+    background:linear-gradient(90deg,#a78bfa,#06b6d4,#f59e0b);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* KPI LABEL */
+.kpi-label{
+    font-size:16px;
+    letter-spacing:1px;
+    color:#e5e7eb;
+    margin-top:8px;
+    text-transform:uppercase;
+}
+
+/* SIDEBAR STYLE */
 section[data-testid="stSidebar"]{
-  background: linear-gradient(180deg,#020617,#111827);
+  background:linear-gradient(180deg,#020617,#111827,#020617);
+  border-right:1px solid rgba(255,255,255,0.08);
 }
+
+/* SIDEBAR ITEMS */
 section[data-testid="stSidebar"] div[role="radiogroup"] > label{
-  transition: all 0.3s ease;
-  border-radius: 12px;
-  padding: 8px 12px;
+  transition:all 0.3s ease;
+  border-radius:14px;
+  padding:10px 14px;
+  margin-bottom:5px;
 }
+
 section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover{
-  background: linear-gradient(90deg,#6366f1,#a855f7,#06b6d4);
+  background:linear-gradient(90deg,#6366f1,#a855f7,#06b6d4);
   color:#fff;
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(99,102,241,0.4);
+  transform:scale(1.06);
+  box-shadow:0 8px 20px rgba(99,102,241,0.4);
 }
+
 section[data-testid="stSidebar"] div[role="radiogroup"] > label[aria-checked="true"]{
-  background: linear-gradient(90deg,#f59e0b,#22d3ee);
+  background:linear-gradient(90deg,#f59e0b,#22d3ee);
   color:#fff;
-  border: 2px solid #fff;
-  box-shadow: 0 0 15px #f59e0b, 0 0 15px #22d3ee;
+  border:2px solid #fff;
+  box-shadow:0 0 18px #f59e0b,0 0 18px #22d3ee;
 }
+
+/* STREAMLIT BUTTONS */
+.stButton>button{
+    background:linear-gradient(90deg,#6366f1,#a855f7);
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:8px 16px;
+    font-weight:600;
+    transition:all 0.3s ease;
+}
+
+.stButton>button:hover{
+    transform:scale(1.05);
+    box-shadow:0 5px 15px rgba(99,102,241,0.5);
+}
+
+/* CHART CONTAINERS */
+.css-1r6slb0{
+    background:rgba(255,255,255,0.03);
+    border-radius:20px;
+    padding:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.5);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -2903,6 +2970,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
