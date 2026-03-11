@@ -1314,7 +1314,7 @@ elif menu=="⏳ Time Series Forecasting":
         title="Actual Data Trend"
     )
 
-    st.plotly_chart(fig,use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
     # -------------------------------
     # MOVING AVERAGE
@@ -1322,55 +1322,53 @@ elif menu=="⏳ Time Series Forecasting":
 
     st.subheader("📊 Moving Average Trend")
 
-    window = st.slider("Moving Average Window",2,10,3)
+    window = st.slider("Moving Average Window", 2, 10, 3)
 
     df_sorted["Moving_Avg"] = df_sorted[value_col].rolling(window).mean()
 
     fig2 = px.line(
         df_sorted,
         x=time_col,
-        y=[value_col,"Moving_Avg"],
+        y=[value_col, "Moving_Avg"],
         title="Actual vs Moving Average Trend"
     )
 
-    st.plotly_chart(fig2,use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
 
-# -------------------------------
-# FORECAST MODEL
-# -------------------------------
+    # -------------------------------
+    # FORECAST MODEL
+    # -------------------------------
 
-st.subheader("🧠 Forecast Prediction")
+    st.subheader("🧠 Forecast Prediction")
 
-from sklearn.linear_model import LinearRegression
-import numpy as np
+    from sklearn.linear_model import LinearRegression
+    import numpy as np
 
-# Convert time column safely
-try:
-    df_sorted[time_col] = pd.to_numeric(df_sorted[time_col])
-    X = df_sorted[[time_col]]
-except:
-    # If conversion fails (e.g., datetime or string)
-    df_sorted["time_numeric"] = np.arange(len(df_sorted))
-    X = df_sorted[["time_numeric"]]
+    try:
+        df_sorted[time_col] = pd.to_numeric(df_sorted[time_col])
+        X = df_sorted[[time_col]]
+    except:
+        df_sorted["time_numeric"] = np.arange(len(df_sorted))
+        X = df_sorted[["time_numeric"]]
 
-y = df_sorted[value_col]
+    y = df_sorted[value_col]
 
-# Train model
-model = LinearRegression()
-model.fit(X, y)
+    # Train model
+    model = LinearRegression()
+    model.fit(X, y)
 
-future_steps = st.slider("Forecast Steps", 1, 10, 5)
+    future_steps = st.slider("Forecast Steps", 1, 10, 5)
 
-last_val = X.iloc[-1, 0]
+    last_val = X.iloc[-1, 0]
 
-future_x = np.arange(last_val + 1, last_val + future_steps + 1).reshape(-1, 1)
+    future_x = np.arange(last_val + 1, last_val + future_steps + 1).reshape(-1, 1)
 
-forecast = model.predict(future_x)
+    forecast = model.predict(future_x)
 
-future_df = pd.DataFrame({
-    time_col: future_x.flatten(),
-    "Forecast": forecast
-})
+    future_df = pd.DataFrame({
+        time_col: future_x.flatten(),
+        "Forecast": forecast
+    })
 
     # -------------------------------
     # ACTUAL VS FORECAST
@@ -1400,7 +1398,7 @@ future_df = pd.DataFrame({
         yaxis_title=value_col
     )
 
-    st.plotly_chart(fig3,use_container_width=True)
+    st.plotly_chart(fig3, use_container_width=True)
 
     # -------------------------------
     # CONFIDENCE BAND
@@ -1436,7 +1434,7 @@ future_df = pd.DataFrame({
         name="Forecast"
     ))
 
-    st.plotly_chart(fig4,use_container_width=True)
+    st.plotly_chart(fig4, use_container_width=True)
 
     # -------------------------------
     # TREND INSIGHT
@@ -1679,6 +1677,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
