@@ -3,25 +3,18 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression,Ridge,Lasso
+from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
-from sklearn.svm import SVR
-from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
-from prophet import Prophet
-from fpdf import FPDF
 import io
-import shap
-import requests
-import openai
+from fpdf import FPDF
 
 from sqlalchemy import create_engine, text
-from passlib.hash import bcrypt
+from passlib.hash import sha256_crypt
 
 # ------------------ DATABASE SETUP ------------------
 DATABASE_URL = "sqlite:///users.db"
@@ -39,7 +32,7 @@ with engine.connect() as conn:
     """))
     result = conn.execute(text("SELECT * FROM users WHERE username='admin'"))
     if result.fetchone() is None:
-        password_hash = bcrypt.hash("admin123")
+        password_hash = sha256_crypt.hash("admin123")
         conn.execute(text("""
             INSERT INTO users (username,password_hash,role)
             VALUES (:username,:password,:role)
@@ -51,7 +44,7 @@ def authenticate(username,password):
     try:
         users = pd.read_sql("SELECT * FROM users", engine)
         user = users[users.username == username]
-        if len(user) > 0 and bcrypt.verify(password, user.password_hash.values[0]):
+        if len(user) > 0 and sha256_crypt.verify(password, user.password_hash.values[0]):
             return True
     except Exception as e:
         st.error("Database error: "+str(e))
