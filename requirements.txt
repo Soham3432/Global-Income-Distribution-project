@@ -1,7 +1,7 @@
-plotly 
+scikit-learn
+numpy
 pandas
-numpy 
-scikit-learn 
-reportlab 
-matplotlib 
+plotly
+matplotlib
 seaborn
+streamlit
