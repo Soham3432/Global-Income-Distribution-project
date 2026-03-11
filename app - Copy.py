@@ -868,11 +868,175 @@ elif menu == "🌐 Country Comparison":
 # AI INSIGHTS GENERATOR
 # -------------------------------
 elif menu=="🤖 AI Insights Generator":
-    st.title("Automatic AI Insights")
-    st.write(df.describe())
+
+    st.title("🤖 AI Data Insights Engine")
+
+    st.subheader("Dataset Statistical Summary")
+    st.dataframe(df.describe())
+
+    st.divider()
+
+    st.subheader("📊 Automatic Statistical Insights")
+
     for col in numeric_cols:
-        mean=df[col].mean(); median=df[col].median(); std=df[col].std()
-        st.info(f"{col}: Mean={mean:.2f} | Median={median:.2f} | Std Dev={std:.2f}")
+
+        mean = df[col].mean()
+        median = df[col].median()
+        std = df[col].std()
+        min_val = df[col].min()
+        max_val = df[col].max()
+
+        st.info(
+            f"""
+            🔹 **{col}**
+
+            Mean Value: {mean:.2f}  
+            Median Value: {median:.2f}  
+            Standard Deviation: {std:.2f}  
+            Minimum Value: {min_val:.2f}  
+            Maximum Value: {max_val:.2f}
+            """
+        )
+
+    st.divider()
+
+    # -------------------------------
+    # DISTRIBUTION VISUALIZATION
+    # -------------------------------
+
+    st.subheader("📈 Data Distribution Analysis")
+
+    selected_col = st.selectbox("Select Column for Distribution", numeric_cols)
+
+    fig = px.histogram(
+        df,
+        x=selected_col,
+        nbins=30,
+        color_discrete_sequence=["cyan"],
+        title=f"{selected_col} Distribution"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    fig2 = px.box(
+        df,
+        y=selected_col,
+        title=f"{selected_col} Box Plot (Outlier Detection)"
+    )
+
+    st.plotly_chart(fig2, use_container_width=True)
+
+    st.divider()
+
+    # -------------------------------
+    # CORRELATION INSIGHTS
+    # -------------------------------
+
+    st.subheader("🔥 Feature Correlation Insights")
+
+    corr = df[numeric_cols].corr()
+
+    fig3 = px.imshow(
+        corr,
+        text_auto=True,
+        color_continuous_scale="RdBu",
+        title="Correlation Heatmap"
+    )
+
+    st.plotly_chart(fig3, use_container_width=True)
+
+    st.write("Strong correlations (>0.7 or <-0.7):")
+
+    for col1 in numeric_cols:
+        for col2 in numeric_cols:
+            if col1 != col2:
+                value = corr.loc[col1, col2]
+                if abs(value) > 0.7:
+                    st.success(f"{col1} and {col2} have strong correlation: {value:.2f}")
+
+    st.divider()
+
+    # -------------------------------
+    # ANOMALY DETECTION
+    # -------------------------------
+
+    st.subheader("⚠ Automatic Outlier Detection")
+
+    for col in numeric_cols:
+
+        q1 = df[col].quantile(0.25)
+        q3 = df[col].quantile(0.75)
+        iqr = q3 - q1
+
+        lower = q1 - 1.5 * iqr
+        upper = q3 + 1.5 * iqr
+
+        outliers = df[(df[col] < lower) | (df[col] > upper)]
+
+        if len(outliers) > 0:
+            st.warning(f"{col} contains {len(outliers)} potential outliers")
+
+    st.divider()
+
+    # -------------------------------
+    # TOP & BOTTOM ANALYSIS
+    # -------------------------------
+
+    country_cols=[c for c in df.columns if "country" in c.lower()]
+
+    if country_cols:
+
+        country_col = country_cols[0]
+
+        st.subheader("🏆 Top Performing Countries")
+
+        metric = st.selectbox("Select Metric", numeric_cols)
+
+        top = df.sort_values(metric, ascending=False).head(10)
+
+        fig4 = px.bar(
+            top,
+            x=metric,
+            y=country_col,
+            orientation="h",
+            color=metric,
+            title=f"Top Countries by {metric}"
+        )
+
+        st.plotly_chart(fig4, use_container_width=True)
+
+        st.subheader("📉 Lowest Performing Countries")
+
+        bottom = df.sort_values(metric).head(10)
+
+        fig5 = px.bar(
+            bottom,
+            x=metric,
+            y=country_col,
+            orientation="h",
+            color=metric,
+            title=f"Lowest Countries by {metric}"
+        )
+
+        st.plotly_chart(fig5, use_container_width=True)
+
+    st.divider()
+
+    # -------------------------------
+    # AI GENERATED TEXT INSIGHTS
+    # -------------------------------
+
+    st.subheader("🧠 Automated Insight Summary")
+
+    for col in numeric_cols:
+
+        mean = df[col].mean()
+        std = df[col].std()
+
+        if std > mean * 0.5:
+            st.write(f"⚠ {col} shows high variability across countries.")
+        else:
+            st.write(f"✔ {col} values are relatively stable across the dataset.")
 
 # -------------------------------
 # COUNTRY ANALYSIS
@@ -1361,6 +1525,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
