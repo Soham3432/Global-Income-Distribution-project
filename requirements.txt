@@ -7,9 +7,12 @@ seaborn
 scikit-learn
 shap
 prophet
-fpdf
-reportlab
 tensorflow
 sqlalchemy
+snowflake-connector-python
+boto3
 requests
 openai
+fpdf
+reportlab
+passlib
