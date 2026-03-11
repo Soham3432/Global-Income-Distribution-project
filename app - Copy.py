@@ -174,20 +174,222 @@ menu = st.sidebar.radio("Go To", [
 # -------------------------------
 # INTRODUCTION
 # -------------------------------
+
 if menu == "🏠 Introduction":
+
     st.markdown("<div class='title'>Introduction</div>", unsafe_allow_html=True)
+
     col1, col2, col3, col4, col5 = st.columns(5)
+
     col1.markdown(f"<div class='kpi-card'><div class='kpi-number'>62.49</div><div class='kpi-label'>Inequality Range</div></div>",unsafe_allow_html=True)
     col2.markdown(f"<div class='kpi-card'><div class='kpi-number'>37.52</div><div class='kpi-label'>Avg Gini Index</div></div>",unsafe_allow_html=True)
     col3.markdown(f"<div class='kpi-card'><div class='kpi-number'>22.55</div><div class='kpi-label'>Avg Inequality Index</div></div>",unsafe_allow_html=True)
     col4.markdown(f"<div class='kpi-card'><div class='kpi-number'>200</div><div class='kpi-label'>Total Countries</div></div>",unsafe_allow_html=True)
     col5.markdown(f"<div class='kpi-card'><div class='kpi-number'>7.85bn</div><div class='kpi-label'>Total Population</div></div>",unsafe_allow_html=True)
-    
-    st.markdown("""
-### Project Title: Interactive Analytics Dashboard for Global Income Distribution
 
-### Project Statement:
-Develop an interactive dashboard to visualize income inequality globally. Users can explore disparities, trends, and country-wise comparisons through a modern, interactive interface.
+    st.markdown("""
+
+# Project Title  
+### Interactive Analytics Dashboard for Global Income Distribution
+
+---
+
+# 1. Project Overview
+
+The **Interactive Analytics Dashboard for Global Income Distribution** is a data analytics platform designed to explore global income inequality using modern visualization tools and machine learning techniques.  
+
+Income inequality is one of the most important global economic issues affecting societies worldwide. Governments, researchers, and organizations often analyze inequality indicators such as the **Gini Index** and **Income Distribution Metrics** to understand how wealth is distributed across populations.
+
+However, analyzing such data using spreadsheets or static reports can be extremely difficult. Large datasets often hide valuable insights that are not easily visible without interactive tools.
+
+This project solves that problem by building a **fully interactive analytics dashboard** that allows users to explore global income distribution in a visually engaging way.
+
+The platform integrates **data analysis, visualization, and machine learning** into one unified interface.
+
+---
+
+# 2. Purpose of the Project
+
+The purpose of this project is to create a powerful analytical tool that enables users to explore patterns of income inequality across different countries and time periods.
+
+The dashboard allows users to:
+
+• Understand global inequality trends  
+• Compare countries based on income distribution metrics  
+• Analyze changes in inequality over time  
+• Visualize data using advanced charts  
+• Predict future inequality values using machine learning  
+
+By transforming raw economic data into meaningful visualizations, the platform helps users gain deeper insights into global economic patterns.
+
+---
+
+# 3. Problem Statement
+
+Understanding global income inequality can be challenging due to several factors:
+
+• Large and complex datasets  
+• Lack of interactive analytical tools  
+• Difficulty identifying trends from static reports  
+• Limited accessibility for non-technical users  
+
+Traditional analysis methods often require significant technical expertise. This project aims to simplify the process by providing an **interactive dashboard that anyone can use**.
+
+---
+
+# 4. Dataset Description
+
+The dataset used in this project contains information about global income distribution and inequality indicators across multiple countries and years.
+
+Key variables included in the dataset:
+
+• Country name  
+• Year of observation  
+• Population statistics  
+• Gini Index values  
+• Inequality Index values  
+• Income distribution indicators  
+
+These variables allow users to analyze both **geographical patterns** and **historical trends** in income inequality.
+
+---
+
+# 5. Data Preparation Process
+
+Before building the dashboard, several data preprocessing steps were performed to ensure the dataset was clean and reliable.
+
+### Data Cleaning
+Raw datasets often contain inconsistencies such as missing values, incorrect formatting, or duplicate records. These issues were addressed through data cleaning techniques.
+
+### Handling Missing Values
+Missing data points were handled using methods such as:
+
+• removing incomplete records  
+• replacing values with averages  
+• interpolation for time-series variables  
+
+### Data Transformation
+Certain variables were transformed into formats suitable for visualization and machine learning models.
+
+---
+
+# 6. Tools and Technologies Used
+
+This project was built using modern data science and analytics technologies.
+
+### Dashboard Development
+The dashboard interface was built using **Streamlit**, a Python framework that enables the creation of interactive web applications for data analysis.
+
+### Data Processing
+Data manipulation and analysis were performed using the **Pandas** library.
+
+### Data Visualization
+Interactive charts were created using **Plotly**, which allows dynamic exploration of datasets.
+
+### Machine Learning
+Predictive analytics were implemented using **Scikit-learn** models including:
+
+• Linear Regression  
+• Random Forest Regression  
+
+### Report Generation
+PDF reports are generated using **ReportLab**.
+
+---
+
+# 7. Dashboard Features
+
+The dashboard includes several modules designed for different types of analysis.
+
+### Executive Dashboard
+Provides an overview of key dataset statistics such as total countries, population, and inequality metrics.
+
+### Data Explorer
+Allows users to inspect the dataset and understand variable distributions.
+
+### Interactive Charts
+Users can visualize relationships between variables using scatter plots, histograms, and bar charts.
+
+### Country Analysis
+Provides country-level insights into income distribution metrics.
+
+### Machine Learning Prediction
+Allows users to predict income distribution metrics for specific years using regression models.
+
+### Forecasting Engine
+Generates forecasts for future inequality values based on historical data patterns.
+
+---
+
+# 8. User Interface Design
+
+The dashboard uses a modern **glassmorphism design style** that improves visual appeal and usability.
+
+Key UI elements include:
+
+• gradient backgrounds  
+• transparent glass cards  
+• animated hover effects  
+• responsive layout  
+
+These design choices make the dashboard visually engaging while maintaining clarity.
+
+---
+
+# 9. Analytical Insights
+
+Using this dashboard, users can discover valuable insights such as:
+
+• which countries have the highest inequality levels  
+• how inequality changes over time  
+• correlations between economic indicators  
+• patterns in global income distribution  
+
+---
+
+# 10. Real-World Applications
+
+This dashboard can be used in multiple domains including:
+
+• economic research  
+• public policy analysis  
+• academic education  
+• international development studies  
+
+Organizations analyzing global inequality can use such platforms to support evidence-based decision making.
+
+---
+
+# 11. Project Outcome
+
+The final outcome of this project is a **fully functional interactive dashboard** capable of transforming complex global datasets into clear visual insights.
+
+The project demonstrates the power of combining **data science, visualization, and machine learning** to analyze real-world socioeconomic challenges.
+
+---
+
+# 12. Future Improvements
+
+Future versions of the dashboard could include:
+
+• real-time economic data integration  
+• advanced forecasting models  
+• anomaly detection algorithms  
+• AI-driven insight generation  
+• deployment on cloud platforms  
+
+These enhancements could transform the dashboard into a large-scale analytics platform.
+
+---
+
+# 13. Conclusion
+
+The **Interactive Analytics Dashboard for Global Income Distribution** highlights how modern data analytics tools can help us better understand global economic inequality.
+
+By combining powerful visualization techniques with predictive analytics, this platform provides an intuitive and accessible way to explore complex economic datasets.
+
+The project demonstrates how data science can be used to create impactful tools for understanding global challenges.
+
 """, unsafe_allow_html=True)
 
 # -------------------------------
@@ -412,3 +614,4 @@ elif menu=="📄 Generate PDF Report":
             file_name="Global_Income_Report.pdf",
             mime="application/pdf"
         )
+
