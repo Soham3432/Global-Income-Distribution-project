@@ -1335,39 +1335,42 @@ elif menu=="⏳ Time Series Forecasting":
 
     st.plotly_chart(fig2,use_container_width=True)
 
-    # -------------------------------
-    # FORECAST MODEL
-    # -------------------------------
+# -------------------------------
+# FORECAST MODEL
+# -------------------------------
 
-    st.subheader("🧠 Forecast Prediction")
+st.subheader("🧠 Forecast Prediction")
 
-    from sklearn.linear_model import LinearRegression
-    import numpy as np
+from sklearn.linear_model import LinearRegression
+import numpy as np
 
-    # convert time column if needed
-    if not np.issubdtype(df_sorted[time_col].dtype, np.number):
-        df_sorted["time_numeric"] = np.arange(len(df_sorted))
-        X = df_sorted[["time_numeric"]]
-    else:
-        X = df_sorted[[time_col]]
+# Convert time column safely
+try:
+    df_sorted[time_col] = pd.to_numeric(df_sorted[time_col])
+    X = df_sorted[[time_col]]
+except:
+    # If conversion fails (e.g., datetime or string)
+    df_sorted["time_numeric"] = np.arange(len(df_sorted))
+    X = df_sorted[["time_numeric"]]
 
-    y = df_sorted[value_col]
+y = df_sorted[value_col]
 
-    model = LinearRegression()
-    model.fit(X,y)
+# Train model
+model = LinearRegression()
+model.fit(X, y)
 
-    future_steps = st.slider("Forecast Steps",1,10,5)
+future_steps = st.slider("Forecast Steps", 1, 10, 5)
 
-    last_val = X.iloc[-1,0]
+last_val = X.iloc[-1, 0]
 
-    future_x = np.arange(last_val+1,last_val+future_steps+1).reshape(-1,1)
+future_x = np.arange(last_val + 1, last_val + future_steps + 1).reshape(-1, 1)
 
-    forecast = model.predict(future_x)
+forecast = model.predict(future_x)
 
-    future_df = pd.DataFrame({
-        time_col: future_x.flatten(),
-        "Forecast": forecast
-    })
+future_df = pd.DataFrame({
+    time_col: future_x.flatten(),
+    "Forecast": forecast
+})
 
     # -------------------------------
     # ACTUAL VS FORECAST
@@ -1676,6 +1679,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
