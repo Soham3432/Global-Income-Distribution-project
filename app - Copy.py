@@ -169,6 +169,7 @@ st.sidebar.title("Navigation")
 menu = st.sidebar.radio(
 "Go To",
 [
+"🏠 Introduction",   
 "🏠 Executive Dashboard",
 "📘 Dashboard Guide",
 "📊 Power BI Dashboard",
@@ -185,6 +186,68 @@ menu = st.sidebar.radio(
 "ℹ About"
 ]
 )
+
+# -------------------------------
+# INTRODUCTION SECTION
+# -------------------------------
+if menu == "🏠 Introduction":
+    st.markdown("<div class='title'>Introduction</div>", unsafe_allow_html=True)
+
+    # Neomorphic KPI Cards at the top
+    st.markdown("""
+    <style>
+    .neo-card {
+        background: #1e1e2f;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 10px 5px;
+        color: white;
+        text-align: center;
+        box-shadow: 6px 6px 12px #161625, -6px -6px 12px #27283d;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        cursor: default;
+        user-select: none;
+        transition: box-shadow 0.3s ease;
+    }
+    .neo-card:hover {
+        box-shadow: inset 6px 6px 12px #161625, inset -6px -6px 12px #27283d;
+        color: #f0f8ff;
+    }
+    .neo-number {
+        font-weight: 900;
+        font-size: 40px;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+        background: linear-gradient(90deg, #a78bfa, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .neo-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #b0b7c3;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.markdown(f"""<div class="neo-card"><div class="neo-number">62.49</div><div class="neo-label">Inequality Range</div></div>""", unsafe_allow_html=True)
+    col2.markdown(f"""<div class="neo-card"><div class="neo-number">37.52</div><div class="neo-label">Avg Gini Index</div></div>""", unsafe_allow_html=True)
+    col3.markdown(f"""<div class="neo-card"><div class="neo-number">22.55</div><div class="neo-label">Avg Inequality Index</div></div>""", unsafe_allow_html=True)
+    col4.markdown(f"""<div class="neo-card"><div class="neo-number">200</div><div class="neo-label">Total Countries</div></div>""", unsafe_allow_html=True)
+    col5.markdown(f"""<div class="neo-card"><div class="neo-number">7.85bn</div><div class="neo-label">Total Updated Population</div></div>""", unsafe_allow_html=True)
+
+    # Project Information below the cards
+    st.markdown("""
+### Project Title: Interactive Analytics Dashboard for Global Income Distribution
+
+### Project Statement and Outcomes:
+The Interactive Analytics Dashboard for Global Income Distribution project aims to develop an interactive Power BI dashboard that visualizes income inequality data across various countries and regions. This project involves collecting, preprocessing, and structuring global income distribution and economic data to enable effective visualization. 
+
+The dashboard will provide users with insights into income disparities over time, country-wise comparisons, and patterns of inequality globally. The outcome will be a user-friendly dashboard, embedded within a Streamlit web application, offering an intuitive interface for economists, researchers, policymakers, and the general public. This platform will help users explore global income inequality, understand disparities across different regions, and analyze trends in wealth distribution. The project will conclude with comprehensive testing to ensure dashboard accuracy and usability, supported by detailed documentation for future reference and enhancements.
+""", unsafe_allow_html=True)
 
 # -------------------------------
 # EXECUTIVE DASHBOARD
@@ -481,3 +544,4 @@ Global Income Intelligence Platform built with:
 • Plotly Visualization  
 • Power BI Integration
 """)
+
