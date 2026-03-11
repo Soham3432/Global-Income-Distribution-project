@@ -9,5 +9,4 @@ reportlab
 shap
 prophet
 fpdf
-setuptools
-wheel
+tensorflow
