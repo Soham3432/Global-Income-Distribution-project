@@ -2,9 +2,9 @@ streamlit
 pandas
 numpy
 plotly
-scikit-learn
 matplotlib
 seaborn
+scikit-learn
 reportlab
 shap
 prophet
