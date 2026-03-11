@@ -175,6 +175,7 @@ menu = st.sidebar.radio(
 "📊 Power BI Dashboard",
 "🧾 Dataset Explorer",
 "📈 Chart Explorer",
+"🌐 Country Comparison",
 "🤖 AI Insights Generator",
 "🌍 Country Analysis",
 "🗺 Global Map Visualization",
@@ -396,6 +397,76 @@ elif menu=="📈 Chart Explorer":
     st.pyplot(fig)
 
 # -------------------------------
+# COUNTRY COMPARISON
+# -------------------------------
+elif menu == "🌐 Country Comparison":
+    st.markdown("<div class='title'>Country Comparison</div>", unsafe_allow_html=True)
+
+    # Automatically detect country column
+    country_cols = [c for c in df.columns if "country" in c.lower()]
+    if not country_cols:
+        st.warning("No country column found in the dataset.")
+    else:
+        country_col = country_cols[0]
+
+        # User selects multiple countries
+        countries = st.multiselect(
+            "Select Countries to Compare",
+            options=df[country_col].unique(),
+            default=df[country_col].unique()[:3]
+        )
+
+        if countries:
+            filtered_df = df[df[country_col].isin(countries)]
+
+            # Select KPIs to compare
+            kpi_cols = st.multiselect(
+                "Select KPIs / Numeric Columns to Compare",
+                options=numeric_cols,
+                default=numeric_cols[:3]
+            )
+
+            if kpi_cols:
+                st.subheader("Comparison Table")
+                st.dataframe(filtered_df[[country_col] + kpi_cols].reset_index(drop=True))
+
+                st.subheader("Comparison Bar Chart")
+                fig = px.bar(
+                    filtered_df,
+                    x=country_col,
+                    y=kpi_cols,
+                    barmode="group",
+                    height=500,
+                    title="Country-wise KPI Comparison"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+
+                # Optional: Radar chart
+                if st.checkbox("Show Radar Chart"):
+                    import plotly.graph_objects as go
+
+                    fig = go.Figure()
+                    for c in countries:
+                        country_data = filtered_df[filtered_df[country_col] == c][kpi_cols].mean()
+                        fig.add_trace(go.Scatterpolar(
+                            r=country_data.values,
+                            theta=kpi_cols,
+                            fill='toself',
+                            name=c
+                        ))
+
+                    fig.update_layout(
+                        polar=dict(radialaxis=dict(visible=True)),
+                        showlegend=True,
+                        title="Radar Chart Comparison"
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("Please select at least one KPI to compare.")
+        else:
+            st.info("Please select at least one country to compare.")
+
+# -------------------------------
 # AI INSIGHTS GENERATOR
 # -------------------------------
 
@@ -544,4 +615,5 @@ Global Income Intelligence Platform built with:
 • Plotly Visualization  
 • Power BI Integration
 """)
+
 
