@@ -190,6 +190,117 @@ menu = st.sidebar.radio(
 # EXECUTIVE DASHBOARD
 # -------------------------------
 
+if menu == "🏠 Introduction":  # Updated menu name
+    st.markdown("<div class='title'>Introduction</div>", unsafe_allow_html=True)
+
+    # Neomorphic style for cards
+    st.markdown("""
+    <style>
+    .neo-card {
+        background: #1e1e2f;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 10px 5px;
+        color: white;
+        text-align: center;
+        box-shadow:
+            6px 6px 12px #161625,
+            -6px -6px 12px #27283d;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        cursor: default;
+        user-select: none;
+        transition: box-shadow 0.3s ease;
+    }
+    .neo-card:hover {
+        box-shadow:
+            inset 6px 6px 12px #161625,
+            inset -6px -6px 12px #27283d;
+        color: #f0f8ff;
+    }
+    .neo-number {
+        font-weight: 900;
+        font-size: 40px;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+        background: linear-gradient(90deg, #a78bfa, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .neo-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #b0b7c3;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Create columns for 5 cards
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    # Fill the cards with KPI data
+    col1.markdown(f"""
+        <div class="neo-card">
+            <div class="neo-number">62.49</div>
+            <div class="neo-label">Inequality Range</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    col2.markdown(f"""
+        <div class="neo-card">
+            <div class="neo-number">37.52</div>
+            <div class="neo-label">Avg Gini Index</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    col3.markdown(f"""
+        <div class="neo-card">
+            <div class="neo-number">22.55</div>
+            <div class="neo-label">Avg Inequality Index</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    col4.markdown(f"""
+        <div class="neo-card">
+            <div class="neo-number">200</div>
+            <div class="neo-label">Total Countries</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    col5.markdown(f"""
+        <div class="neo-card">
+            <div class="neo-number">7.85bn</div>
+            <div class="neo-label">Total Updated Population</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Dataset preview and insights
+    st.subheader("Dataset Preview")
+    st.dataframe(df.head())
+
+    st.subheader("Dataset Insights")
+    col1, col2 = st.columns(2)
+
+    col1.markdown(f"""
+    <div class="card">
+        <h4>Missing Values</h4>
+        <p>{df.isnull().sum().sum()} missing values detected.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col2.markdown(f"""
+    <div class="card">
+        <h4>Duplicate Rows</h4>
+        <p>{df.duplicated().sum()} duplicate rows found.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if len(numeric_cols) > 0:
+        fig, ax = plt.subplots()
+        df[numeric_cols[0]].hist(ax=ax)
+        st.pyplot(fig)
+
 if menu=="🏠 Executive Dashboard":
 
     st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
@@ -481,3 +592,4 @@ Global Income Intelligence Platform built with:
 • Plotly Visualization  
 • Power BI Integration
 """)
+
