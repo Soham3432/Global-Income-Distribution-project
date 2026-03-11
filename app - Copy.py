@@ -426,7 +426,7 @@ border-radius:12px;
 background:linear-gradient(135deg,#6366f1,#06b6d4,#a855f7);
 box-shadow:0 0 20px rgba(0,0,0,0.5);
 ">
-<h2 style="color:white;">🚀 Global Data Analytics Platform</h2>
+<h2 style="color:Blue;">🚀 Global Data Analytics Platform</h2>
 </div>
 """, unsafe_allow_html=True)
 
@@ -479,7 +479,8 @@ if nav_section == "🏠 Overview":
     menu = st.sidebar.radio(
     "Navigation",
     [
-    "🏠 Introduction"
+    "🏠 Introduction",
+    "🏠 Executive Dashboard"
     ])
 
 # -------------------------------
@@ -3340,6 +3341,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
