@@ -862,12 +862,98 @@ elif menu=="🌍 Country Analysis":
 # GLOBAL MAP
 # -------------------------------
 elif menu=="🗺 Global Map Visualization":
-    st.title("Global Income Map")
-    country_col=st.selectbox("Country Column",df.columns)
-    value_col=st.selectbox("Value Column",numeric_cols)
-    fig=px.choropleth(df, locations=country_col, locationmode="country names",
-                      color=value_col, color_continuous_scale="Viridis")
-    st.plotly_chart(fig,use_container_width=True)
+
+    st.title("🌍 Global Income 3D Visualization")
+
+    country_col = st.selectbox("Country Column", df.columns)
+    value_col = st.selectbox("Value Column", numeric_cols)
+
+    year_cols=[c for c in df.columns if "year" in c.lower()]
+
+    st.subheader("3D Globe Income Visualization")
+
+    # 3D globe style map
+    fig = px.scatter_geo(
+        df,
+        locations=country_col,
+        locationmode="country names",
+        color=value_col,
+        size=value_col,
+        hover_name=country_col,
+        projection="orthographic",
+        color_continuous_scale="Turbo",
+        title="Global Income Distribution"
+    )
+
+    fig.update_layout(
+        geo=dict(
+            showland=True,
+            landcolor="rgb(15,15,20)",
+            showocean=True,
+            oceancolor="rgb(5,5,15)",
+            showlakes=True,
+            lakecolor="rgb(0,0,30)",
+            showcountries=True,
+            countrycolor="gray",
+        ),
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        height=700
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
+    # -------------------------------
+    # 3D STYLE CHOROPLETH
+    # -------------------------------
+
+    st.subheader("Global Inequality Heatmap")
+
+    fig2 = px.choropleth(
+        df,
+        locations=country_col,
+        locationmode="country names",
+        color=value_col,
+        color_continuous_scale="Plasma",
+        title="Global Inequality Distribution"
+    )
+
+    fig2.update_layout(
+        geo=dict(
+            projection_type="natural earth",
+            showcountries=True,
+            showcoastlines=True,
+            showland=True,
+            landcolor="rgb(30,30,40)"
+        ),
+        height=650
+    )
+
+    st.plotly_chart(fig2, use_container_width=True)
+
+
+    # -------------------------------
+    # GLOBAL TOP COUNTRIES CHART
+    # -------------------------------
+
+    st.subheader("Top Countries by Value")
+
+    top_df = df.sort_values(value_col, ascending=False).head(10)
+
+    fig3 = px.bar(
+        top_df,
+        x=value_col,
+        y=country_col,
+        orientation="h",
+        color=value_col,
+        color_continuous_scale="Turbo",
+        title="Top 10 Countries"
+    )
+
+    fig3.update_layout(height=500)
+
+    st.plotly_chart(fig3, use_container_width=True)
 
 # -------------------------------
 # MACHINE LEARNING
@@ -1139,6 +1225,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
