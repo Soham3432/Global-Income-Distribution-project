@@ -479,8 +479,7 @@ if nav_section == "🏠 Overview":
     menu = st.sidebar.radio(
     "Navigation",
     [
-    "🏠 Introduction",
-    "🏠 Executive Dashboard"
+    "🏠 Introduction"
     ])
 
 # -------------------------------
@@ -3341,6 +3340,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
