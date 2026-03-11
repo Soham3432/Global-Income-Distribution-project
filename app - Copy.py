@@ -702,29 +702,165 @@ elif menu=="📈 Chart Explorer":
 # COUNTRY COMPARISON
 # -------------------------------
 elif menu == "🌐 Country Comparison":
-    st.markdown("<div class='title'>Country Comparison</div>", unsafe_allow_html=True)
+
+    st.markdown("<div class='title'>Country Comparison Dashboard</div>", unsafe_allow_html=True)
+
     country_cols = [c for c in df.columns if "country" in c.lower()]
+
     if country_cols:
+
         country_col = country_cols[0]
-        countries = st.multiselect("Select Countries", df[country_col].unique(), default=df[country_col].unique()[:3])
+
+        countries = st.multiselect(
+            "Select Countries",
+            df[country_col].unique(),
+            default=df[country_col].unique()[:3]
+        )
+
         if countries:
+
             filtered_df = df[df[country_col].isin(countries)]
-            kpi_cols = st.multiselect("Select KPIs", numeric_cols, default=numeric_cols[:3])
+
+            kpi_cols = st.multiselect(
+                "Select KPIs",
+                numeric_cols,
+                default=numeric_cols[:3]
+            )
+
             if kpi_cols:
+
+                # ---------------- TABLE ----------------
                 st.subheader("Comparison Table")
                 st.dataframe(filtered_df[[country_col] + kpi_cols].reset_index(drop=True))
-                st.subheader("Comparison Bar Chart")
-                fig = px.bar(filtered_df, x=country_col, y=kpi_cols, barmode="group", height=500)
+
+                # ---------------- BAR CHART ----------------
+                st.subheader("📊 KPI Comparison")
+
+                fig = px.bar(
+                    filtered_df,
+                    x=country_col,
+                    y=kpi_cols,
+                    barmode="group",
+                    height=500,
+                    template="plotly_dark"
+                )
+
                 st.plotly_chart(fig,use_container_width=True)
+
+                # ---------------- LINE TREND ----------------
+                year_cols=[c for c in df.columns if "year" in c.lower()]
+
+                if year_cols:
+
+                    year_col = year_cols[0]
+
+                    st.subheader("📈 Country Trend Over Time")
+
+                    fig2 = px.line(
+                        filtered_df,
+                        x=year_col,
+                        y=kpi_cols,
+                        color=country_col,
+                        markers=True,
+                        template="plotly_dark"
+                    )
+
+                    st.plotly_chart(fig2,use_container_width=True)
+
+                # ---------------- RADAR CHART ----------------
                 if st.checkbox("Show Radar Chart"):
-                    fig = go.Figure()
+
+                    fig3 = go.Figure()
+
                     for c in countries:
+
                         country_data = filtered_df[filtered_df[country_col]==c][kpi_cols].mean()
-                        fig.add_trace(go.Scatterpolar(r=country_data.values,theta=kpi_cols,fill='toself',name=c))
-                    fig.update_layout(polar=dict(radialaxis=dict(visible=True)),title="Radar Chart Comparison")
-                    st.plotly_chart(fig,use_container_width=True)
+
+                        fig3.add_trace(go.Scatterpolar(
+                            r=country_data.values,
+                            theta=kpi_cols,
+                            fill='toself',
+                            name=c
+                        ))
+
+                    fig3.update_layout(
+                        polar=dict(radialaxis=dict(visible=True)),
+                        title="Country Radar Comparison"
+                    )
+
+                    st.plotly_chart(fig3,use_container_width=True)
+
+                # ---------------- SCATTER BUBBLE ----------------
+                if len(kpi_cols) >= 2:
+
+                    st.subheader("🫧 Bubble Relationship Chart")
+
+                    fig4 = px.scatter(
+                        filtered_df,
+                        x=kpi_cols[0],
+                        y=kpi_cols[1],
+                        size=kpi_cols[0],
+                        color=country_col,
+                        hover_name=country_col,
+                        template="plotly_dark"
+                    )
+
+                    st.plotly_chart(fig4,use_container_width=True)
+
+                # ---------------- BOX PLOT ----------------
+                st.subheader("📦 Distribution Comparison")
+
+                fig5 = px.box(
+                    filtered_df,
+                    x=country_col,
+                    y=kpi_cols[0],
+                    color=country_col,
+                    template="plotly_dark"
+                )
+
+                st.plotly_chart(fig5,use_container_width=True)
+
+                # ---------------- HEATMAP ----------------
+                st.subheader("🔥 KPI Correlation Heatmap")
+
+                corr = filtered_df[kpi_cols].corr()
+
+                fig6 = px.imshow(
+                    corr,
+                    text_auto=True,
+                    color_continuous_scale="RdBu",
+                    template="plotly_dark"
+                )
+
+                st.plotly_chart(fig6,use_container_width=True)
+
+                # ---------------- PARALLEL COORDINATES ----------------
+                st.subheader("📊 Parallel Coordinates Analysis")
+
+                fig7 = px.parallel_coordinates(
+                    filtered_df,
+                    dimensions=kpi_cols,
+                    color=kpi_cols[0],
+                    color_continuous_scale=px.colors.diverging.Tealrose
+                )
+
+                st.plotly_chart(fig7,use_container_width=True)
+
+                # ---------------- AREA CHART ----------------
+                st.subheader("📉 KPI Area Comparison")
+
+                fig8 = px.area(
+                    filtered_df,
+                    x=country_col,
+                    y=kpi_cols,
+                    template="plotly_dark"
+                )
+
+                st.plotly_chart(fig8,use_container_width=True)
+
         else:
             st.info("Select at least one country.")
+
     else:
         st.warning("No country column found.")
 
@@ -1225,6 +1361,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
