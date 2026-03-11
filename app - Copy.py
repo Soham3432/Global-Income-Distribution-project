@@ -659,12 +659,239 @@ This platform demonstrates how data science and visualization technologies can t
 """,unsafe_allow_html=True)
 
 # -------------------------------
-# POWER BI DASHBOARD
+# ENTERPRISE BI PORTAL
 # -------------------------------
 elif menu=="📊 Power BI Dashboard":
-    st.title("Power BI Dashboard")
+
+    import numpy as np
+    from sklearn.ensemble import IsolationForest
+    from datetime import datetime
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet
+
+    st.title("📊 Enterprise Business Intelligence Portal")
+
     powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
-    st.components.v1.iframe(powerbi_url,height=700)
+
+    # ---------------------------------
+    # THEME TOGGLE
+    # ---------------------------------
+
+    theme = st.toggle("🌙 Dark Mode")
+
+    if theme:
+        st.markdown(
+        """
+        <style>
+        .stApp {background-color:#0E1117;color:white;}
+        </style>
+        """,
+        unsafe_allow_html=True
+        )
+
+    # ---------------------------------
+    # DASHBOARD TABS
+    # ---------------------------------
+
+    tab1,tab2,tab3,tab4 = st.tabs([
+        "📊 Dashboard",
+        "🧠 AI Insights",
+        "🚨 KPI Alerts",
+        "📑 Reports"
+    ])
+
+    # =================================
+    # TAB 1 — DASHBOARD
+    # =================================
+
+    with tab1:
+
+        st.subheader("📈 Business KPI Overview")
+
+        rows,cols=df.shape
+        missing=df.isnull().sum().sum()
+        duplicates=df.duplicated().sum()
+
+        c1,c2,c3,c4=st.columns(4)
+
+        c1.metric("Rows",rows)
+        c2.metric("Columns",cols)
+        c3.metric("Missing",missing)
+        c4.metric("Duplicates",duplicates)
+
+        st.divider()
+
+        # -----------------------------
+        # HYBRID STREAMLIT ANALYTICS
+        # -----------------------------
+
+        st.subheader("📊 Hybrid Analytics")
+
+        if len(numeric_cols)>0:
+
+            metric=st.selectbox("Select Metric",numeric_cols)
+
+            fig=px.line(
+                df,
+                y=metric,
+                title=f"{metric} Trend"
+            )
+
+            st.plotly_chart(fig,use_container_width=True)
+
+            fig2=px.histogram(
+                df,
+                x=metric,
+                title=f"{metric} Distribution"
+            )
+
+            st.plotly_chart(fig2,use_container_width=True)
+
+        # -----------------------------
+        # POWER BI EMBED
+        # -----------------------------
+
+        st.subheader("📊 Power BI Interactive Dashboard")
+
+        height=st.slider("Dashboard Height",600,1200,800)
+
+        st.components.v1.iframe(
+            powerbi_url,
+            height=height,
+            scrolling=True
+        )
+
+        st.link_button("🔗 Open Full Power BI Dashboard",powerbi_url)
+
+    # =================================
+    # TAB 2 — AI INSIGHTS
+    # =================================
+
+    with tab2:
+
+        st.subheader("🧠 AI Business Insights Generator")
+
+        insights=[]
+
+        if missing>0:
+            insights.append("Dataset contains missing values that may impact analytics.")
+
+        if duplicates>0:
+            insights.append("Duplicate records detected. Data cleaning recommended.")
+
+        if len(numeric_cols)>0:
+
+            skew=df[numeric_cols].skew()
+
+            high_skew=skew[abs(skew)>1]
+
+            if len(high_skew)>0:
+                insights.append("Highly skewed features detected.")
+
+        if len(insights)==0:
+            insights.append("Dataset appears healthy with balanced features.")
+
+        for i in insights:
+            st.info(i)
+
+        # -----------------------------
+        # CHART EXPLANATION
+        # -----------------------------
+
+        st.subheader("📊 AI Chart Explanation")
+
+        if len(numeric_cols)>0:
+
+            col=st.selectbox("Explain Column",numeric_cols)
+
+            mean=df[col].mean()
+            median=df[col].median()
+            std=df[col].std()
+
+            st.write(f"""
+            **AI Summary**
+
+            • Average value of {col} is **{round(mean,2)}**
+
+            • Median value is **{round(median,2)}**
+
+            • Standard deviation is **{round(std,2)}**
+
+            This suggests the distribution may contain variability depending on the deviation level.
+            """)
+
+    # =================================
+    # TAB 3 — KPI ALERTS
+    # =================================
+
+    with tab3:
+
+        st.subheader("🚨 Real-Time KPI Anomaly Detection")
+
+        if len(numeric_cols)>0:
+
+            column=st.selectbox("Select KPI Metric",numeric_cols)
+
+            data=df[[column]].dropna()
+
+            model=IsolationForest(contamination=0.05)
+
+            preds=model.fit_predict(data)
+
+            data["Anomaly"]=preds
+
+            anomalies=data[data["Anomaly"]==-1]
+
+            fig=px.scatter(
+                data,
+                y=column,
+                color=data["Anomaly"].astype(str),
+                title="KPI Anomaly Detection"
+            )
+
+            st.plotly_chart(fig,use_container_width=True)
+
+            st.write("Detected anomalies:",len(anomalies))
+
+            if len(anomalies)>0:
+                st.warning("⚠ Potential KPI anomalies detected!")
+
+    # =================================
+    # TAB 4 — REPORT GENERATION
+    # =================================
+
+    with tab4:
+
+        st.subheader("📑 Automated Business Report")
+
+        if st.button("Generate PDF Report"):
+
+            styles=getSampleStyleSheet()
+
+            report_text=[
+                Paragraph("Business Intelligence Report",styles["Title"]),
+                Spacer(1,20),
+                Paragraph(f"Generated: {datetime.now()}",styles["Normal"]),
+                Spacer(1,20),
+                Paragraph(f"Rows: {rows}",styles["Normal"]),
+                Paragraph(f"Columns: {cols}",styles["Normal"]),
+                Paragraph(f"Missing Values: {missing}",styles["Normal"]),
+                Paragraph(f"Duplicate Rows: {duplicates}",styles["Normal"]),
+            ]
+
+            pdf_file="bi_report.pdf"
+
+            doc=SimpleDocTemplate(pdf_file)
+
+            doc.build(report_text)
+
+            with open(pdf_file,"rb") as f:
+
+                st.download_button(
+                    "Download Report",
+                    f,
+                    file_name="BI_Report.pdf"
+                )
 
 # -------------------------------
 # NEXT LEVEL DATASET EXPLORER
@@ -2501,6 +2728,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
