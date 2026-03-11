@@ -234,11 +234,6 @@ import streamlit as st
 st.sidebar.markdown("## 🚀 Global Data Analytics Platform")
 st.sidebar.markdown("---")
 
-# Search dashboard
-search = st.sidebar.text_input("🔍 Search Dashboard")
-
-st.sidebar.markdown("---")
-
 # -------------------------------
 # MAIN NAVIGATION
 # -------------------------------
@@ -3095,6 +3090,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
