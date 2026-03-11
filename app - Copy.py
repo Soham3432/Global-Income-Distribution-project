@@ -667,18 +667,233 @@ elif menu=="📊 Power BI Dashboard":
     st.components.v1.iframe(powerbi_url,height=700)
 
 # -------------------------------
-# DATASET EXPLORER
+# NEXT LEVEL DATASET EXPLORER
 # -------------------------------
 elif menu=="🧾 Dataset Explorer":
-    st.title("Dataset Explorer")
-    st.dataframe(df)
-    column = st.selectbox("Select Column",df.columns)
-    st.write(df[column].describe())
-    st.subheader("Missing Values")
-    st.write(df.isnull().sum())
-    st.subheader("Duplicate Rows")
-    st.write(df.duplicated().sum())
-    st.download_button("Download Dataset", df.to_csv(index=False), "dataset.csv")
+
+    st.title("🧾 AI Dataset Explorer")
+
+    # -----------------------------
+    # DATASET OVERVIEW
+    # -----------------------------
+
+    st.subheader("📊 Dataset Overview")
+
+    rows,cols = df.shape
+    missing_total = df.isnull().sum().sum()
+    duplicates = df.duplicated().sum()
+
+    col1,col2,col3,col4 = st.columns(4)
+
+    col1.metric("Rows", rows)
+    col2.metric("Columns", cols)
+    col3.metric("Missing Values", missing_total)
+    col4.metric("Duplicates", duplicates)
+
+    st.dataframe(df.head(50))
+
+    # -----------------------------
+    # DATA QUALITY SCORE
+    # -----------------------------
+
+    st.subheader("⚡ Data Quality Score")
+
+    missing_ratio = missing_total/(rows*cols)
+    duplicate_ratio = duplicates/rows
+
+    quality_score = int((1-(missing_ratio+duplicate_ratio))*100)
+
+    st.progress(quality_score/100)
+
+    st.success(f"Dataset Quality Score: {quality_score}/100")
+
+    # -----------------------------
+    # AUTOMATIC EDA REPORT
+    # -----------------------------
+
+    st.subheader("📊 Automatic EDA Summary")
+
+    eda = pd.DataFrame({
+        "Column":df.columns,
+        "Type":df.dtypes,
+        "Missing":df.isnull().sum(),
+        "Unique":df.nunique()
+    })
+
+    st.dataframe(eda)
+
+    # -----------------------------
+    # SKEWNESS & KURTOSIS
+    # -----------------------------
+
+    st.subheader("📉 Skewness & Kurtosis")
+
+    skew_df = pd.DataFrame({
+        "Skewness":df[numeric_cols].skew(),
+        "Kurtosis":df[numeric_cols].kurt()
+    })
+
+    st.dataframe(skew_df)
+
+    fig1 = px.bar(
+        skew_df,
+        barmode="group",
+        title="Skewness & Kurtosis"
+    )
+
+    st.plotly_chart(fig1,use_container_width=True)
+
+    # -----------------------------
+    # OUTLIER DETECTION
+    # -----------------------------
+
+    st.subheader("🧠 Outlier Detection")
+
+    outlier_counts = {}
+
+    for col in numeric_cols:
+
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3-Q1
+
+        lower = Q1-1.5*IQR
+        upper = Q3+1.5*IQR
+
+        outliers = df[(df[col]<lower)|(df[col]>upper)]
+
+        outlier_counts[col] = len(outliers)
+
+    outlier_df = pd.DataFrame(
+        list(outlier_counts.items()),
+        columns=["Column","Outliers"]
+    )
+
+    st.dataframe(outlier_df)
+
+    fig2 = px.bar(
+        outlier_df,
+        x="Column",
+        y="Outliers",
+        color="Outliers",
+        title="Outlier Count"
+    )
+
+    st.plotly_chart(fig2,use_container_width=True)
+
+    # -----------------------------
+    # CORRELATION MATRIX
+    # -----------------------------
+
+    st.subheader("🔥 Feature Correlation")
+
+    corr = df[numeric_cols].corr()
+
+    fig3 = px.imshow(
+        corr,
+        text_auto=True,
+        aspect="auto"
+    )
+
+    st.plotly_chart(fig3,use_container_width=True)
+
+    # -----------------------------
+    # FEATURE IMPORTANCE
+    # -----------------------------
+
+    st.subheader("🔍 Feature Importance Ranking")
+
+    if len(numeric_cols) > 1:
+
+        target = st.selectbox("Select Target", numeric_cols)
+
+        features = [c for c in numeric_cols if c!=target]
+
+        X = df[features].fillna(0)
+        y = df[target].fillna(0)
+
+        model = RandomForestRegressor()
+
+        model.fit(X,y)
+
+        importance = model.feature_importances_
+
+        imp_df = pd.DataFrame({
+            "Feature":features,
+            "Importance":importance
+        }).sort_values("Importance",ascending=False)
+
+        fig4 = px.bar(
+            imp_df,
+            x="Importance",
+            y="Feature",
+            orientation="h",
+            title="Feature Importance"
+        )
+
+        st.plotly_chart(fig4,use_container_width=True)
+
+    # -----------------------------
+    # AI DATA INSIGHTS
+    # -----------------------------
+
+    st.subheader("🤖 AI Data Insights")
+
+    insights = []
+
+    if missing_total > 0:
+        insights.append("Dataset contains missing values that may affect model performance.")
+
+    if duplicates > 0:
+        insights.append("Duplicate rows detected. Consider removing duplicates.")
+
+    high_skew = skew_df[abs(skew_df["Skewness"])>1]
+
+    if len(high_skew)>0:
+        insights.append("Highly skewed features detected. Consider log transformation.")
+
+    if outlier_df["Outliers"].sum()>0:
+        insights.append("Outliers detected in multiple columns.")
+
+    if len(insights)==0:
+        insights.append("Dataset appears clean and well balanced.")
+
+    for i in insights:
+        st.info(i)
+
+    # -----------------------------
+    # DATA CLEANING SUGGESTIONS
+    # -----------------------------
+
+    st.subheader("📑 Auto Data Cleaning Suggestions")
+
+    suggestions = []
+
+    if missing_total>0:
+        suggestions.append("Fill missing values using mean/median or drop rows.")
+
+    if duplicates>0:
+        suggestions.append("Remove duplicate rows.")
+
+    if outlier_df["Outliers"].sum()>0:
+        suggestions.append("Handle outliers using IQR filtering or winsorization.")
+
+    suggestions.append("Normalize or scale numeric features before ML modeling.")
+
+    for s in suggestions:
+        st.write("•",s)
+
+    # -----------------------------
+    # DOWNLOAD DATASET
+    # -----------------------------
+
+    st.subheader("📥 Download Dataset")
+
+    st.download_button(
+        "Download CSV",
+        df.to_csv(index=False),
+        "dataset.csv"
+    )
 
 # -------------------------------
 # ADVANCED CHART EXPLORER
@@ -2286,6 +2501,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
