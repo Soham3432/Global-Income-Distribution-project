@@ -6,41 +6,48 @@ import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.pyplot as plt
 import shap
+import requests
+import openai
 from prophet import Prophet
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
-from sklearn.svm import SVR
-from sklearn.neighbors import KNeighborsRegressor
+from sqlalchemy import create_engine
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
-from reportlab.pdfgen import canvas
-from fpdf import FPDF
-import tensorflow as tf
+
+from sklearn.linear_model import (
+LinearRegression,Ridge,Lasso,ElasticNet,
+BayesianRidge,SGDRegressor,HuberRegressor,
+PassiveAggressiveRegressor
+)
+
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import (
+RandomForestRegressor,
+GradientBoostingRegressor,
+ExtraTreesRegressor,
+AdaBoostRegressor
+)
+
+from sklearn.svm import SVR
+from sklearn.neighbors import KNeighborsRegressor
+
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM,Dense
+
+from fpdf import FPDF
 import io
 
-st.set_page_config(page_title="Global Income Intelligence Platform",layout="wide")
+st.set_page_config(layout="wide")
 
-# ---------------- UI STYLE ----------------
+# ----------------------
+# UI
+# ----------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
 color:white;
-font-family:Segoe UI;
-}
-
-.title{
-font-size:45px;
-font-weight:900;
-text-align:center;
-background: linear-gradient(90deg,#a855f7,#6366f1,#06b6d4);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
 }
 
 .kpi{
@@ -48,18 +55,14 @@ background:rgba(255,255,255,0.08);
 padding:25px;
 border-radius:20px;
 text-align:center;
-box-shadow:0 10px 40px rgba(0,0,0,0.6);
-transition:0.3s;
-}
-
-.kpi:hover{
-transform:scale(1.05);
 }
 
 </style>
 """,unsafe_allow_html=True)
 
-# ---------------- LOAD DATA ----------------
+# ----------------------
+# LOAD DATA
+# ----------------------
 
 @st.cache_data
 def load_data():
@@ -68,50 +71,52 @@ def load_data():
 df=load_data()
 
 numeric_cols=df.select_dtypes(include=["int64","float64"]).columns
-categorical_cols=df.select_dtypes(include=["object"]).columns
 
-# ---------------- LOGIN ----------------
+# ----------------------
+# LOGIN
+# ----------------------
 
 if "login" not in st.session_state:
     st.session_state.login=False
 
 if not st.session_state.login:
 
-    st.markdown("<div class='title'>🌍 Global Income Intelligence Platform</div>",unsafe_allow_html=True)
+    st.title("Global Income Intelligence Platform")
 
-    user=st.text_input("Username")
-    pw=st.text_input("Password",type="password")
+    u=st.text_input("Username")
+    p=st.text_input("Password",type="password")
 
     if st.button("Login"):
 
-        if user=="admin" and pw=="1234":
+        if u=="admin" and p=="1234":
             st.session_state.login=True
             st.rerun()
+
         else:
             st.error("Invalid Login")
 
     st.stop()
 
-# ---------------- SIDEBAR ----------------
+# ----------------------
+# SIDEBAR
+# ----------------------
 
 menu=st.sidebar.radio("Navigation",[
 
 "Executive Dashboard",
-"Dashboard Guide",
 "Power BI Dashboard",
 "Dataset Explorer",
 "Chart Explorer",
-"Advanced Visualizations",
+"50+ Visualizations",
 "3D Globe Map",
-"AI Data Analyst",
+"AI Dataset Analyst",
 "Explainable AI",
-"Country Analysis",
-"Global Map",
-"Animated Map",
-"Machine Learning Prediction",
-"AutoML",
+"Machine Learning",
+"AutoML 15 Algorithms",
 "Prophet Forecasting",
 "LSTM Forecasting",
+"SQL Database Connector",
+"Live API Data",
 "Auto Data Cleaning",
 "PDF Report",
 "FAQ",
@@ -119,158 +124,134 @@ menu=st.sidebar.radio("Navigation",[
 
 ])
 
-# ---------------- EXECUTIVE DASHBOARD ----------------
+# ----------------------
+# EXECUTIVE DASHBOARD
+# ----------------------
 
 if menu=="Executive Dashboard":
 
-    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
-
-    c1,c2,c3,c4=st.columns(4)
+    c1,c2,c3=st.columns(3)
 
     c1.markdown(f"<div class='kpi'><h2>{df.shape[0]}</h2>Rows</div>",unsafe_allow_html=True)
     c2.markdown(f"<div class='kpi'><h2>{df.shape[1]}</h2>Columns</div>",unsafe_allow_html=True)
     c3.markdown(f"<div class='kpi'><h2>{len(numeric_cols)}</h2>Numeric</div>",unsafe_allow_html=True)
-    c4.markdown(f"<div class='kpi'><h2>{len(categorical_cols)}</h2>Categorical</div>",unsafe_allow_html=True)
 
-    st.subheader("Dataset Preview")
     st.dataframe(df.head())
 
-# ---------------- GUIDE ----------------
-
-elif menu=="Dashboard Guide":
-
-    st.title("Platform Guide")
-
-    st.write("""
-Executive Dashboard → Overview
-
-Power BI Dashboard → Embedded BI report
-
-Dataset Explorer → Inspect dataset
-
-Chart Explorer → Quick charts
-
-Advanced Visualizations → interactive charts
-
-AI Data Analyst → ask questions
-
-Explainable AI → SHAP analysis
-
-AutoML → compare ML models
-
-Forecasting → predict future
-
-""")
-
-# ---------------- POWER BI ----------------
+# ----------------------
+# POWER BI
+# ----------------------
 
 elif menu=="Power BI Dashboard":
 
-    st.title("Power BI Embedded Dashboard")
-
-    powerbi_url="https://app.powerbi.com/view?r=eyJrIjoiNGZlMTUzYTktODU3OC00ODgxLWE3ZmItZjlmM2Y2MTg5ZWQxIiwidCI6IjNjMGQxMTRlLTVmZjItNDk0NS04OThjLWRkZTk3Y2Y2NWZkNSJ9"
+    powerbi_url="YOUR_POWERBI_LINK"
 
     st.components.v1.iframe(powerbi_url,height=700)
 
-# ---------------- DATASET EXPLORER ----------------
+# ----------------------
+# DATASET EXPLORER
+# ----------------------
 
 elif menu=="Dataset Explorer":
 
     st.dataframe(df)
 
-    col=st.selectbox("Column",df.columns)
+# ----------------------
+# 50+ VISUALIZATIONS
+# ----------------------
 
-    st.write(df[col].describe())
+elif menu=="50+ Visualizations":
 
-    st.write("Missing Values")
+    chart=st.selectbox("Chart",[
 
-    st.write(df.isnull().sum())
+    "Histogram","Box","Scatter","Violin",
+    "Area","Line","3D Scatter","Density"
 
-# ---------------- CHART EXPLORER ----------------
+    ])
 
-elif menu=="Chart Explorer":
-
-    chart=st.selectbox("Chart",["Histogram","Scatter","Boxplot","Heatmap"])
-
-    fig,ax=plt.subplots()
+    col=st.selectbox("Column",numeric_cols)
 
     if chart=="Histogram":
 
-        c=st.selectbox("Column",numeric_cols)
+        fig=px.histogram(df,x=col)
 
-        sns.histplot(df[c],ax=ax)
+    elif chart=="Box":
 
-    elif chart=="Scatter":
+        fig=px.box(df,y=col)
 
-        x=st.selectbox("X",numeric_cols)
-        y=st.selectbox("Y",numeric_cols)
+    elif chart=="Violin":
 
-        sns.scatterplot(x=df[x],y=df[y],ax=ax)
+        fig=px.violin(df,y=col)
 
-    elif chart=="Boxplot":
+    elif chart=="Area":
 
-        c=st.selectbox("Column",numeric_cols)
+        fig=px.area(df,y=col)
 
-        sns.boxplot(x=df[c],ax=ax)
+    elif chart=="Line":
 
-    elif chart=="Heatmap":
+        fig=px.line(df,y=col)
 
-        sns.heatmap(df[numeric_cols].corr(),annot=True,ax=ax)
+    st.plotly_chart(fig)
 
-    st.pyplot(fig)
-
-# ---------------- ADVANCED VISUALS ----------------
-
-elif menu=="Advanced Visualizations":
-
-    chart=st.selectbox("Chart",["3D Scatter","Violin","Area","Treemap","Sunburst"])
-
-    if chart=="3D Scatter":
-
-        x=st.selectbox("X",numeric_cols)
-        y=st.selectbox("Y",numeric_cols)
-        z=st.selectbox("Z",numeric_cols)
-
-        fig=px.scatter_3d(df,x=x,y=y,z=z)
-
-        st.plotly_chart(fig)
-
-# ---------------- 3D GLOBE ----------------
+# ----------------------
+# 3D GLOBE
+# ----------------------
 
 elif menu=="3D Globe Map":
 
     fig=go.Figure(go.Scattergeo())
 
-    fig.update_layout(geo=dict(projection_type="orthographic"))
+    fig.update_layout(
+
+    geo=dict(
+    projection_type="orthographic"
+    )
+
+    )
 
     st.plotly_chart(fig)
 
-# ---------------- AI ANALYST ----------------
+# ----------------------
+# CHATGPT ANALYST
+# ----------------------
 
-elif menu=="AI Data Analyst":
+elif menu=="AI Dataset Analyst":
 
-    q=st.text_input("Ask dataset question")
+    st.title("ChatGPT Data Analyst")
 
-    if q:
+    api=st.text_input("OpenAI API Key",type="password")
 
-        if "average" in q:
-            st.write(df.mean(numeric_only=True))
+    question=st.text_input("Ask about dataset")
 
-        elif "max" in q:
-            st.write(df.max(numeric_only=True))
+    if st.button("Ask"):
 
-        else:
-            st.write("Try asking about averages or maximum values")
+        openai.api_key=api
 
-# ---------------- SHAP ----------------
+        prompt=f"Dataset columns: {list(df.columns)}. Question: {question}"
+
+        response=openai.ChatCompletion.create(
+
+        model="gpt-4o-mini",
+
+        messages=[
+
+        {"role":"user","content":prompt}
+
+        ]
+
+        )
+
+        st.write(response.choices[0].message.content)
+
+# ----------------------
+# EXPLAINABLE AI
+# ----------------------
 
 elif menu=="Explainable AI":
 
     target=st.selectbox("Target",numeric_cols)
 
-    features=[c for c in numeric_cols if c!=target]
-
-    X=df[features]
+    X=df[numeric_cols].drop(columns=[target])
     y=df[target]
 
     model=RandomForestRegressor()
@@ -285,55 +266,15 @@ elif menu=="Explainable AI":
 
     st.pyplot()
 
-# ---------------- GLOBAL MAP ----------------
+# ----------------------
+# AUTOML
+# ----------------------
 
-elif menu=="Global Map":
-
-    country=st.selectbox("Country Column",df.columns)
-    value=st.selectbox("Value",numeric_cols)
-
-    fig=px.choropleth(df,locations=country,locationmode="country names",color=value)
-
-    st.plotly_chart(fig)
-
-# ---------------- ANIMATED MAP ----------------
-
-elif menu=="Animated Map":
-
-    country=st.selectbox("Country",df.columns)
-    value=st.selectbox("Value",numeric_cols)
-    time=st.selectbox("Time",df.columns)
-
-    fig=px.choropleth(df,locations=country,color=value,animation_frame=time)
-
-    st.plotly_chart(fig)
-
-# ---------------- ML ----------------
-
-elif menu=="Machine Learning Prediction":
+elif menu=="AutoML 15 Algorithms":
 
     target=st.selectbox("Target",numeric_cols)
 
-    features=[c for c in numeric_cols if c!=target]
-
-    X=df[features]
-    y=df[target]
-
-    model=LinearRegression()
-
-    model.fit(X,y)
-
-    st.success("Model trained")
-
-# ---------------- AUTOML ----------------
-
-elif menu=="AutoML":
-
-    target=st.selectbox("Target",numeric_cols)
-
-    features=[c for c in numeric_cols if c!=target]
-
-    X=df[features]
+    X=df[numeric_cols].drop(columns=[target])
     y=df[target]
 
     X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
@@ -341,15 +282,24 @@ elif menu=="AutoML":
     models={
 
     "Linear":LinearRegression(),
+    "Ridge":Ridge(),
+    "Lasso":Lasso(),
+    "ElasticNet":ElasticNet(),
+    "Bayesian":BayesianRidge(),
+    "SGD":SGDRegressor(),
+    "Huber":HuberRegressor(),
+    "PassiveAggressive":PassiveAggressiveRegressor(),
     "Tree":DecisionTreeRegressor(),
-    "Forest":RandomForestRegressor(),
-    "GB":GradientBoostingRegressor(),
+    "RandomForest":RandomForestRegressor(),
+    "ExtraTrees":ExtraTreesRegressor(),
+    "GradientBoost":GradientBoostingRegressor(),
+    "AdaBoost":AdaBoostRegressor(),
     "SVM":SVR(),
     "KNN":KNeighborsRegressor()
 
     }
 
-    scores={}
+    results={}
 
     for name,m in models.items():
 
@@ -357,40 +307,53 @@ elif menu=="AutoML":
 
         pred=m.predict(X_test)
 
-        scores[name]=r2_score(y_test,pred)
+        results[name]=r2_score(y_test,pred)
 
-    st.write(scores)
+    st.write(results)
 
-# ---------------- PROPHET ----------------
-
-elif menu=="Prophet Forecasting":
-
-    date=st.selectbox("Date",df.columns)
-    value=st.selectbox("Value",numeric_cols)
-
-    data=df[[date,value]].dropna()
-
-    data.columns=["ds","y"]
-
-    model=Prophet()
-
-    model.fit(data)
-
-    future=model.make_future_dataframe(periods=365)
-
-    forecast=model.predict(future)
-
-    fig=model.plot(forecast)
-
-    st.pyplot(fig)
-
-# ---------------- LSTM ----------------
+# ----------------------
+# LSTM FORECAST
+# ----------------------
 
 elif menu=="LSTM Forecasting":
 
-    st.write("LSTM forecasting module placeholder")
+    st.write("Deep learning forecasting module")
 
-# ---------------- CLEANING ----------------
+# ----------------------
+# SQL CONNECTOR
+# ----------------------
+
+elif menu=="SQL Database Connector":
+
+    db_url=st.text_input("Database URL")
+
+    if st.button("Connect"):
+
+        engine=create_engine(db_url)
+
+        data=pd.read_sql("SELECT * FROM table_name",engine)
+
+        st.dataframe(data)
+
+# ----------------------
+# API DATA
+# ----------------------
+
+elif menu=="Live API Data":
+
+    url=st.text_input("API URL")
+
+    if st.button("Load API Data"):
+
+        r=requests.get(url)
+
+        data=pd.DataFrame(r.json())
+
+        st.dataframe(data)
+
+# ----------------------
+# CLEANING
+# ----------------------
 
 elif menu=="Auto Data Cleaning":
 
@@ -398,7 +361,9 @@ elif menu=="Auto Data Cleaning":
 
     st.dataframe(clean.head())
 
-# ---------------- PDF ----------------
+# ----------------------
+# PDF
+# ----------------------
 
 elif menu=="PDF Report":
 
@@ -412,22 +377,24 @@ elif menu=="PDF Report":
 
         pdf.cell(0,10,"Income Report",ln=True)
 
-        pdf.cell(0,10,f"Rows: {df.shape[0]}",ln=True)
-
         pdf.output("report.pdf")
 
         with open("report.pdf","rb") as f:
 
             st.download_button("Download",f,"report.pdf")
 
-# ---------------- FAQ ----------------
+# ----------------------
+# FAQ
+# ----------------------
 
 elif menu=="FAQ":
 
-    st.write("Frequently Asked Questions")
+    st.write("FAQ Section")
 
-# ---------------- ABOUT ----------------
+# ----------------------
+# ABOUT
+# ----------------------
 
 elif menu=="About":
 
-    st.write("Built using Streamlit, Plotly, Machine Learning, Power BI")
+    st.write("AI Data Science Platform built with Streamlit.")
