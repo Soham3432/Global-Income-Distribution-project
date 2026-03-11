@@ -23,9 +23,7 @@ import io
 
 st.set_page_config(page_title="Global Income Intelligence Platform",layout="wide")
 
-# -----------------------------
-# FUTURISTIC UI
-# -----------------------------
+# ---------------- UI STYLE ----------------
 
 st.markdown("""
 <style>
@@ -37,7 +35,7 @@ font-family:Segoe UI;
 }
 
 .title{
-font-size:46px;
+font-size:45px;
 font-weight:900;
 text-align:center;
 background: linear-gradient(90deg,#a855f7,#6366f1,#06b6d4);
@@ -61,9 +59,7 @@ transform:scale(1.05);
 </style>
 """,unsafe_allow_html=True)
 
-# -----------------------------
-# LOAD DATA
-# -----------------------------
+# ---------------- LOAD DATA ----------------
 
 @st.cache_data
 def load_data():
@@ -74,9 +70,7 @@ df=load_data()
 numeric_cols=df.select_dtypes(include=["int64","float64"]).columns
 categorical_cols=df.select_dtypes(include=["object"]).columns
 
-# -----------------------------
-# LOGIN
-# -----------------------------
+# ---------------- LOGIN ----------------
 
 if "login" not in st.session_state:
     st.session_state.login=False
@@ -85,24 +79,20 @@ if not st.session_state.login:
 
     st.markdown("<div class='title'>🌍 Global Income Intelligence Platform</div>",unsafe_allow_html=True)
 
-    u=st.text_input("Username")
-    p=st.text_input("Password",type="password")
+    user=st.text_input("Username")
+    pw=st.text_input("Password",type="password")
 
     if st.button("Login"):
 
-        if u=="admin" and p=="1234":
-
+        if user=="admin" and pw=="1234":
             st.session_state.login=True
             st.rerun()
-
         else:
             st.error("Invalid Login")
 
     st.stop()
 
-# -----------------------------
-# SIDEBAR
-# -----------------------------
+# ---------------- SIDEBAR ----------------
 
 menu=st.sidebar.radio("Navigation",[
 
@@ -119,9 +109,9 @@ menu=st.sidebar.radio("Navigation",[
 "Global Map",
 "Animated Map",
 "Machine Learning Prediction",
-"AutoML (10 Algorithms)",
-"LSTM Forecasting",
+"AutoML",
 "Prophet Forecasting",
+"LSTM Forecasting",
 "Auto Data Cleaning",
 "PDF Report",
 "FAQ",
@@ -129,9 +119,7 @@ menu=st.sidebar.radio("Navigation",[
 
 ])
 
-# -----------------------------
-# EXECUTIVE DASHBOARD
-# -----------------------------
+# ---------------- EXECUTIVE DASHBOARD ----------------
 
 if menu=="Executive Dashboard":
 
@@ -147,39 +135,34 @@ if menu=="Executive Dashboard":
     st.subheader("Dataset Preview")
     st.dataframe(df.head())
 
-# -----------------------------
-# DASHBOARD GUIDE
-# -----------------------------
+# ---------------- GUIDE ----------------
 
 elif menu=="Dashboard Guide":
 
     st.title("Platform Guide")
 
-    st.markdown("""
+    st.write("""
+Executive Dashboard → Overview
 
-Executive Dashboard → dataset overview
+Power BI Dashboard → Embedded BI report
 
-Power BI Dashboard → enterprise BI report
+Dataset Explorer → Inspect dataset
 
-Dataset Explorer → inspect dataset
+Chart Explorer → Quick charts
 
-Chart Explorer → quick visual analysis
+Advanced Visualizations → interactive charts
 
-Advanced Visualizations → 3D charts
+AI Data Analyst → ask questions
 
-AI Data Analyst → ask dataset questions
+Explainable AI → SHAP analysis
 
-Explainable AI → SHAP interpretation
+AutoML → compare ML models
 
-AutoML → multiple ML models
-
-Forecasting → future predictions
+Forecasting → predict future
 
 """)
 
-# -----------------------------
-# POWER BI EMBED
-# -----------------------------
+# ---------------- POWER BI ----------------
 
 elif menu=="Power BI Dashboard":
 
@@ -189,9 +172,7 @@ elif menu=="Power BI Dashboard":
 
     st.components.v1.iframe(powerbi_url,height=700)
 
-# -----------------------------
-# DATASET EXPLORER
-# -----------------------------
+# ---------------- DATASET EXPLORER ----------------
 
 elif menu=="Dataset Explorer":
 
@@ -201,9 +182,11 @@ elif menu=="Dataset Explorer":
 
     st.write(df[col].describe())
 
-# -----------------------------
-# CHART EXPLORER
-# -----------------------------
+    st.write("Missing Values")
+
+    st.write(df.isnull().sum())
+
+# ---------------- CHART EXPLORER ----------------
 
 elif menu=="Chart Explorer":
 
@@ -236,21 +219,11 @@ elif menu=="Chart Explorer":
 
     st.pyplot(fig)
 
-# -----------------------------
-# ADVANCED VISUALIZATION
-# -----------------------------
+# ---------------- ADVANCED VISUALS ----------------
 
 elif menu=="Advanced Visualizations":
 
-    chart=st.selectbox("Chart",[
-
-    "3D Scatter",
-    "Violin",
-    "Area",
-    "Treemap",
-    "Sunburst"
-
-    ])
+    chart=st.selectbox("Chart",["3D Scatter","Violin","Area","Treemap","Sunburst"])
 
     if chart=="3D Scatter":
 
@@ -262,29 +235,17 @@ elif menu=="Advanced Visualizations":
 
         st.plotly_chart(fig)
 
-# -----------------------------
-# 3D GLOBE
-# -----------------------------
+# ---------------- 3D GLOBE ----------------
 
 elif menu=="3D Globe Map":
 
-    st.title("3D Globe")
-
     fig=go.Figure(go.Scattergeo())
 
-    fig.update_layout(
-
-    geo=dict(
-        projection_type="orthographic"
-    )
-
-    )
+    fig.update_layout(geo=dict(projection_type="orthographic"))
 
     st.plotly_chart(fig)
 
-# -----------------------------
-# AI ANALYST
-# -----------------------------
+# ---------------- AI ANALYST ----------------
 
 elif menu=="AI Data Analyst":
 
@@ -293,20 +254,15 @@ elif menu=="AI Data Analyst":
     if q:
 
         if "average" in q:
-
             st.write(df.mean(numeric_only=True))
 
         elif "max" in q:
-
             st.write(df.max(numeric_only=True))
 
         else:
+            st.write("Try asking about averages or maximum values")
 
-            st.write("Try asking about averages or maximum values.")
-
-# -----------------------------
-# SHAP
-# -----------------------------
+# ---------------- SHAP ----------------
 
 elif menu=="Explainable AI":
 
@@ -329,9 +285,7 @@ elif menu=="Explainable AI":
 
     st.pyplot()
 
-# -----------------------------
-# GLOBAL MAP
-# -----------------------------
+# ---------------- GLOBAL MAP ----------------
 
 elif menu=="Global Map":
 
@@ -342,9 +296,7 @@ elif menu=="Global Map":
 
     st.plotly_chart(fig)
 
-# -----------------------------
-# ANIMATED MAP
-# -----------------------------
+# ---------------- ANIMATED MAP ----------------
 
 elif menu=="Animated Map":
 
@@ -356,9 +308,7 @@ elif menu=="Animated Map":
 
     st.plotly_chart(fig)
 
-# -----------------------------
-# ML
-# -----------------------------
+# ---------------- ML ----------------
 
 elif menu=="Machine Learning Prediction":
 
@@ -375,11 +325,9 @@ elif menu=="Machine Learning Prediction":
 
     st.success("Model trained")
 
-# -----------------------------
-# AUTOML
-# -----------------------------
+# ---------------- AUTOML ----------------
 
-elif menu=="AutoML (10 Algorithms)":
+elif menu=="AutoML":
 
     target=st.selectbox("Target",numeric_cols)
 
@@ -413,17 +361,7 @@ elif menu=="AutoML (10 Algorithms)":
 
     st.write(scores)
 
-# -----------------------------
-# LSTM
-# -----------------------------
-
-elif menu=="LSTM Forecasting":
-
-    st.write("LSTM forecasting module placeholder")
-
-# -----------------------------
-# PROPHET
-# -----------------------------
+# ---------------- PROPHET ----------------
 
 elif menu=="Prophet Forecasting":
 
@@ -446,9 +384,13 @@ elif menu=="Prophet Forecasting":
 
     st.pyplot(fig)
 
-# -----------------------------
-# CLEANING
-# -----------------------------
+# ---------------- LSTM ----------------
+
+elif menu=="LSTM Forecasting":
+
+    st.write("LSTM forecasting module placeholder")
+
+# ---------------- CLEANING ----------------
 
 elif menu=="Auto Data Cleaning":
 
@@ -456,9 +398,7 @@ elif menu=="Auto Data Cleaning":
 
     st.dataframe(clean.head())
 
-# -----------------------------
-# PDF
-# -----------------------------
+# ---------------- PDF ----------------
 
 elif menu=="PDF Report":
 
@@ -480,18 +420,14 @@ elif menu=="PDF Report":
 
             st.download_button("Download",f,"report.pdf")
 
-# -----------------------------
-# FAQ
-# -----------------------------
+# ---------------- FAQ ----------------
 
 elif menu=="FAQ":
 
-    st.write("FAQ section")
+    st.write("Frequently Asked Questions")
 
-# -----------------------------
-# ABOUT
-# -----------------------------
+# ---------------- ABOUT ----------------
 
 elif menu=="About":
 
-    st.write("Built using Streamlit, ML, Plotly, Power BI")
+    st.write("Built using Streamlit, Plotly, Machine Learning, Power BI")
