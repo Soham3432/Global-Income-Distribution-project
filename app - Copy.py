@@ -3,44 +3,25 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import seaborn as sns
-import matplotlib.pyplot as plt
 import shap
-import requests
 import openai
-from prophet import Prophet
+import requests
+import boto3
 from sqlalchemy import create_engine
+from passlib.hash import bcrypt
+from prophet import Prophet
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
-
-from sklearn.linear_model import (
-LinearRegression,Ridge,Lasso,ElasticNet,
-BayesianRidge,SGDRegressor,HuberRegressor,
-PassiveAggressiveRegressor
-)
-
+from sklearn.linear_model import LinearRegression,Ridge,Lasso
+from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import (
-RandomForestRegressor,
-GradientBoostingRegressor,
-ExtraTreesRegressor,
-AdaBoostRegressor
-)
-
 from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
-
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM,Dense
-
 from fpdf import FPDF
-import io
 
 st.set_page_config(layout="wide")
 
-# ----------------------
-# UI
-# ----------------------
+# ---------------- UI ----------------
 
 st.markdown("""
 <style>
@@ -51,18 +32,61 @@ color:white;
 }
 
 .kpi{
-background:rgba(255,255,255,0.08);
+background:rgba(255,255,255,0.1);
 padding:25px;
-border-radius:20px;
+border-radius:18px;
 text-align:center;
 }
 
 </style>
 """,unsafe_allow_html=True)
 
-# ----------------------
-# LOAD DATA
-# ----------------------
+# ---------------- DATABASE ----------------
+
+DATABASE_URL="sqlite:///users.db"
+
+engine=create_engine(DATABASE_URL)
+
+def authenticate(username,password):
+
+    users=pd.read_sql("SELECT * FROM users",engine)
+
+    user=users[users.username==username]
+
+    if len(user)>0:
+
+        if bcrypt.verify(password,user.password_hash.values[0]):
+
+            return True
+
+    return False
+
+# ---------------- LOGIN ----------------
+
+if "login" not in st.session_state:
+    st.session_state.login=False
+
+if not st.session_state.login:
+
+    st.title("Enterprise AI Analytics Platform")
+
+    u=st.text_input("Username")
+    p=st.text_input("Password",type="password")
+
+    if st.button("Login"):
+
+        if authenticate(u,p):
+
+            st.session_state.login=True
+            st.rerun()
+
+        else:
+
+            st.error("Invalid credentials")
+
+    st.stop()
+
+# ---------------- LOAD DATA ----------------
 
 @st.cache_data
 def load_data():
@@ -72,61 +96,31 @@ df=load_data()
 
 numeric_cols=df.select_dtypes(include=["int64","float64"]).columns
 
-# ----------------------
-# LOGIN
-# ----------------------
-
-if "login" not in st.session_state:
-    st.session_state.login=False
-
-if not st.session_state.login:
-
-    st.title("Global Income Intelligence Platform")
-
-    u=st.text_input("Username")
-    p=st.text_input("Password",type="password")
-
-    if st.button("Login"):
-
-        if u=="admin" and p=="1234":
-            st.session_state.login=True
-            st.rerun()
-
-        else:
-            st.error("Invalid Login")
-
-    st.stop()
-
-# ----------------------
-# SIDEBAR
-# ----------------------
+# ---------------- SIDEBAR ----------------
 
 menu=st.sidebar.radio("Navigation",[
 
 "Executive Dashboard",
 "Power BI Dashboard",
 "Dataset Explorer",
-"Chart Explorer",
-"50+ Visualizations",
-"3D Globe Map",
+"Visualizations",
 "AI Dataset Analyst",
+"Automatic Insights",
 "Explainable AI",
 "Machine Learning",
-"AutoML 15 Algorithms",
-"Prophet Forecasting",
-"LSTM Forecasting",
-"SQL Database Connector",
+"AutoML",
+"Forecasting",
+"3D Globe Map",
+"AWS S3 Connector",
+"Snowflake Connector",
 "Live API Data",
-"Auto Data Cleaning",
+"Streaming Dashboard",
 "PDF Report",
-"FAQ",
 "About"
 
 ])
 
-# ----------------------
-# EXECUTIVE DASHBOARD
-# ----------------------
+# ---------------- EXECUTIVE DASHBOARD ----------------
 
 if menu=="Executive Dashboard":
 
@@ -138,114 +132,72 @@ if menu=="Executive Dashboard":
 
     st.dataframe(df.head())
 
-# ----------------------
-# POWER BI
-# ----------------------
+# ---------------- POWER BI ----------------
 
 elif menu=="Power BI Dashboard":
 
-    powerbi_url="YOUR_POWERBI_LINK"
+    url="YOUR_POWERBI_EMBED_LINK"
 
-    st.components.v1.iframe(powerbi_url,height=700)
+    st.components.v1.iframe(url,height=700)
 
-# ----------------------
-# DATASET EXPLORER
-# ----------------------
+# ---------------- VISUALIZATION ----------------
 
-elif menu=="Dataset Explorer":
-
-    st.dataframe(df)
-
-# ----------------------
-# 50+ VISUALIZATIONS
-# ----------------------
-
-elif menu=="50+ Visualizations":
+elif menu=="Visualizations":
 
     chart=st.selectbox("Chart",[
 
-    "Histogram","Box","Scatter","Violin",
-    "Area","Line","3D Scatter","Density"
+    "Histogram",
+    "Scatter",
+    "Box",
+    "Violin",
+    "Area",
+    "Line"
 
     ])
 
     col=st.selectbox("Column",numeric_cols)
 
-    if chart=="Histogram":
-
-        fig=px.histogram(df,x=col)
-
-    elif chart=="Box":
-
-        fig=px.box(df,y=col)
-
-    elif chart=="Violin":
-
-        fig=px.violin(df,y=col)
-
-    elif chart=="Area":
-
-        fig=px.area(df,y=col)
-
-    elif chart=="Line":
-
-        fig=px.line(df,y=col)
+    fig=px.histogram(df,x=col)
 
     st.plotly_chart(fig)
 
-# ----------------------
-# 3D GLOBE
-# ----------------------
-
-elif menu=="3D Globe Map":
-
-    fig=go.Figure(go.Scattergeo())
-
-    fig.update_layout(
-
-    geo=dict(
-    projection_type="orthographic"
-    )
-
-    )
-
-    st.plotly_chart(fig)
-
-# ----------------------
-# CHATGPT ANALYST
-# ----------------------
+# ---------------- AI ANALYST ----------------
 
 elif menu=="AI Dataset Analyst":
 
-    st.title("ChatGPT Data Analyst")
-
     api=st.text_input("OpenAI API Key",type="password")
 
-    question=st.text_input("Ask about dataset")
+    q=st.text_input("Ask dataset question")
 
     if st.button("Ask"):
 
         openai.api_key=api
 
-        prompt=f"Dataset columns: {list(df.columns)}. Question: {question}"
+        prompt=f"Dataset columns: {list(df.columns)}. Question:{q}"
 
         response=openai.ChatCompletion.create(
 
         model="gpt-4o-mini",
 
-        messages=[
-
-        {"role":"user","content":prompt}
-
-        ]
+        messages=[{"role":"user","content":prompt}]
 
         )
 
         st.write(response.choices[0].message.content)
 
-# ----------------------
-# EXPLAINABLE AI
-# ----------------------
+# ---------------- AUTO INSIGHTS ----------------
+
+elif menu=="Automatic Insights":
+
+    for col in numeric_cols:
+
+        st.write(
+
+        f"{col} mean: {df[col].mean():.2f}, std: {df[col].std():.2f}"
+
+        )
+
+# ---------------- EXPLAINABLE AI ----------------
 
 elif menu=="Explainable AI":
 
@@ -266,11 +218,9 @@ elif menu=="Explainable AI":
 
     st.pyplot()
 
-# ----------------------
-# AUTOML
-# ----------------------
+# ---------------- AUTOML ----------------
 
-elif menu=="AutoML 15 Algorithms":
+elif menu=="AutoML":
 
     target=st.selectbox("Target",numeric_cols)
 
@@ -282,24 +232,17 @@ elif menu=="AutoML 15 Algorithms":
     models={
 
     "Linear":LinearRegression(),
-    "Ridge":Ridge(),
-    "Lasso":Lasso(),
-    "ElasticNet":ElasticNet(),
-    "Bayesian":BayesianRidge(),
-    "SGD":SGDRegressor(),
-    "Huber":HuberRegressor(),
-    "PassiveAggressive":PassiveAggressiveRegressor(),
     "Tree":DecisionTreeRegressor(),
-    "RandomForest":RandomForestRegressor(),
-    "ExtraTrees":ExtraTreesRegressor(),
+    "Forest":RandomForestRegressor(),
     "GradientBoost":GradientBoostingRegressor(),
-    "AdaBoost":AdaBoostRegressor(),
     "SVM":SVR(),
-    "KNN":KNeighborsRegressor()
+    "KNN":KNeighborsRegressor(),
+    "Ridge":Ridge(),
+    "Lasso":Lasso()
 
     }
 
-    results={}
+    scores={}
 
     for name,m in models.items():
 
@@ -307,43 +250,84 @@ elif menu=="AutoML 15 Algorithms":
 
         pred=m.predict(X_test)
 
-        results[name]=r2_score(y_test,pred)
+        scores[name]=r2_score(y_test,pred)
 
-    st.write(results)
+    st.write(scores)
 
-# ----------------------
-# LSTM FORECAST
-# ----------------------
+# ---------------- FORECASTING ----------------
 
-elif menu=="LSTM Forecasting":
+elif menu=="Forecasting":
 
-    st.write("Deep learning forecasting module")
+    date_col=st.selectbox("Date",df.columns)
+    value_col=st.selectbox("Value",numeric_cols)
 
-# ----------------------
-# SQL CONNECTOR
-# ----------------------
+    data=df[[date_col,value_col]].dropna()
 
-elif menu=="SQL Database Connector":
+    data.columns=["ds","y"]
 
-    db_url=st.text_input("Database URL")
+    model=Prophet()
+
+    model.fit(data)
+
+    future=model.make_future_dataframe(periods=365)
+
+    forecast=model.predict(future)
+
+    fig=model.plot(forecast)
+
+    st.pyplot(fig)
+
+# ---------------- 3D GLOBE ----------------
+
+elif menu=="3D Globe Map":
+
+    fig=go.Figure(go.Scattergeo())
+
+    fig.update_layout(
+
+    geo=dict(projection_type="orthographic")
+
+    )
+
+    st.plotly_chart(fig)
+
+# ---------------- AWS S3 ----------------
+
+elif menu=="AWS S3 Connector":
+
+    bucket=st.text_input("S3 Bucket")
+
+    if st.button("Load"):
+
+        s3=boto3.client("s3")
+
+        obj=s3.get_object(Bucket=bucket,Key="data.csv")
+
+        df=pd.read_csv(obj["Body"])
+
+        st.dataframe(df)
+
+# ---------------- SNOWFLAKE ----------------
+
+elif menu=="Snowflake Connector":
+
+    conn=st.text_input("Snowflake Connection String")
 
     if st.button("Connect"):
 
-        engine=create_engine(db_url)
+        engine=create_engine(conn)
 
-        data=pd.read_sql("SELECT * FROM table_name",engine)
+        data=pd.read_sql("SELECT * FROM table",engine)
 
         st.dataframe(data)
 
-# ----------------------
-# API DATA
-# ----------------------
+# ---------------- API ----------------
 
 elif menu=="Live API Data":
 
     url=st.text_input("API URL")
 
-    if st.button("Load API Data"):
+    if st.button("Fetch"):
 
         r=requests.get(url)
 
@@ -351,19 +335,13 @@ elif menu=="Live API Data":
 
         st.dataframe(data)
 
-# ----------------------
-# CLEANING
-# ----------------------
+# ---------------- STREAMING ----------------
 
-elif menu=="Auto Data Cleaning":
+elif menu=="Streaming Dashboard":
 
-    clean=df.fillna(df.mean(numeric_only=True))
+    st.write("Real-time streaming charts placeholder")
 
-    st.dataframe(clean.head())
-
-# ----------------------
-# PDF
-# ----------------------
+# ---------------- PDF ----------------
 
 elif menu=="PDF Report":
 
@@ -375,7 +353,7 @@ elif menu=="PDF Report":
 
         pdf.set_font("Arial","B",16)
 
-        pdf.cell(0,10,"Income Report",ln=True)
+        pdf.cell(0,10,"Enterprise AI Report",ln=True)
 
         pdf.output("report.pdf")
 
@@ -383,18 +361,8 @@ elif menu=="PDF Report":
 
             st.download_button("Download",f,"report.pdf")
 
-# ----------------------
-# FAQ
-# ----------------------
-
-elif menu=="FAQ":
-
-    st.write("FAQ Section")
-
-# ----------------------
-# ABOUT
-# ----------------------
+# ---------------- ABOUT ----------------
 
 elif menu=="About":
 
-    st.write("AI Data Science Platform built with Streamlit.")
+    st.write("Enterprise AI Analytics Platform built with Streamlit.")
