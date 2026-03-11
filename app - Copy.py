@@ -827,4 +827,97 @@ elif menu=="📄 Generate PDF Report":
             mime="application/pdf"
         )
 
+   # -------------------------------
+    # FAQ FEATURE
+    # -------------------------------
+
+    st.subheader("❓ FAQ")
+
+    with st.expander("What is this platform used for?"):
+        st.write("""
+        This dashboard helps analyze **global income inequality** using
+        visual analytics, statistical insights, and machine learning models.
+        """)
+
+    with st.expander("What dataset does the platform use?"):
+        st.write("""
+        The platform uses global income distribution datasets including
+        **Gini Index, Inequality Index, Population statistics, and Country data**.
+        """)
+
+    with st.expander("What machine learning models are used?"):
+        st.write("""
+        The dashboard uses models from Scikit-learn such as:
+        - Linear Regression
+        - Random Forest
+        - Decision Tree (Auto ML comparison)
+        """)
+
+    with st.expander("Can the dashboard forecast future inequality?"):
+        st.write("""
+        Yes. The **Time Series Forecasting module** predicts future values
+        based on historical inequality data.
+        """)
+
+    with st.expander("Who can use this platform?"):
+        st.write("""
+        The platform is useful for:
+
+        • Data analysts  
+        • Economists  
+        • Researchers  
+        • Students studying data science  
+        • Policy makers analyzing economic inequality
+        """)
+
+    st.divider()
+
+    # -------------------------------
+    # ABOUT FEATURE
+    # -------------------------------
+
+    st.subheader("ℹ About")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.markdown("### Platform Information")
+
+        st.info("""
+        **Global Income Intelligence Platform**
+
+        An advanced analytics dashboard designed to visualize
+        global income distribution and inequality metrics.
+        """)
+
+        st.write("Version:", "1.0.0")
+        st.write("Project Type:", "Data Analytics Dashboard")
+        st.write("Category:", "Economic Data Analysis")
+
+    with col2:
+
+        st.markdown("### Technology Stack")
+
+        st.success("""
+        **Core Technologies**
+
+        • Python  
+        • Streamlit  
+        • Pandas  
+        • Plotly  
+        • Scikit-learn  
+        • Power BI (Embedded)
+        """)
+
+    st.divider()
+
+    # Platform stats feature
+    st.subheader("📊 Platform Statistics")
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Dashboard Modules", "10+")
+    col2.metric("Visualizations", "15+")
+    col3.metric("ML Models", "3")
 
