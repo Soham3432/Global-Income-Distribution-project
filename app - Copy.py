@@ -405,25 +405,200 @@ The project demonstrates how data science can be used to create impactful tools 
 # EXECUTIVE DASHBOARD
 # -------------------------------
 elif menu=="🏠 Executive Dashboard":
-    st.markdown("<div class='title'>Executive Dashboard</div>",unsafe_allow_html=True)
-    col1,col2,col3,col4=st.columns(4)
-    col1.markdown(f"<div class='kpi-card'><div class='kpi-number'>{df.shape[0]}</div><div class='kpi-label'>Total Rows</div></div>",unsafe_allow_html=True)
-    col2.markdown(f"<div class='kpi-card'><div class='kpi-number'>{df.shape[1]}</div><div class='kpi-label'>Total Columns</div></div>",unsafe_allow_html=True)
+
+    st.markdown("<div class='title'>Executive Analytics Dashboard</div>",unsafe_allow_html=True)
+
+    rows,cols=df.shape
+    missing=df.isnull().sum().sum()
+    duplicates=df.duplicated().sum()
+
+    quality_score = int((1-(missing/(rows*cols) + duplicates/rows))*100)
+
+    # -------------------------
+    # KPI CARDS
+    # -------------------------
+
+    col1,col2,col3,col4,col5=st.columns(5)
+
+    col1.markdown(f"<div class='kpi-card'><div class='kpi-number'>{rows}</div><div class='kpi-label'>Total Rows</div></div>",unsafe_allow_html=True)
+    col2.markdown(f"<div class='kpi-card'><div class='kpi-number'>{cols}</div><div class='kpi-label'>Total Columns</div></div>",unsafe_allow_html=True)
     col3.markdown(f"<div class='kpi-card'><div class='kpi-number'>{len(numeric_cols)}</div><div class='kpi-label'>Numeric Features</div></div>",unsafe_allow_html=True)
     col4.markdown(f"<div class='kpi-card'><div class='kpi-number'>{len(categorical_cols)}</div><div class='kpi-label'>Categorical Features</div></div>",unsafe_allow_html=True)
+    col5.markdown(f"<div class='kpi-card'><div class='kpi-number'>{quality_score}%</div><div class='kpi-label'>Data Quality</div></div>",unsafe_allow_html=True)
 
-    st.subheader("Dataset Preview")
-    st.dataframe(df.head())
+    st.divider()
 
-    st.subheader("Dataset Insights")
+    # -------------------------
+    # DATASET PREVIEW
+    # -------------------------
+
+    st.subheader("📊 Dataset Preview")
+
+    st.dataframe(df.head(10))
+
+    # -------------------------
+    # DATASET INSIGHTS
+    # -------------------------
+
+    st.subheader("🧠 Dataset Health")
+
     col1,col2=st.columns(2)
-    col1.markdown(f"<div class='card'><h4>Missing Values</h4><p>{df.isnull().sum().sum()} missing values detected.</p></div>",unsafe_allow_html=True)
-    col2.markdown(f"<div class='card'><h4>Duplicate Rows</h4><p>{df.duplicated().sum()} duplicate rows found.</p></div>",unsafe_allow_html=True)
+
+    col1.markdown(
+        f"<div class='card'><h4>Missing Values</h4><p>{missing} missing values detected.</p></div>",
+        unsafe_allow_html=True
+    )
+
+    col2.markdown(
+        f"<div class='card'><h4>Duplicate Rows</h4><p>{duplicates} duplicate rows found.</p></div>",
+        unsafe_allow_html=True
+    )
+
+    # -------------------------
+    # METRIC ANALYTICS
+    # -------------------------
 
     if len(numeric_cols)>0:
-        fig,ax=plt.subplots()
-        df[numeric_cols[0]].hist(ax=ax)
-        st.pyplot(fig)
+
+        st.subheader("📈 Metric Analytics")
+
+        metric = st.selectbox("Select Metric", numeric_cols)
+
+        col1,col2=st.columns(2)
+
+        with col1:
+
+            fig = px.histogram(
+                df,
+                x=metric,
+                title=f"{metric} Distribution"
+            )
+
+            st.plotly_chart(fig,use_container_width=True)
+
+        with col2:
+
+            fig2 = px.box(
+                df,
+                y=metric,
+                title=f"{metric} Outlier Analysis"
+            )
+
+            st.plotly_chart(fig2,use_container_width=True)
+
+    # -------------------------
+    # CORRELATION HEATMAP
+    # -------------------------
+
+    if len(numeric_cols)>1:
+
+        st.subheader("🔥 Feature Correlation Matrix")
+
+        corr=df[numeric_cols].corr()
+
+        fig3=px.imshow(
+            corr,
+            text_auto=True,
+            aspect="auto"
+        )
+
+        st.plotly_chart(fig3,use_container_width=True)
+
+    # -------------------------
+    # CATEGORY ANALYSIS
+    # -------------------------
+
+    if len(categorical_cols)>0:
+
+        st.subheader("📊 Category Analysis")
+
+        cat = st.selectbox("Select Category", categorical_cols)
+
+        counts = df[cat].value_counts().reset_index()
+
+        counts.columns=[cat,"Count"]
+
+        fig4=px.bar(
+            counts,
+            x=cat,
+            y="Count",
+            color="Count",
+            title=f"{cat} Distribution"
+        )
+
+        st.plotly_chart(fig4,use_container_width=True)
+
+    # -------------------------
+    # FEATURE RANKING
+    # -------------------------
+
+    if len(numeric_cols)>1:
+
+        st.subheader("🏆 Feature Ranking")
+
+        mean_values = df[numeric_cols].mean().sort_values(ascending=False)
+
+        rank_df = mean_values.reset_index()
+
+        rank_df.columns=["Feature","Mean"]
+
+        fig5=px.bar(
+            rank_df,
+            x="Feature",
+            y="Mean",
+            title="Feature Importance (Mean Value Ranking)"
+        )
+
+        st.plotly_chart(fig5,use_container_width=True)
+
+    # -------------------------
+    # EXECUTIVE AI INSIGHTS
+    # -------------------------
+
+    st.subheader("🤖 Executive Insights")
+
+    insights=[]
+
+    if missing>0:
+        insights.append("Dataset contains missing values that may affect reporting accuracy.")
+
+    if duplicates>0:
+        insights.append("Duplicate records detected — data cleaning recommended.")
+
+    if quality_score>90:
+        insights.append("Dataset quality is excellent and ready for analytics.")
+
+    if len(numeric_cols)>10:
+        insights.append("High number of numeric features detected — dimensionality reduction may help modeling.")
+
+    if len(insights)==0:
+        insights.append("Dataset appears healthy with balanced structure.")
+
+    for i in insights:
+        st.info(i)
+
+    # -------------------------
+    # EXECUTIVE RECOMMENDATIONS
+    # -------------------------
+
+    st.subheader("📑 Executive Recommendations")
+
+    rec=[]
+
+    if missing>0:
+        rec.append("Implement data imputation strategies.")
+
+    if duplicates>0:
+        rec.append("Remove duplicate rows to improve analysis reliability.")
+
+    if len(numeric_cols)>5:
+        rec.append("Apply feature selection to improve ML performance.")
+
+    if len(rec)==0:
+        rec.append("Dataset is analytics-ready.")
+
+    for r in rec:
+        st.success(r)
 
 # -------------------------------
 # DASHBOARD GUIDE
@@ -2728,6 +2903,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
