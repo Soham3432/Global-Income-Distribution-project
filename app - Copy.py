@@ -1268,14 +1268,193 @@ elif menu=="🗺 Global Map Visualization":
 # MACHINE LEARNING
 # -------------------------------
 elif menu=="🧠 Machine Learning Prediction":
-    st.title("Machine Learning Prediction")
-    target=st.selectbox("Target Variable",numeric_cols)
-    features=[c for c in numeric_cols if c!=target]
-    X=df[features].fillna(0); y=df[target].fillna(0)
-    model=LinearRegression(); model.fit(X,y)
-    inputs=[st.number_input(col,value=float(X[col].mean())) for col in features]
-    if st.button("Predict"):
-        prediction=model.predict([inputs])[0]
+
+    st.title("🧠 Advanced Machine Learning Prediction")
+
+    # Select Target
+    target = st.selectbox("🎯 Select Target Variable", numeric_cols)
+
+    features = [c for c in numeric_cols if c != target]
+
+    X = df[features].fillna(0)
+    y = df[target].fillna(0)
+
+    # Train/Test Split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Models
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Decision Tree": DecisionTreeRegressor(),
+        "Random Forest": RandomForestRegressor(),
+        "Gradient Boosting": GradientBoostingRegressor()
+    }
+
+    results = {}
+    trained_models = {}
+
+    st.subheader("⚙ Training Models")
+
+    for name, model in models.items():
+
+        model.fit(X_train, y_train)
+
+        pred = model.predict(X_test)
+
+        score = r2_score(y_test, pred)
+
+        results[name] = score
+        trained_models[name] = model
+
+    results_df = pd.DataFrame(
+        list(results.items()),
+        columns=["Model", "R2 Score"]
+    ).sort_values("R2 Score", ascending=False)
+
+    # -------------------------------
+    # MODEL PERFORMANCE TABLE
+    # -------------------------------
+
+    st.subheader("📊 Model Performance")
+
+    st.dataframe(results_df)
+
+    # -------------------------------
+    # MODEL COMPARISON CHART
+    # -------------------------------
+
+    st.subheader("📈 Model Accuracy Comparison")
+
+    fig = px.bar(
+        results_df,
+        x="Model",
+        y="R2 Score",
+        color="Model",
+        title="Model Accuracy"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Best Model
+    best_model_name = results_df.iloc[0]["Model"]
+
+    st.success(f"🏆 Best Model Selected: {best_model_name}")
+
+    best_model = trained_models[best_model_name]
+
+    # -------------------------------
+    # FEATURE IMPORTANCE
+    # -------------------------------
+
+    if best_model_name in ["Decision Tree","Random Forest","Gradient Boosting"]:
+
+        st.subheader("🧠 Feature Importance")
+
+        importance = best_model.feature_importances_
+
+        imp_df = pd.DataFrame({
+            "Feature": features,
+            "Importance": importance
+        }).sort_values("Importance", ascending=False)
+
+        fig2 = px.bar(
+            imp_df,
+            x="Importance",
+            y="Feature",
+            orientation="h",
+            title="Feature Importance"
+        )
+
+        st.plotly_chart(fig2, use_container_width=True)
+
+    # -------------------------------
+    # ACTUAL VS PREDICTED
+    # -------------------------------
+
+    st.subheader("📉 Actual vs Predicted")
+
+    pred_test = best_model.predict(X_test)
+
+    fig3 = px.scatter(
+        x=y_test,
+        y=pred_test,
+        labels={"x":"Actual","y":"Predicted"},
+        title="Actual vs Predicted Values"
+    )
+
+    st.plotly_chart(fig3, use_container_width=True)
+
+    # -------------------------------
+    # RESIDUAL PLOT
+    # -------------------------------
+
+    st.subheader("📊 Residual Error Plot")
+
+    residuals = y_test - pred_test
+
+    fig4 = px.scatter(
+        x=pred_test,
+        y=residuals,
+        labels={"x":"Predicted","y":"Residual Error"},
+        title="Residual Plot"
+    )
+
+    st.plotly_chart(fig4, use_container_width=True)
+
+    # -------------------------------
+    # PREDICTION DISTRIBUTION
+    # -------------------------------
+
+    st.subheader("📈 Prediction Distribution")
+
+    fig5 = px.histogram(
+        pred_test,
+        nbins=30,
+        title="Distribution of Predicted Values"
+    )
+
+    st.plotly_chart(fig5, use_container_width=True)
+
+    # -------------------------------
+    # CORRELATION HEATMAP
+    # -------------------------------
+
+    st.subheader("🔥 Feature Correlation Heatmap")
+
+    corr = df[features + [target]].corr()
+
+    fig6 = px.imshow(
+        corr,
+        text_auto=True,
+        aspect="auto",
+        title="Feature Correlation"
+    )
+
+    st.plotly_chart(fig6, use_container_width=True)
+
+    # -------------------------------
+    # USER INPUT PREDICTION
+    # -------------------------------
+
+    st.subheader("🔮 Make Prediction")
+
+    user_inputs = []
+
+    for col in features:
+
+        val = st.number_input(
+            f"Enter {col}",
+            value=float(X[col].mean())
+        )
+
+        user_inputs.append(val)
+
+    if st.button("🚀 Predict"):
+
+        prediction = best_model.predict([user_inputs])[0]
+
         st.success(f"Predicted {target}: {prediction:.2f}")
 
 # -------------------------------
@@ -1824,6 +2003,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
