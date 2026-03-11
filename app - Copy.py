@@ -176,6 +176,7 @@ menu = st.sidebar.radio(
 "🧾 Dataset Explorer",
 "📈 Chart Explorer",
 "🌐 Country Comparison",
+"📖 Theoretical Explanation",
 "🤖 AI Insights Generator",
 "🌍 Country Analysis",
 "🗺 Global Map Visualization",
@@ -466,6 +467,57 @@ elif menu == "🌐 Country Comparison":
         else:
             st.info("Please select at least one country to compare.")
 
+if menu == "📖 Theoretical Explanation":
+    st.markdown("<div class='title'>Theoretical Explanation of Global Income Inequality</div>", unsafe_allow_html=True)
+
+    st.markdown("""
+### Introduction
+This dashboard visualizes income inequality globally, providing insights for economists, policymakers, and researchers.
+
+### Key Concepts & Metrics
+**Income Distribution:** How wealth/income is spread among individuals or households.
+
+**Gini Index:** 0 (perfect equality) to 100 (perfect inequality). Measures disparity among individuals.
+
+**Inequality Index:** Composite measure for overall disparity.
+
+**GDP & GDP per Capita:** Economic output and average income per person.
+
+**Population Metrics:** Total population and distribution affecting inequality.
+
+**Regional Comparisons:** Country and region differences in inequality.
+
+### Historical Context
+Overview of global trends over decades and major events affecting inequality.
+
+### Visualization Guide
+Explanation of KPI cards, charts, maps, and color coding.
+
+### Policy Implications
+High inequality impacts social stability, education, and health; low inequality supports equitable growth.
+
+### Glossary
+- Lorenz Curve
+- Gini Index
+- GDP / GDP per Capita
+- Inequality Index
+- Population metrics
+""")
+
+    # PDF Download Button
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer)
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(100, 800, "Theoretical Explanation of Global Income Inequality")
+    pdf.setFont("Helvetica", 12)
+    text = pdf.beginText(50, 780)
+    for line in st.session_state.get("theory_text", "").split("\n"):
+        text.textLine(line)
+    pdf.drawText(text)
+    pdf.save()
+    
+    st.download_button("Download Theory PDF", buffer.getvalue(), "theoretical_explanation.pdf", "application/pdf")
+
 # -------------------------------
 # AI INSIGHTS GENERATOR
 # -------------------------------
@@ -615,5 +667,6 @@ Global Income Intelligence Platform built with:
 • Plotly Visualization  
 • Power BI Integration
 """)
+
 
 
