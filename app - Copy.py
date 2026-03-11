@@ -1273,19 +1273,157 @@ elif menu=="🧠 Machine Learning Prediction":
 # AUTO ML
 # -------------------------------
 elif menu=="⚡ Auto ML Prediction":
-    st.title("Auto ML Model Selection")
-    target=st.selectbox("Target Variable",numeric_cols)
-    features=[c for c in numeric_cols if c!=target]
-    X=df[features]; y=df[target]
-    X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
-    models={"Linear Regression":LinearRegression(),"Decision Tree":DecisionTreeRegressor(),"Random Forest":RandomForestRegressor()}
-    results={}
-    for name,model in models.items():
-        model.fit(X_train,y_train)
-        pred=model.predict(X_test)
-        results[name]=r2_score(y_test,pred)
-    best=max(results,key=results.get)
-    st.success(f"Best Model: {best}"); st.write(results)
+
+    st.title("⚡ Advanced Auto ML Model Selection")
+
+    # Select target
+    target = st.selectbox("🎯 Select Target Variable", numeric_cols)
+
+    # Feature selection
+    features = [c for c in numeric_cols if c != target]
+
+    X = df[features]
+    y = df[target]
+
+    # Train test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Models
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Decision Tree": DecisionTreeRegressor(),
+        "Random Forest": RandomForestRegressor(),
+        "Gradient Boosting": GradientBoostingRegressor(),
+        "KNN": KNeighborsRegressor()
+    }
+
+    results = {}
+    predictions = {}
+
+    st.subheader("🤖 Training Models...")
+
+    for name, model in models.items():
+
+        model.fit(X_train, y_train)
+
+        pred = model.predict(X_test)
+
+        r2 = r2_score(y_test, pred)
+        mae = mean_absolute_error(y_test, pred)
+        rmse = np.sqrt(mean_squared_error(y_test, pred))
+
+        results[name] = {
+            "R2 Score": r2,
+            "MAE": mae,
+            "RMSE": rmse
+        }
+
+        predictions[name] = pred
+
+    results_df = pd.DataFrame(results).T
+
+    # -------------------------------
+    # BEST MODEL
+    # -------------------------------
+
+    best_model = results_df["R2 Score"].idxmax()
+
+    st.success(f"🏆 Best Model Selected: **{best_model}**")
+
+    # -------------------------------
+    # MODEL COMPARISON TABLE
+    # -------------------------------
+
+    st.subheader("📊 Model Performance Comparison")
+
+    st.dataframe(results_df.style.highlight_max(axis=0))
+
+    # -------------------------------
+    # MODEL PERFORMANCE CHART
+    # -------------------------------
+
+    st.subheader("📈 Model Comparison Chart")
+
+    fig = px.bar(
+        results_df,
+        y=results_df.index,
+        x="R2 Score",
+        orientation="h",
+        title="Model Accuracy Comparison"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # -------------------------------
+    # ACTUAL VS PREDICTED
+    # -------------------------------
+
+    st.subheader("📉 Actual vs Predicted (Best Model)")
+
+    best_pred = predictions[best_model]
+
+    fig2 = go.Figure()
+
+    fig2.add_trace(go.Scatter(
+        x=y_test,
+        y=best_pred,
+        mode="markers",
+        name="Predicted vs Actual"
+    ))
+
+    fig2.update_layout(
+        xaxis_title="Actual Values",
+        yaxis_title="Predicted Values",
+        title="Prediction Accuracy"
+    )
+
+    st.plotly_chart(fig2, use_container_width=True)
+
+    # -------------------------------
+    # FEATURE IMPORTANCE
+    # -------------------------------
+
+    if best_model in ["Decision Tree", "Random Forest", "Gradient Boosting"]:
+
+        st.subheader("🧠 Feature Importance")
+
+        model = models[best_model]
+
+        importance = model.feature_importances_
+
+        imp_df = pd.DataFrame({
+            "Feature": features,
+            "Importance": importance
+        }).sort_values("Importance", ascending=False)
+
+        fig3 = px.bar(
+            imp_df,
+            x="Importance",
+            y="Feature",
+            orientation="h",
+            title="Feature Importance"
+        )
+
+        st.plotly_chart(fig3, use_container_width=True)
+
+    # -------------------------------
+    # DOWNLOAD PREDICTIONS
+    # -------------------------------
+
+    st.subheader("📥 Download Predictions")
+
+    pred_df = pd.DataFrame({
+        "Actual": y_test,
+        "Predicted": best_pred
+    })
+
+    st.download_button(
+        "Download CSV",
+        pred_df.to_csv(index=False),
+        file_name="predictions.csv"
+    )
 
 # -------------------------------
 # TIME SERIES FORECASTING
@@ -1677,6 +1815,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
