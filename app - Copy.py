@@ -411,5 +411,4 @@ elif menu=="📄 Generate PDF Report":
             data=buffer,
             file_name="Global_Income_Report.pdf",
             mime="application/pdf"
-        )download_button("Download
-
+        )
