@@ -196,6 +196,84 @@ section[data-testid="stSidebar"] div[role="radiogroup"] > label[aria-checked="tr
 """, unsafe_allow_html=True)
 
 # -------------------------------
+# ADVANCED SIDEBAR EFFECTS
+# -------------------------------
+st.markdown("""
+<style>
+
+/* SIDEBAR BACKGROUND */
+section[data-testid="stSidebar"]{
+    background: linear-gradient(180deg,#020617,#0f172a,#020617);
+    border-right: 2px solid rgba(255,255,255,0.1);
+    animation: sidebarGlow 8s infinite alternate;
+}
+
+/* SIDEBAR GLOW ANIMATION */
+@keyframes sidebarGlow{
+    0%{box-shadow: 0 0 10px #6366f1}
+    50%{box-shadow: 0 0 25px #06b6d4}
+    100%{box-shadow: 0 0 10px #a855f7}
+}
+
+/* SIDEBAR TITLE */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3{
+    background: linear-gradient(90deg,#a78bfa,#06b6d4,#f59e0b);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    font-weight:900;
+}
+
+/* NAVIGATION ITEMS */
+section[data-testid="stSidebar"] div[role="radiogroup"] > label{
+    border-radius:14px;
+    padding:10px 14px;
+    margin-bottom:6px;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.03);
+}
+
+/* HOVER EFFECT */
+section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover{
+    transform: scale(1.08);
+    background: linear-gradient(90deg,#6366f1,#a855f7,#06b6d4);
+    color:#fff;
+    box-shadow:
+        0 0 10px #6366f1,
+        0 0 20px #06b6d4,
+        0 0 30px #a855f7;
+}
+
+/* ACTIVE SELECTED ITEM */
+section[data-testid="stSidebar"] div[role="radiogroup"] > label[aria-checked="true"]{
+    background: linear-gradient(90deg,#f59e0b,#22d3ee);
+    color:#fff;
+    font-weight:700;
+    border:2px solid #fff;
+    box-shadow:
+        0 0 12px #f59e0b,
+        0 0 25px #22d3ee;
+}
+
+/* SIDEBAR SECTION DIVIDER */
+.sidebar-section{
+    font-size:14px;
+    font-weight:700;
+    color:#94a3b8;
+    margin-top:20px;
+    margin-bottom:5px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    border-left:3px solid #6366f1;
+    padding-left:8px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# -------------------------------
 # LOAD DATA
 # -------------------------------
 @st.cache_data
@@ -3263,6 +3341,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
