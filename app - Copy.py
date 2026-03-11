@@ -420,21 +420,233 @@ elif menu=="🏠 Executive Dashboard":
 # DASHBOARD GUIDE
 # -------------------------------
 elif menu=="📘 Dashboard Guide":
+
     st.markdown("<div class='title'>Platform User Guide</div>",unsafe_allow_html=True)
+
     st.markdown("""
-### 🌍 Global Income Intelligence Platform Guide
-- **Executive Dashboard**: Dataset overview & KPIs  
-- **Power BI Dashboard**: Enterprise BI embed  
-- **Dataset Explorer**: Inspect columns, stats, missing values  
-- **Chart Explorer**: Histogram, Scatter, Heatmap etc.  
-- **AI Insights Generator**: Auto numeric stats  
-- **Country Analysis**: Filter & visualize by country  
-- **Global Map Visualization**: Interactive choropleth  
-- **Machine Learning Prediction**: Linear Regression  
-- **Auto ML Prediction**: Compare models  
-- **Time Series Forecasting**: Trend analysis  
-- **Generate PDF Report**: Download summary  
-- **FAQ & About**: Help & tech stack
+
+# 🌍 Global Income Intelligence Platform – Complete User Guide
+
+Welcome to the **Global Income Intelligence Platform**.  
+This dashboard is designed to help users explore global income distribution, analyze inequality trends, and generate insights using interactive visualizations and machine learning models.
+
+This guide explains each module of the platform and how to use them effectively.
+
+---
+
+# 1️⃣ Executive Dashboard
+
+The **Executive Dashboard** provides a high-level overview of the dataset.
+
+This section is designed for quick insights and decision-making. It summarizes the most important statistics from the dataset and presents them through key performance indicators (KPIs).
+
+Key elements available in this dashboard include:
+
+• Total number of records in the dataset  
+• Total number of countries included in the analysis  
+• Average Gini Index across all countries  
+• Average Inequality Index values  
+• Population statistics  
+
+These metrics help users quickly understand the scale and distribution of the dataset before diving deeper into detailed analysis.
+
+The Executive Dashboard acts as the **central overview panel** for the entire platform.
+
+---
+
+# 2️⃣ Power BI Dashboard
+
+This section embeds a professional **business intelligence dashboard**.
+
+It integrates an external enterprise visualization environment into the platform.
+
+Features of this module include:
+
+• Advanced interactive charts  
+• Drill-down analytics  
+• Pre-built business intelligence reports  
+• enterprise-level visual analytics  
+
+Users can interact with the embedded dashboard directly within the application.
+
+This module demonstrates how modern analytics platforms integrate with enterprise BI systems to deliver powerful data insights.
+
+---
+
+# 3️⃣ Dataset Explorer
+
+The **Dataset Explorer** allows users to inspect the raw dataset used in the platform.
+
+This module provides detailed access to the dataset structure and statistics.
+
+Users can:
+
+• View all dataset rows and columns  
+• Explore column types  
+• Analyze statistical summaries  
+• Identify missing values  
+• Understand variable distributions  
+
+This section is especially useful for:
+
+• data scientists  
+• analysts  
+• researchers  
+
+It allows them to understand the dataset before performing advanced analysis.
+
+---
+
+# 4️⃣ Chart Explorer
+
+The **Chart Explorer** is a dynamic visualization environment that allows users to generate interactive charts.
+
+Users can create various visualizations such as:
+
+• Histograms  
+• Scatter plots  
+• Line charts  
+• Box plots  
+• Heatmaps  
+
+These visualizations help users identify relationships between variables, detect patterns in income distribution, and uncover hidden insights in the data.
+
+The interactive nature of the charts allows users to zoom, filter, and hover over data points for additional information.
+
+---
+
+# 5️⃣ AI Insights Generator
+
+The **AI Insights Generator** automatically analyzes the dataset and generates statistical insights.
+
+Instead of manually calculating statistics, the platform automatically computes:
+
+• mean values  
+• standard deviation  
+• maximum values  
+• minimum values  
+• distribution ranges  
+
+These insights help users quickly understand the characteristics of each variable without performing manual calculations.
+
+This module acts as an **automated analytics assistant**.
+
+---
+
+# 6️⃣ Country Analysis
+
+The **Country Analysis module** allows users to explore inequality metrics for specific countries.
+
+Users can select a country and examine its economic indicators.
+
+This module helps answer questions such as:
+
+• Which countries have the highest income inequality?  
+• How does inequality vary across regions?  
+• What are the trends in a specific country?  
+
+Visual charts provide a clear representation of country-level inequality metrics.
+
+---
+
+# 7️⃣ Global Map Visualization
+
+This section displays a **global geographic visualization** of income distribution.
+
+Using a world map, users can analyze inequality indicators across different countries.
+
+Features include:
+
+• interactive world map  
+• color-coded inequality levels  
+• geographic comparison of income distribution  
+• quick identification of high and low inequality regions  
+
+This visualization provides a spatial understanding of economic inequality.
+
+---
+
+# 8️⃣ Machine Learning Prediction
+
+The **Machine Learning Prediction module** uses predictive analytics to estimate future values.
+
+The model uses historical data and applies **Linear Regression** to generate predictions.
+
+Users can input a year or variable and obtain predicted values for inequality indicators.
+
+This module demonstrates how machine learning can be applied to economic datasets.
+
+---
+
+# 9️⃣ Auto ML Prediction
+
+The **Auto ML Prediction system** compares multiple machine learning models to determine the best-performing model.
+
+Instead of manually selecting an algorithm, the system evaluates models such as:
+
+• Linear Regression  
+• Random Forest  
+• Decision Tree  
+
+The model with the highest performance is selected automatically.
+
+This feature improves prediction accuracy and simplifies the machine learning workflow.
+
+---
+
+# 🔟 Time Series Forecasting
+
+The **Time Series Forecasting module** analyzes historical trends in inequality metrics.
+
+By studying patterns over time, the system can forecast future trends.
+
+This helps answer questions such as:
+
+• Will inequality increase in the future?  
+• Are current trends improving or worsening?  
+• What are the long-term projections for income distribution?
+
+Forecasting charts visually represent predicted future trends.
+
+---
+
+# 1️⃣1️⃣ Generate PDF Report
+
+The **Report Generation module** allows users to export analytical results.
+
+Users can download a **PDF summary report** containing:
+
+• dataset statistics  
+• analytical insights  
+• summary metrics  
+
+This feature is useful for sharing insights with stakeholders, researchers, or policymakers.
+
+---
+
+# 1️⃣2️⃣ FAQ & About Section
+
+The **FAQ and About module** provides helpful information about the platform.
+
+It includes details such as:
+
+• project purpose  
+• technologies used  
+• data sources  
+• guidance for new users  
+
+This section ensures users understand how the platform works and how to use its features effectively.
+
+---
+
+# 🧠 Final Notes
+
+The **Global Income Intelligence Platform** combines modern data analytics tools with machine learning to create a powerful analytical environment.
+
+Through interactive dashboards, predictive analytics, and automated insights, users can better understand the complex issue of global income inequality.
+
+This platform demonstrates how data science and visualization technologies can transform raw data into meaningful insights.
+
 """,unsafe_allow_html=True)
 
 # -------------------------------
@@ -614,4 +826,5 @@ elif menu=="📄 Generate PDF Report":
             file_name="Global_Income_Report.pdf",
             mime="application/pdf"
         )
+
 
