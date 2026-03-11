@@ -1288,16 +1288,167 @@ elif menu=="⚡ Auto ML Prediction":
     st.success(f"Best Model: {best}"); st.write(results)
 
 # -------------------------------
-# TIME SERIES
+# TIME SERIES FORECASTING
 # -------------------------------
 elif menu=="⏳ Time Series Forecasting":
-    st.title("Time Series Analysis")
-    time_col=st.selectbox("Time Column",df.columns)
-    value_col=st.selectbox("Value Column",numeric_cols)
-    df_sorted=df.sort_values(time_col)
-    fig,ax=plt.subplots()
-    ax.plot(df_sorted[time_col],df_sorted[value_col])
-    st.pyplot(fig)
+
+    st.title("⏳ Advanced Time Series Analysis & Forecast")
+
+    time_col = st.selectbox("Time Column", df.columns)
+    value_col = st.selectbox("Value Column", numeric_cols)
+
+    # Sort data
+    df_sorted = df.sort_values(time_col)
+
+    # -------------------------------
+    # ACTUAL TREND
+    # -------------------------------
+
+    st.subheader("📈 Actual Time Series Trend")
+
+    fig = px.line(
+        df_sorted,
+        x=time_col,
+        y=value_col,
+        markers=True,
+        title="Actual Data Trend"
+    )
+
+    st.plotly_chart(fig,use_container_width=True)
+
+    # -------------------------------
+    # MOVING AVERAGE
+    # -------------------------------
+
+    st.subheader("📊 Moving Average Trend")
+
+    window = st.slider("Moving Average Window",2,10,3)
+
+    df_sorted["Moving_Avg"] = df_sorted[value_col].rolling(window).mean()
+
+    fig2 = px.line(
+        df_sorted,
+        x=time_col,
+        y=[value_col,"Moving_Avg"],
+        title="Actual vs Moving Average Trend"
+    )
+
+    st.plotly_chart(fig2,use_container_width=True)
+
+    # -------------------------------
+    # FORECAST MODEL
+    # -------------------------------
+
+    st.subheader("🧠 Forecast Prediction")
+
+    from sklearn.linear_model import LinearRegression
+    import numpy as np
+
+    # convert time column if needed
+    if not np.issubdtype(df_sorted[time_col].dtype, np.number):
+        df_sorted["time_numeric"] = np.arange(len(df_sorted))
+        X = df_sorted[["time_numeric"]]
+    else:
+        X = df_sorted[[time_col]]
+
+    y = df_sorted[value_col]
+
+    model = LinearRegression()
+    model.fit(X,y)
+
+    future_steps = st.slider("Forecast Steps",1,10,5)
+
+    last_val = X.iloc[-1,0]
+
+    future_x = np.arange(last_val+1,last_val+future_steps+1).reshape(-1,1)
+
+    forecast = model.predict(future_x)
+
+    future_df = pd.DataFrame({
+        time_col: future_x.flatten(),
+        "Forecast": forecast
+    })
+
+    # -------------------------------
+    # ACTUAL VS FORECAST
+    # -------------------------------
+
+    st.subheader("📉 Actual vs Forecast")
+
+    fig3 = go.Figure()
+
+    fig3.add_trace(go.Scatter(
+        x=df_sorted[time_col],
+        y=df_sorted[value_col],
+        mode="lines+markers",
+        name="Actual"
+    ))
+
+    fig3.add_trace(go.Scatter(
+        x=future_df[time_col],
+        y=future_df["Forecast"],
+        mode="lines+markers",
+        name="Forecast"
+    ))
+
+    fig3.update_layout(
+        title="Forecasted Future Trend",
+        xaxis_title=time_col,
+        yaxis_title=value_col
+    )
+
+    st.plotly_chart(fig3,use_container_width=True)
+
+    # -------------------------------
+    # CONFIDENCE BAND
+    # -------------------------------
+
+    st.subheader("📊 Forecast Confidence Range")
+
+    std = y.std()
+
+    upper = forecast + std
+    lower = forecast - std
+
+    fig4 = go.Figure()
+
+    fig4.add_trace(go.Scatter(
+        x=future_df[time_col],
+        y=upper,
+        line=dict(width=0),
+        showlegend=False
+    ))
+
+    fig4.add_trace(go.Scatter(
+        x=future_df[time_col],
+        y=lower,
+        fill='tonexty',
+        name="Confidence Interval"
+    ))
+
+    fig4.add_trace(go.Scatter(
+        x=future_df[time_col],
+        y=forecast,
+        mode="lines+markers",
+        name="Forecast"
+    ))
+
+    st.plotly_chart(fig4,use_container_width=True)
+
+    # -------------------------------
+    # TREND INSIGHT
+    # -------------------------------
+
+    st.subheader("📊 Automatic Trend Insight")
+
+    slope = model.coef_[0]
+
+    if slope > 0:
+        st.success("📈 The time series shows an upward trend.")
+    elif slope < 0:
+        st.warning("📉 The time series shows a downward trend.")
+    else:
+        st.info("➖ The time series appears stable.")
 
 # -------------------------------
 # PDF REPORT
@@ -1525,6 +1676,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
