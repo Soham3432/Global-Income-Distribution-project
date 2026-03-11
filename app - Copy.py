@@ -827,97 +827,210 @@ elif menu=="📄 Generate PDF Report":
             mime="application/pdf"
         )
 
-   # -------------------------------
-    # FAQ FEATURE
-    # -------------------------------
+# -------------------------------
+# FAQ PAGE
+# -------------------------------
 
-    st.subheader("❓ FAQ")
+elif menu == "❓ FAQ":
 
-    with st.expander("What is this platform used for?"):
+    st.markdown("<div class='title'>Frequently Asked Questions</div>", unsafe_allow_html=True)
+
+    st.markdown("""
+Welcome to the **FAQ section of the Global Income Intelligence Platform**.
+
+This page answers common questions users may have while exploring the dashboard.  
+It helps users understand how the platform works, how to interpret the analytics, and how to use the available tools effectively.
+""")
+
+    st.divider()
+
+    with st.expander("What is the purpose of this platform?"):
         st.write("""
-        This dashboard helps analyze **global income inequality** using
-        visual analytics, statistical insights, and machine learning models.
+        The platform was created to analyze **global income inequality** using modern data analytics tools.
+
+        It provides interactive dashboards that allow users to explore economic data, visualize inequality metrics,
+        analyze country-level trends, and generate predictive insights using machine learning models.
         """)
 
-    with st.expander("What dataset does the platform use?"):
+    with st.expander("What dataset is used in this project?"):
         st.write("""
-        The platform uses global income distribution datasets including
-        **Gini Index, Inequality Index, Population statistics, and Country data**.
+        The dashboard uses a global dataset containing information about income distribution across countries.
+
+        Key variables include:
+
+        • Country name  
+        • Year  
+        • Population statistics  
+        • Gini Index  
+        • Inequality Index  
+        • Income distribution indicators
         """)
 
-    with st.expander("What machine learning models are used?"):
+    with st.expander("What is the Gini Index?"):
         st.write("""
-        The dashboard uses models from Scikit-learn such as:
-        - Linear Regression
-        - Random Forest
-        - Decision Tree (Auto ML comparison)
+        The **Gini Index** is a widely used statistical measure of income inequality.
+
+        A value of:
+
+        • **0** represents perfect equality  
+        • **100** represents maximum inequality  
+
+        Countries with higher Gini Index values tend to have greater income disparity among citizens.
         """)
 
-    with st.expander("Can the dashboard forecast future inequality?"):
+    with st.expander("What technologies power this dashboard?"):
         st.write("""
-        Yes. The **Time Series Forecasting module** predicts future values
-        based on historical inequality data.
+        The platform is built using a modern data analytics stack:
+
+        • Python programming language  
+        • Streamlit for interactive dashboards  
+        • Pandas for data processing  
+        • Plotly for visualizations  
+        • Scikit-learn for machine learning  
+        • ReportLab for PDF report generation
+        """)
+
+    with st.expander("Can this dashboard predict future inequality?"):
+        st.write("""
+        Yes. The platform includes machine learning modules that perform:
+
+        • regression-based predictions  
+        • forecasting of future inequality values  
+        • trend analysis based on historical data
+
+        These predictions provide insights into potential future patterns in global income distribution.
         """)
 
     with st.expander("Who can use this platform?"):
         st.write("""
-        The platform is useful for:
+        The platform is useful for a wide range of users including:
 
-        • Data analysts  
-        • Economists  
-        • Researchers  
-        • Students studying data science  
-        • Policy makers analyzing economic inequality
+        • data analysts  
+        • economists  
+        • researchers  
+        • students studying data science or economics  
+        • policymakers evaluating economic inequality
         """)
 
     st.divider()
 
-    # -------------------------------
-    # ABOUT FEATURE
-    # -------------------------------
+    st.info("If you still have questions, explore the Dashboard Guide section or review the About page for additional details.")
 
-    st.subheader("ℹ About")
 
-    col1, col2 = st.columns(2)
+# -------------------------------
+# ABOUT PLATFORM
+# -------------------------------
 
-    with col1:
+elif menu == "ℹ About":
 
-        st.markdown("### Platform Information")
+    st.markdown("<div class='title'>About the Global Income Intelligence Platform</div>", unsafe_allow_html=True)
 
-        st.info("""
-        **Global Income Intelligence Platform**
+    st.markdown("""
 
-        An advanced analytics dashboard designed to visualize
-        global income distribution and inequality metrics.
-        """)
+## Project Overview
 
-        st.write("Version:", "1.0.0")
-        st.write("Project Type:", "Data Analytics Dashboard")
-        st.write("Category:", "Economic Data Analysis")
+The **Global Income Intelligence Platform** is an advanced data analytics dashboard designed to explore and analyze global income distribution patterns.
 
-    with col2:
+The platform integrates data visualization, statistical analysis, and machine learning models to transform complex economic datasets into meaningful insights.
 
-        st.markdown("### Technology Stack")
+Income inequality is a major global challenge that affects economic development, social stability, and policy decisions. This platform helps users understand these patterns by presenting data in an interactive and intuitive way.
 
-        st.success("""
-        **Core Technologies**
+---
 
-        • Python  
-        • Streamlit  
-        • Pandas  
-        • Plotly  
-        • Scikit-learn  
-        • Power BI (Embedded)
-        """)
+## Project Objectives
+
+The main objectives of this platform include:
+
+• Visualizing global income inequality  
+• Analyzing economic trends across countries  
+• Providing interactive data exploration tools  
+• Applying machine learning for predictive analytics  
+• Generating automated analytical insights  
+
+By combining these capabilities, the dashboard provides a powerful environment for exploring socioeconomic data.
+
+---
+
+## Key Features of the Platform
+
+The platform includes several advanced analytics modules:
+
+### Executive Dashboard
+Provides a high-level overview of dataset statistics and inequality metrics.
+
+### Dataset Explorer
+Allows users to inspect raw data and analyze column statistics.
+
+### Interactive Charts
+Supports dynamic visualizations such as scatter plots, histograms, and line charts.
+
+### Country Analysis
+Enables country-level exploration of inequality indicators.
+
+### Machine Learning Prediction
+Uses regression models to estimate inequality values based on historical data.
+
+### Forecasting Engine
+Analyzes time-series trends to project future inequality patterns.
+
+### Report Generation
+Allows users to export analytical results as downloadable PDF reports.
+
+---
+
+## Technology Stack
+
+This dashboard was developed using modern data science tools:
+
+• **Python** – core programming language  
+• **Streamlit** – dashboard development framework  
+• **Pandas** – data manipulation and analysis  
+• **Plotly** – interactive data visualizations  
+• **Scikit-learn** – machine learning algorithms  
+• **ReportLab** – PDF report generation  
+
+Together these tools enable the development of scalable and interactive analytics platforms.
+
+---
+
+## Target Users
+
+This platform can be used by:
+
+• economists studying income inequality  
+• researchers analyzing socioeconomic data  
+• students learning data science and analytics  
+• policymakers evaluating economic policies  
+• analysts exploring global datasets
+
+---
+
+## Future Enhancements
+
+Future improvements may include:
+
+• real-time economic data integration  
+• advanced machine learning forecasting models  
+• AI-powered insight generation  
+• interactive global 3D visualizations  
+• cloud-based deployment
+
+---
+
+## Project Summary
+
+The **Global Income Intelligence Platform** demonstrates how modern data analytics technologies can be applied to analyze complex global challenges such as income inequality.
+
+By combining visualization, machine learning, and interactive dashboards, the platform transforms raw data into meaningful insights that support research and decision-making.
+
+""")
 
     st.divider()
-
-    # Platform stats feature
-    st.subheader("📊 Platform Statistics")
 
     col1, col2, col3 = st.columns(3)
 
-    col1.metric("Dashboard Modules", "10+")
-    col2.metric("Visualizations", "15+")
-    col3.metric("ML Models", "3")
+    col1.metric("Platform Version", "1.0")
+    col2.metric("Dashboard Modules", "10+")
+    col3.metric("Visualization Types", "15+")
+       
 
