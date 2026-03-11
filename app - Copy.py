@@ -225,27 +225,152 @@ if not st.session_state.login:
     st.stop()
 
 # -------------------------------
-# SIDEBAR NAVIGATION
+# ULTRA ADVANCED SIDEBAR NAVIGATION
 # -------------------------------
-st.sidebar.title("Navigation")
-menu = st.sidebar.radio("Go To", [
-"🏠 Introduction",   
-"🏠 Executive Dashboard",
-"📘 Dashboard Guide",
-"📊 Power BI Dashboard",
-"🧾 Dataset Explorer",
-"📈 Chart Explorer",
-"🌐 Country Comparison",
-"🤖 AI Insights Generator",
-"🌍 Country Analysis",
-"🗺 Global Map Visualization",
-"🧠 Machine Learning Prediction",
-"⚡ Auto ML Prediction",
-"⏳ Time Series Forecasting",
-"📄 Generate PDF Report",
-"❓ FAQ",
-"ℹ About"
-])
+
+import streamlit as st
+
+# Logo / Header
+st.sidebar.markdown("## 🚀 Global Data Analytics Platform")
+st.sidebar.markdown("---")
+
+# Search dashboard
+search = st.sidebar.text_input("🔍 Search Dashboard")
+
+st.sidebar.markdown("---")
+
+# -------------------------------
+# MAIN NAVIGATION
+# -------------------------------
+
+nav_section = st.sidebar.selectbox(
+"📂 Select Module",
+[
+"Overview",
+"Dashboards",
+"Data Exploration",
+"AI Analytics",
+"Machine Learning",
+"Forecasting",
+"Reports",
+"Help"
+]
+)
+
+# -------------------------------
+# OVERVIEW
+# -------------------------------
+if nav_section == "Overview":
+
+    menu = st.sidebar.radio(
+    "Navigation",
+    [
+    "🏠 Introduction",
+    "🏠 Executive Dashboard"
+    ])
+
+# -------------------------------
+# DASHBOARDS
+# -------------------------------
+elif nav_section == "Dashboards":
+
+    menu = st.sidebar.radio(
+    "Dashboard Pages",
+    [
+    "📘 Dashboard Guide",
+    "📊 Power BI Dashboard"
+    ])
+
+# -------------------------------
+# DATA EXPLORATION
+# -------------------------------
+elif nav_section == "Data Exploration":
+
+    menu = st.sidebar.radio(
+    "Explore Data",
+    [
+    "🧾 Dataset Explorer",
+    "📈 Chart Explorer",
+    "🌐 Country Comparison",
+    "🌍 Country Analysis",
+    "🗺 Global Map Visualization"
+    ])
+
+# -------------------------------
+# AI ANALYTICS
+# -------------------------------
+elif nav_section == "AI Analytics":
+
+    menu = st.sidebar.radio(
+    "AI Tools",
+    [
+    "🤖 AI Insights Generator"
+    ])
+
+# -------------------------------
+# MACHINE LEARNING
+# -------------------------------
+elif nav_section == "Machine Learning":
+
+    menu = st.sidebar.radio(
+    "ML Models",
+    [
+    "🧠 Machine Learning Prediction",
+    "⚡ Auto ML Prediction"
+    ])
+
+# -------------------------------
+# FORECASTING
+# -------------------------------
+elif nav_section == "Forecasting":
+
+    menu = st.sidebar.radio(
+    "Forecasting Tools",
+    [
+    "⏳ Time Series Forecasting"
+    ])
+
+# -------------------------------
+# REPORTS
+# -------------------------------
+elif nav_section == "Reports":
+
+    menu = st.sidebar.radio(
+    "Reports",
+    [
+    "📄 Generate PDF Report"
+    ])
+
+# -------------------------------
+# HELP
+# -------------------------------
+elif nav_section == "Help":
+
+    menu = st.sidebar.radio(
+    "Help Center",
+    [
+    "❓ FAQ",
+    "ℹ About"
+    ])
+
+st.sidebar.markdown("---")
+
+# -------------------------------
+# QUICK STATS PANEL
+# -------------------------------
+st.sidebar.markdown("### 📊 Quick Stats")
+
+st.sidebar.metric("Countries", 180)
+st.sidebar.metric("Records", "1.2M")
+st.sidebar.metric("Models", 5)
+
+st.sidebar.markdown("---")
+
+# -------------------------------
+# THEME SWITCHER
+# -------------------------------
+theme = st.sidebar.toggle("🌙 Dark Mode", value=True)
+
 
 # -------------------------------
 # INTRODUCTION
@@ -2970,6 +3095,7 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
 
