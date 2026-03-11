@@ -5,8 +5,11 @@ plotly
 matplotlib
 seaborn
 scikit-learn
-reportlab
 shap
 prophet
 fpdf
+reportlab
 tensorflow
+sqlalchemy
+requests
+openai
