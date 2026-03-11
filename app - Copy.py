@@ -760,19 +760,6 @@ elif menu=="🌍 Country Analysis":
 
         st.divider()
 
-        # ---------------- BAR CHART ----------------
-
-        st.subheader("📊 Income Indicator Comparison")
-
-        fig1=px.bar(
-            filtered,
-            y=numeric_cols,
-            title="Country Indicator Comparison",
-            template="plotly_dark"
-        )
-
-        st.plotly_chart(fig1,use_container_width=True)
-
         # ---------------- LINE CHART ----------------
 
         year_cols=[c for c in df.columns if "year" in c.lower()]
@@ -1152,5 +1139,6 @@ By combining visualization, machine learning, and interactive dashboards, the pl
     col2.metric("Dashboard Modules", "10+")
     col3.metric("Visualization Types", "15+")
        
+
 
 
