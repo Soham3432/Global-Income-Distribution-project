@@ -609,7 +609,6 @@ with col1:
 with col2:
     st.metric("Models", 5)
 
-st.sidebar.metric("Dataset Records", "1.2M")
 
 st.sidebar.markdown("---")
 
