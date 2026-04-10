@@ -1,4 +1,4 @@
-# Global Income Intelligence Platform: Interactive Data Analytics and Machine Learning Dashboard
+# Global Income Intelligence Distribution Platform: Interactive Data Analytics With Power BI and Machine Learning Dashboard
 
 ## Overview
 
