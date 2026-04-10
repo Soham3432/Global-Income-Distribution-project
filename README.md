@@ -172,6 +172,11 @@ Created and developed by **[Your Name]**.
 
 ---
 
+## Web App Link
+
+Link:- https://global-income-distribution-project-4nyywmtrs38ed95pbcvhc4.streamlit.app/
+
+---
 ## License
 
 This project is for educational and portfolio purposes.
