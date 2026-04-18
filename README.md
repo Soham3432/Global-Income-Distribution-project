@@ -168,7 +168,7 @@ This project demonstrates my ability to build an end-to-end analytics platform b
 
 ## Author
 
-Created and developed by **[Your Name]**.
+Created and developed by **Soham Badgujar**.
 
 ---
 
